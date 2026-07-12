@@ -220,6 +220,12 @@
   .dock-go:active { transform: translate(2px, 2px); box-shadow: none; }
   .dock-go.cmp { background: var(--purple); }
   .dock-go.trip { background: var(--orange); }
+  .dock-x {
+    flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--ink); background: #fff; color: var(--ink-soft);
+    font-size: 11px; line-height: 1; cursor: pointer;
+  }
+  .dock-x:hover { background: var(--red); color: #fff; }
 
   /* ---- 弹层 ---- */
   .overlay {
@@ -440,11 +446,13 @@
     <span class="dock-label">⚖️ 对比</span>
     <div class="dock-items" id="cmpItems"></div>
     <button class="dock-go cmp" id="cmpGo">比一比</button>
+    <button class="dock-x" id="cmpClear" title="清空对比">✕</button>
   </div>
   <div class="dock-box" id="tripBox" style="display:none">
     <span class="dock-label">🧳 行程</span>
     <div class="dock-items" id="tripItems"></div>
     <button class="dock-go trip" id="tripGo">排行程</button>
+    <button class="dock-x" id="tripClear" title="清空行程">✕</button>
   </div>
 </div>
 
@@ -1140,6 +1148,8 @@ document.addEventListener("change", e => {
 
 document.getElementById("cmpGo").addEventListener("click", openCompare);
 document.getElementById("tripGo").addEventListener("click", openTrip);
+document.getElementById("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
+document.getElementById("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
 document.getElementById("fabGacha").addEventListener("click", openGacha);
 document.getElementById("gKnob").addEventListener("click", roll);
 document.getElementById("gDetailBtn").addEventListener("click", () => lastPick && openDetail(lastPick.id));
