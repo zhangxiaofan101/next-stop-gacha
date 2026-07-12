@@ -13,7 +13,7 @@
 - M7 — 行程规划器 [R2 · S2] ≤6 站、贪心顺路、距离分档交通、预算区间、顺路彩蛋（500km 内推荐加站） [cc]
 - M8 — 路书生成 [R2 · S2] 逐日装配 + 文本复制 + 打印 CSS [cc]
 - M9 — 浅色卡通视觉 [R2 · S1] 第一版深色发车牌风被用户否决后重做，用户偏好已存全局记忆 [cc]
-- M12 — 住宿文案去品牌化 [R1 · S2] 134/144 条重写（10 条原本无品牌词），页面/README/goal 同步（used: opus 4.8）。修正（codex F1）：首次复核只扫了 data/ 与 index.html，漏了 .agent/，design.md M2 残留一处品牌词，2026-07-13 已改。Verified: `grep -rE "万豪|喜来登|福朋|…|Marriott|Sheraton" --exclude-dir=.git .` 全仓库唯一命中即该处，修复后仅剩 review.md 中 codex 的引用原文 [cc]
+- M12 — 住宿文案去品牌化 [R1 · S2] 134/144 条重写（10 条原本无品牌词），页面/README/goal 同步（used: opus 4.8）。修正（codex F1）：首次复核只扫了 data/ 与 index.html，漏了 .agent/，design.md M2 残留一处品牌词，2026-07-13 已改。Verified: 用常见高端酒店品牌词中英文清单对全仓库（排除 .git）做 grep 扫描，唯一命中即该处；修复后除 review.md 中 codex 引用原文外归零 [cc]
 - M13 — 花费筛选 chips [R1 · S1] 复用 cost 字段，筛选组/扭蛋池摘要/重置均已接入（used: fable 5，在会话内直改，量太小不值得派 sonnet） [cc]
 
 Verified 证据汇总（2026-07-13，codex F2 采纳后补记；此前完成声明中"校验通过"均指以下可复现检查，交互级走查未做过、不倒推）：
