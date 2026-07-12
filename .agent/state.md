@@ -31,7 +31,7 @@
 ## 🟡 Pending decisions
 
 - 路书起点写死"上海"，是否要支持自选出发城市？（等用户表态） [cc]
-- Artifact 发布版与 repo 版是同一文件，后续改动是否每次都要同步 republish？（建议：是，跑完 build.py 顺手发） [cc]
+- index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
 ## ❌ Explicit non-goals
 
