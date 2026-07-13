@@ -50,6 +50,19 @@ for f in files:
             errors.append(f"{f}/{d.get('id')} 缺补丁(coords/hotel/local)")
     all_rows += [(f, d) for d in arr]
 
+city_ids = {d.get("id") for _, d in all_rows}
+
+# M18 线路卡：独立文件，记录自带全部字段（无需补丁），以 stops 字段区分于城市记录
+routes_path = os.path.join(DATA_DIR, "routes.json")
+if os.path.exists(routes_path):
+    try:
+        routes = json.load(open(routes_path))
+    except Exception as e:
+        errors.append(f"routes.json JSON 解析失败: {e}"); routes = []
+    if not isinstance(routes, list):
+        errors.append("routes.json 顶层不是数组"); routes = []
+    all_rows += [("routes.json", d) for d in routes]
+
 seen_id, seen_name = {}, {}
 for src, d in all_rows:
     tag = f"{src}/{d.get('id') if isinstance(d, dict) else '?'}"
@@ -89,6 +102,20 @@ for src, d in all_rows:
             or not all(isinstance(x, (int, float)) for x in c)
             or not (18 <= c[0] <= 54 and 73 <= c[1] <= 135)):
         errors.append(f"{tag} coords 非法: {c}")
+    # M18 线路卡：stops 字段存在即为线路卡，额外校验；regions 供多区域筛选，缺省时前端以 [region] 兜底
+    if "stops" in d:
+        st = d.get("stops")
+        if not isinstance(st, list) or not (2 <= len(st) <= 4):
+            errors.append(f"{tag} stops 长度非法(需 2~4): {st}")
+        else:
+            for s in st:
+                if not isinstance(s, dict) or not isinstance(s.get("id"), str) or not isinstance(s.get("days"), int):
+                    errors.append(f"{tag} stop 结构非法: {s}")
+                elif s["id"] not in city_ids:
+                    errors.append(f"{tag} stop 引用不存在的城市 id: {s['id']}")
+        rg = d.get("regions")
+        if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
+            errors.append(f"{tag} regions 非法: {rg}")
 
 if errors:
     print("== 校验错误 ==\n" + "\n".join(errors), file=sys.stderr)
