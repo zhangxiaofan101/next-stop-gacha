@@ -10,7 +10,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "hanzhong": {
     "coords": [
@@ -22,7 +23,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "tianshui": {
     "coords": [
@@ -34,7 +36,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "lanzhou": {
     "coords": [
@@ -46,7 +49,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "dunhuang": {
     "coords": [
@@ -59,7 +63,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "zhangye": {
     "coords": [
@@ -72,7 +77,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "jiayuguan": {
     "coords": [
@@ -84,7 +90,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "xining-qinghai-lake": {
     "coords": [
@@ -96,7 +103,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "直达"
   },
   "yinchuan": {
     "coords": [
@@ -108,7 +116,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "zhongwei-shapotou": {
     "coords": [
@@ -121,7 +130,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "ejina-huyanglin": {
     "coords": [
@@ -133,7 +143,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "yili": {
     "coords": [
@@ -146,7 +157,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "kashgar": {
     "coords": [
@@ -158,7 +170,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "altay": {
     "coords": [
@@ -171,7 +184,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "turpan": {
     "coords": [
@@ -183,7 +197,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "kuqa": {
     "coords": [
@@ -195,7 +210,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "gannan": {
     "coords": [
@@ -208,7 +224,8 @@
       "正常",
       "费腿"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "tashkurgan-pamir": {
     "coords": [
@@ -220,7 +237,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "折腾"
   },
   "duku-highway": {
     "coords": [
@@ -232,7 +250,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "bayanbulak": {
     "coords": [
@@ -244,7 +263,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "koktokay": {
     "coords": [
@@ -257,7 +277,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "tianshan-tianchi": {
     "coords": [
@@ -270,7 +291,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "tekes-kalajun": {
     "coords": [
@@ -283,7 +305,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "chaka-salt-lake": {
     "coords": [
@@ -296,7 +319,8 @@
       "躺平",
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "menyuan-rapeseed": {
     "coords": [
@@ -308,7 +332,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "daqaidam-emerald-lake": {
     "coords": [
@@ -321,7 +346,8 @@
       "躺平",
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "折腾"
   },
   "qilian-zhuoershan": {
     "coords": [
@@ -333,7 +359,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "折腾"
   },
   "guide-yellow-river": {
     "coords": [
@@ -345,7 +372,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "pingliang-kongtong": {
     "coords": [
@@ -358,6 +386,7 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   }
 }

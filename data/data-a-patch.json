@@ -10,7 +10,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "suzhou": {
     "coords": [
@@ -23,7 +24,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "nanjing": {
     "coords": [
@@ -35,7 +37,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "yangzhou": {
     "coords": [
@@ -48,7 +51,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "shaoxing": {
     "coords": [
@@ -61,7 +65,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "ningbo": {
     "coords": [
@@ -73,7 +78,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "moganshan": {
     "coords": [
@@ -87,7 +93,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "wuzhen-xitang": {
     "coords": [
@@ -100,7 +107,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "putuoshan": {
     "coords": [
@@ -113,7 +121,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "gouqi-island": {
     "coords": [
@@ -126,7 +135,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "dongji-island": {
     "coords": [
@@ -139,7 +149,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "linhai": {
     "coords": [
@@ -151,7 +162,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "shitang": {
     "coords": [
@@ -164,7 +176,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "nanxijiang": {
     "coords": [
@@ -178,7 +191,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "songyang": {
     "coords": [
@@ -190,7 +204,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "xiandu": {
     "coords": [
@@ -202,7 +217,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "quzhou": {
     "coords": [
@@ -215,7 +231,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "qiandaohu": {
     "coords": [
@@ -228,7 +245,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "tonglu": {
     "coords": [
@@ -241,7 +259,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "anji": {
     "coords": [
@@ -255,7 +274,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "tiantaishan": {
     "coords": [
@@ -268,7 +288,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "zhenjiang": {
     "coords": [
@@ -280,7 +301,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "wuxi": {
     "coords": [
@@ -293,7 +315,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "xuzhou": {
     "coords": [
@@ -305,7 +328,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "huaian": {
     "coords": [
@@ -317,7 +341,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "tiaozini": {
     "coords": [
@@ -329,7 +354,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "gaoyou": {
     "coords": [
@@ -342,7 +368,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "nanxun": {
     "coords": [
@@ -355,7 +382,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "xinghua": {
     "coords": [
@@ -368,7 +396,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "chongming": {
     "coords": [
@@ -381,7 +410,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "liyang-tianmuhu": {
     "coords": [
@@ -394,7 +424,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "yixing-shanjuandong": {
     "coords": [
@@ -407,7 +438,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "changshu-yushan": {
     "coords": [
@@ -420,7 +452,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "zhouzhuang-jinxi": {
     "coords": [
@@ -433,7 +466,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "nantong-langshan": {
     "coords": [
@@ -445,7 +479,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "lianyungang-huaguoshan": {
     "coords": [
@@ -459,7 +494,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "qinhu-wetland": {
     "coords": [
@@ -472,7 +508,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "taohuadao-zhujiajian": {
     "coords": [
@@ -486,7 +523,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "dongtou-island": {
     "coords": [
@@ -499,7 +537,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "shipu-xiangshan": {
     "coords": [
@@ -512,7 +551,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "xinye-jiande": {
     "coords": [
@@ -524,7 +564,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "hengdian-dongyang": {
     "coords": [
@@ -536,6 +577,7 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   }
 }

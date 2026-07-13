@@ -7,7 +7,8 @@
     "hotel": "高端连锁齐全，选择丰富，建议住春熙路或金融城一带",
     "local": "地铁+打车即可，三星堆有直通车",
     "effort": [],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "chongqing": {
     "coords": [
@@ -17,7 +18,8 @@
     "hotel": "解放碑有高端连锁，住解放碑一带看夜景最方便",
     "local": "轨道+打车，山城步行多备体力",
     "effort": [],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "leshan-emeishan": {
     "coords": [
@@ -29,7 +31,8 @@
     "effort": [
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "zigong": {
     "coords": [
@@ -41,7 +44,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "chuanxi-loop": {
     "coords": [
@@ -53,7 +57,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "折腾"
   },
   "daocheng-yading": {
     "coords": [
@@ -66,7 +71,8 @@
       "费腿",
       "硬核"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "jiuzhaigou-huanglong": {
     "coords": [
@@ -78,7 +84,8 @@
     "effort": [
       "费腿"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "siguniangshan-danba": {
     "coords": [
@@ -91,7 +98,8 @@
       "费腿",
       "硬核"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "折腾"
   },
   "kunming": {
     "coords": [
@@ -103,7 +111,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "dali": {
     "coords": [
@@ -116,7 +125,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "lijiang": {
     "coords": [
@@ -130,7 +140,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "shaxi": {
     "coords": [
@@ -143,7 +154,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "jianshui-mengzi": {
     "coords": [
@@ -155,7 +167,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "tengchong-heshun": {
     "coords": [
@@ -168,7 +181,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "xishuangbanna": {
     "coords": [
@@ -181,7 +195,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "shangrila": {
     "coords": [
@@ -193,7 +208,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "guiyang": {
     "coords": [
@@ -205,7 +221,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "libo-xiaoqikong": {
     "coords": [
@@ -217,7 +234,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "zhenyuan": {
     "coords": [
@@ -230,7 +248,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "zhaoxing": {
     "coords": [
@@ -243,7 +262,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "lhasa": {
     "coords": [
@@ -255,7 +275,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "linzhi": {
     "coords": [
@@ -267,7 +288,8 @@
     "effort": [
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "一次中转"
   },
   "luguhu": {
     "coords": [
@@ -280,7 +302,8 @@
       "躺平",
       "正常"
     ],
-    "alt": true
+    "alt": true,
+    "difficulty": "折腾"
   },
   "puzhehei": {
     "coords": [
@@ -293,7 +316,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "xingyi-wanfenglin": {
     "coords": [
@@ -306,7 +330,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "yuanyang-terrace": {
     "coords": [
@@ -318,7 +343,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "nuodeng": {
     "coords": [
@@ -330,7 +356,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "weishan": {
     "coords": [
@@ -342,7 +369,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "dongchuan-hongtudi": {
     "coords": [
@@ -354,7 +382,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "luoping": {
     "coords": [
@@ -366,7 +395,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "xijiang-miaozhai": {
     "coords": [
@@ -379,7 +409,8 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "fanjingshan": {
     "coords": [
@@ -391,7 +422,8 @@
     "effort": [
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "huangguoshu": {
     "coords": [
@@ -403,7 +435,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "jiabang-terrace": {
     "coords": [
@@ -415,7 +448,8 @@
     "effort": [
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "折腾"
   },
   "chishui": {
     "coords": [
@@ -428,7 +462,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   },
   "dujiangyan-qingcheng": {
     "coords": [
@@ -441,7 +476,8 @@
       "正常",
       "费腿"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "直达"
   },
   "langzhong": {
     "coords": [
@@ -454,6 +490,7 @@
       "躺平",
       "正常"
     ],
-    "alt": false
+    "alt": false,
+    "difficulty": "一次中转"
   }
 }
