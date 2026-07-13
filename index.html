@@ -541,6 +541,9 @@ const TAGS = ["美食", "博物馆", "古建筑", "古镇古村", "自然风光"
 const CROWD_CLASS = { "热门": "hot", "适中": "mid", "小众": "hid" };
 const SH = { name: "上海", coords: [31.23, 121.47] };
 const PER_DAY_COST = { "¥": 380, "¥¥": 680, "¥¥¥": 1150 };
+// 序数·容忍型筛选：点一档=天花板，自动含更省/更易达的所有低档（花费、抵达难度）。
+// 偏好型筛选（体力/冷热/地区/季节）不在此，走纯多选 OR。值按 低→高 排列。
+const CEIL_GROUPS = { cost: ["¥", "¥¥", "¥¥¥"] };
 
 const now = new Date();
 const CUR_SEASON = ["冬", "冬", "春", "春", "春", "夏", "夏", "夏", "秋", "秋", "秋", "冬"][now.getMonth()];
@@ -629,10 +632,20 @@ function buildConsole() {
     box.addEventListener("click", e => {
       const btn = e.target.closest(".chip");
       if (!btn) return;
-      const set = state[box.dataset.key];
+      const key = box.dataset.key;
+      const set = state[key];
       const v = btn.dataset.v;
-      set.has(v) ? set.delete(v) : set.add(v);
-      btn.classList.toggle("on");
+      const order = CEIL_GROUPS[key];
+      if (order) {
+        // 天花板型：点第 t 档 → 选中 0..t 全部；再点当前天花板则清空
+        const t = order.indexOf(v);
+        const curCeil = set.size ? Math.max(...[...set].map(x => order.indexOf(x))) : -1;
+        set.clear();
+        if (curCeil !== t) order.slice(0, t + 1).forEach(x => set.add(x));
+      } else {
+        set.has(v) ? set.delete(v) : set.add(v);
+      }
+      box.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", set.has(c.dataset.v)));
       render();
     });
   });
