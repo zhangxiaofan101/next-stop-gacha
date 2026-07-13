@@ -100,6 +100,10 @@
   .chip:hover { background: #fff6da; }
   .chip:active { transform: translate(2px, 2px); box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
   .chip.on { background: var(--blue); color: #fff; border-color: var(--ink); box-shadow: 2px 2px 0 rgba(46, 147, 212, .5); }
+  .chip i { font-style: normal; font-size: .78em; opacity: .5; margin-left: 3px; }
+  .chip.zero { opacity: .35; }
+  #relaxBox { display: flex; flex-direction: column; gap: 8px; align-items: center; margin: 12px 0; }
+  #gRelaxBtn { display: block; margin: 10px auto 0; }
   .chip:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
     outline: 3px solid var(--orange); outline-offset: 2px;
   }
@@ -432,7 +436,8 @@
     <div class="empty" id="empty">
       <div class="big">🏝️</div>
       <p>筛得太狠了，一个目的地都不剩……</p>
-      <button class="btn" onclick="resetFilters()">放宽条件</button>
+      <div id="relaxBox"></div>
+      <button class="btn" onclick="resetFilters()">全部清空重来</button>
     </div>
   </main>
 
@@ -473,6 +478,7 @@
         <div class="g-sub" id="gSub">转一下旋钮，命运发货</div>
       </div>
       <button class="g-knob" id="gKnob" title="扭一下">🎯</button>
+      <button class="btn" id="gRelaxBtn" style="display:none">松一个条件，再扭</button>
       <div class="g-actions">
         <button class="btn" id="gDetailBtn" style="display:none">看看这里 →</button>
         <button class="btn" id="gTripBtn" style="display:none">＋加入行程</button>
@@ -668,23 +674,96 @@ function resetFilters() {
 }
 
 /* ================= 过滤 & 排序 ================= */
-function filtered() {
-  let list = DATA.filter(d => {
-    if (state.onlyFav && !state.favs.includes(d.id)) return false;
-    if (state.region.size && !state.region.has(d.region)) return false;
-    if (state.season.size && !d.seasons.some(s => state.season.has(s))) return false;
-    if (state.days.size) {
-      if (!DAY_BUCKETS.some(b => state.days.has(b.key) && b.test(d.days))) return false;
-    }
-    if (state.crowd.size && !state.crowd.has(d.crowd)) return false;
-    if (state.cost.size && !state.cost.has(d.cost)) return false;
-    if (state.tags.size && ![...state.tags].every(t => d.tags.includes(t))) return false;
-    if (state.q) {
-      const hay = [d.name, d.province, d.tagline, ...d.tags, ...d.food, ...d.highlights, ...d.architecture, ...d.museums].join(" ").toLowerCase();
-      if (!hay.includes(state.q.toLowerCase())) return false;
-    }
-    return true;
+// 单条记录是否命中；okey/oset 可临时覆盖某一组条件（okey="q"/"onlyFav" 时表示清掉该项），
+// 供 chip 实时计数与空态定向放宽做"如果改这一个条件会怎样"的假设计算。
+function matchOne(d, okey, oset) {
+  const g = k => (k === okey ? oset : state[k]);
+  const q = okey === "q" ? "" : state.q;
+  const fav = okey === "onlyFav" ? false : state.onlyFav;
+  if (fav && !state.favs.includes(d.id)) return false;
+  if (g("region").size && !g("region").has(d.region)) return false;
+  if (g("season").size && !d.seasons.some(s => g("season").has(s))) return false;
+  if (g("days").size && !DAY_BUCKETS.some(b => g("days").has(b.key) && b.test(d.days))) return false;
+  if (g("crowd").size && !g("crowd").has(d.crowd)) return false;
+  if (g("cost").size && !g("cost").has(d.cost)) return false;
+  if (g("tags").size && ![...g("tags")].every(t => d.tags.includes(t))) return false;
+  if (q) {
+    const hay = [d.name, d.province, d.tagline, ...d.tags, ...d.food, ...d.highlights, ...d.architecture, ...d.museums].join(" ").toLowerCase();
+    if (!hay.includes(q.toLowerCase())) return false;
+  }
+  return true;
+}
+const countWith = (okey, oset) => DATA.reduce((n, d) => n + matchOne(d, okey, oset), 0);
+
+// 模拟点击某 chip 后该组的选中集（与真实点击逻辑一致：天花板组填充 {0..t}，其余 toggle）
+function simulateClick(key, v) {
+  const cur = state[key];
+  const next = new Set(cur);
+  const order = CEIL_GROUPS[key];
+  if (order) {
+    const t = order.indexOf(v);
+    const curCeil = cur.size ? Math.max(...[...cur].map(x => order.indexOf(x))) : -1;
+    next.clear();
+    if (curCeil !== t) order.slice(0, t + 1).forEach(x => next.add(x));
+  } else {
+    next.has(v) ? next.delete(v) : next.add(v);
+  }
+  return next;
+}
+
+// 每个未选 chip 标注"点下去还剩几个"，0 置灰；已选 chip 不标（点它是取消）
+function updateChipCounts() {
+  document.querySelectorAll("#console .chips").forEach(box => {
+    const key = box.dataset.key;
+    box.querySelectorAll(".chip").forEach(btn => {
+      const v = btn.dataset.v;
+      const on = state[key].has(v);
+      const n = on ? -1 : countWith(key, simulateClick(key, v));
+      let i = btn.querySelector("i");
+      if (!i) { i = document.createElement("i"); btn.appendChild(i); }
+      i.textContent = on ? "" : String(n);
+      btn.classList.toggle("zero", !on && n === 0);
+    });
   });
+}
+
+function syncChips() {
+  document.querySelectorAll("#console .chips").forEach(box => {
+    const set = state[box.dataset.key];
+    box.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", set.has(c.dataset.v)));
+  });
+}
+
+// 空池时的定向放宽候选：去掉单个玩法 tag / 放开整组 / 清搜索词 / 关只看收藏，按救回数降序
+const GROUP_NAMES = { region: "地区", season: "季节", days: "天数", crowd: "冷热", cost: "花费" };
+let relaxCands = [];
+function relaxCandidates() {
+  const cands = [];
+  [...state.tags].forEach(t => {
+    const s = new Set(state.tags); s.delete(t);
+    cands.push({ label: `去掉「${t}」`, n: countWith("tags", s), apply: () => state.tags.delete(t) });
+  });
+  Object.keys(GROUP_NAMES).forEach(k => {
+    if (state[k].size) cands.push({ label: `不限${GROUP_NAMES[k]}`, n: countWith(k, new Set()), apply: () => state[k].clear() });
+  });
+  if (state.q) cands.push({
+    label: `清掉搜索「${state.q}」`, n: countWith("q", null),
+    apply: () => { state.q = ""; document.getElementById("searchBox").value = ""; },
+  });
+  if (state.onlyFav) cands.push({
+    label: "不只看收藏", n: countWith("onlyFav", null),
+    apply: () => { state.onlyFav = false; document.getElementById("favToggle").classList.remove("on"); },
+  });
+  return cands.filter(c => c.n > 0).sort((a, b) => b.n - a.n);
+}
+function applyRelax(i) {
+  const c = relaxCands[i];
+  if (!c) return;
+  c.apply(); syncChips(); render();
+}
+
+function filtered() {
+  let list = DATA.filter(d => matchOne(d, null, null));
   const crowdRank = { "小众": 0, "适中": 1, "热门": 2 };
   if (state.sort === "hidden") list = [...list].sort((a, b) => crowdRank[a.crowd] - crowdRank[b.crowd]);
   if (state.sort === "hot") list = [...list].sort((a, b) => crowdRank[b.crowd] - crowdRank[a.crowd]);
@@ -736,6 +815,12 @@ function render() {
   document.getElementById("grid").innerHTML = list.map(cardHTML).join("");
   document.getElementById("empty").style.display = list.length ? "none" : "block";
   document.getElementById("hitCount").textContent = `命中 ${list.length} / ${DATA.length}`;
+  if (!list.length) {
+    relaxCands = relaxCandidates();
+    document.getElementById("relaxBox").innerHTML = relaxCands.slice(0, 3).map((c, i) =>
+      `<button class="btn relax" data-relax="${i}">${c.label} → 能救回 ${c.n} 个</button>`).join("");
+  }
+  updateChipCounts();
   renderDock();
 }
 
@@ -863,7 +948,12 @@ function openGacha() {
   document.getElementById("gachaScope").innerHTML =
     (parts.length ? `扭蛋池：<b>${parts.join(" · ")}</b>` : "扭蛋池：全国不限") + `｜共 <b>${pool.length}</b> 颗蛋`;
   document.getElementById("gCity").textContent = pool.length ? "？？？" : "空空如也";
-  document.getElementById("gSub").textContent = pool.length ? "转一下旋钮，命运发货" : "筛选太严了，回去放宽一点";
+  relaxCands = pool.length ? [] : relaxCandidates();
+  document.getElementById("gSub").textContent = pool.length ? "转一下旋钮，命运发货"
+    : (relaxCands.length ? `筛选太严了，${relaxCands[0].label}就有 ${relaxCands[0].n} 颗` : "筛选太严了，回去放宽一点");
+  const gr = document.getElementById("gRelaxBtn");
+  gr.style.display = !pool.length && relaxCands.length ? "" : "none";
+  if (relaxCands.length) gr.textContent = `${relaxCands[0].label}，再扭`;
   document.getElementById("gKnob").style.display = pool.length ? "" : "none";
   document.getElementById("gDetailBtn").style.display = "none";
   document.getElementById("gTripBtn").style.display = "none";
@@ -1165,6 +1255,11 @@ document.getElementById("cmpClear").addEventListener("click", () => { state.cmp 
 document.getElementById("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
 document.getElementById("fabGacha").addEventListener("click", openGacha);
 document.getElementById("gKnob").addEventListener("click", roll);
+document.getElementById("empty").addEventListener("click", e => {
+  const b = e.target.closest("[data-relax]");
+  if (b) applyRelax(+b.dataset.relax);
+});
+document.getElementById("gRelaxBtn").addEventListener("click", () => { applyRelax(0); openGacha(); });
 document.getElementById("gDetailBtn").addEventListener("click", () => lastPick && openDetail(lastPick.id));
 document.getElementById("gTripBtn").addEventListener("click", () => { if (lastPick) { if (!state.trip.some(t => t.id === lastPick.id)) toggleTrip(lastPick.id); else toast("已经在行程里啦"); } });
 document.getElementById("autoOrderBtn").addEventListener("click", autoOrder);
