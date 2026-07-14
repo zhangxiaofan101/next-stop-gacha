@@ -18,7 +18,8 @@ COSTS = {"¥", "¥¥", "¥¥¥"}
 TAGS = {"美食", "博物馆", "古建筑", "古镇古村", "自然风光", "海岛海滨", "徒步", "民俗非遗", "citywalk", "夜生活", "温泉", "滑雪", "沙漠", "草原", "摄影出片", "世界遗产", "边境风情", "亲子"}
 EFFORTS = {"躺平", "正常", "费腿", "硬核"}  # effort 可为空数组=通配
 DIFFICULTIES = {"直达", "一次中转", "折腾"}
-REQ = ["id", "name", "emoji", "province", "region", "crowd", "cost", "seasons", "seasonNote", "days", "transit", "tagline", "tags", "food", "museums", "architecture", "highlights", "plans", "coords", "hotel", "local", "effort", "alt", "difficulty"]
+COMPANIONS = {"带娃", "带爸妈", "独行", "情侣周末"}  # companions 可为空数组=通配；四档全打应写成空
+REQ = ["id", "name", "emoji", "province", "region", "crowd", "cost", "seasons", "seasonNote", "days", "transit", "tagline", "tags", "food", "museums", "architecture", "highlights", "plans", "coords", "hotel", "local", "effort", "alt", "difficulty", "companions"]
 
 files = [f"data-{c}.json" for c in "abcdef"]
 all_rows, errors, warnings = [], [], []
@@ -88,6 +89,8 @@ for src, d in all_rows:
     if not isinstance(ef, list) or any(x not in EFFORTS for x in ef) or len(set(ef)) != len(ef): errors.append(f"{tag} effort 非法: {ef}")
     if not isinstance(d.get("alt"), bool): errors.append(f"{tag} alt 非法: {d.get('alt')}")
     if d.get("difficulty") not in DIFFICULTIES: errors.append(f"{tag} difficulty 非法: {d.get('difficulty')}")
+    cp = d.get("companions")
+    if not isinstance(cp, list) or any(x not in COMPANIONS for x in cp) or len(set(cp)) != len(cp) or len(cp) >= 4: errors.append(f"{tag} companions 非法(四档全打应留空): {cp}")
     for k in ["food", "museums", "architecture", "highlights"]:
         if not isinstance(d.get(k), list): errors.append(f"{tag} {k} 不是数组")
     pl = d.get("plans")

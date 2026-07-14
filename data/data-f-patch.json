@@ -8,7 +8,8 @@
     "local": "地铁+打车即可，三星堆有直通车",
     "effort": [],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": []
   },
   "chongqing": {
     "coords": [
@@ -19,7 +20,8 @@
     "local": "轨道+打车，山城步行多备体力",
     "effort": [],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": []
   },
   "leshan-emeishan": {
     "coords": [
@@ -32,7 +34,10 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "zigong": {
     "coords": [
@@ -45,7 +50,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈"
+    ]
   },
   "chuanxi-loop": {
     "coords": [
@@ -58,7 +67,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "daocheng-yading": {
     "coords": [
@@ -72,7 +84,10 @@
       "硬核"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "jiuzhaigou-huanglong": {
     "coords": [
@@ -85,7 +100,12 @@
       "费腿"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "siguniangshan-danba": {
     "coords": [
@@ -99,7 +119,10 @@
       "硬核"
     ],
     "alt": true,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "kunming": {
     "coords": [
@@ -112,7 +135,12 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "dali": {
     "coords": [
@@ -126,7 +154,12 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "lijiang": {
     "coords": [
@@ -141,7 +174,12 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "shaxi": {
     "coords": [
@@ -155,7 +193,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "jianshui-mengzi": {
     "coords": [
@@ -168,7 +210,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "tengchong-heshun": {
     "coords": [
@@ -182,7 +228,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "xishuangbanna": {
     "coords": [
@@ -196,7 +246,12 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "shangrila": {
     "coords": [
@@ -209,7 +264,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "guiyang": {
     "coords": [
@@ -222,7 +280,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "libo-xiaoqikong": {
     "coords": [
@@ -235,7 +297,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈"
+    ]
   },
   "zhenyuan": {
     "coords": [
@@ -249,7 +315,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "zhaoxing": {
     "coords": [
@@ -263,7 +333,10 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "lhasa": {
     "coords": [
@@ -276,7 +349,11 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "linzhi": {
     "coords": [
@@ -289,7 +366,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "luguhu": {
     "coords": [
@@ -303,7 +383,11 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "puzhehei": {
     "coords": [
@@ -317,7 +401,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈"
+    ]
   },
   "xingyi-wanfenglin": {
     "coords": [
@@ -331,7 +419,11 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "yuanyang-terrace": {
     "coords": [
@@ -344,7 +436,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "nuodeng": {
     "coords": [
@@ -357,7 +452,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "weishan": {
     "coords": [
@@ -370,7 +468,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "dongchuan-hongtudi": {
     "coords": [
@@ -383,7 +485,12 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "luoping": {
     "coords": [
@@ -396,7 +503,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈"
+    ]
   },
   "xijiang-miaozhai": {
     "coords": [
@@ -410,7 +521,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "fanjingshan": {
     "coords": [
@@ -423,7 +538,10 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "huangguoshu": {
     "coords": [
@@ -436,7 +554,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "jiabang-terrace": {
     "coords": [
@@ -449,7 +571,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "chishui": {
     "coords": [
@@ -463,7 +588,10 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "dujiangyan-qingcheng": {
     "coords": [
@@ -477,7 +605,12 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "langzhong": {
     "coords": [
@@ -491,6 +624,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   }
 }

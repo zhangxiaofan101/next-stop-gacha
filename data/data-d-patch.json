@@ -11,7 +11,8 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": []
   },
   "hanzhong": {
     "coords": [
@@ -24,7 +25,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈"
+    ]
   },
   "tianshui": {
     "coords": [
@@ -37,7 +41,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "lanzhou": {
     "coords": [
@@ -50,7 +58,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "dunhuang": {
     "coords": [
@@ -64,7 +76,12 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "zhangye": {
     "coords": [
@@ -78,7 +95,11 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "jiayuguan": {
     "coords": [
@@ -91,7 +112,12 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "xining-qinghai-lake": {
     "coords": [
@@ -104,7 +130,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "独行"
+    ]
   },
   "yinchuan": {
     "coords": [
@@ -117,7 +146,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达"
+    "difficulty": "直达",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "zhongwei-shapotou": {
     "coords": [
@@ -131,7 +164,12 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "ejina-huyanglin": {
     "coords": [
@@ -144,7 +182,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "yili": {
     "coords": [
@@ -158,7 +200,11 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "kashgar": {
     "coords": [
@@ -171,7 +217,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "altay": {
     "coords": [
@@ -185,7 +235,11 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "turpan": {
     "coords": [
@@ -198,7 +252,12 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "kuqa": {
     "coords": [
@@ -211,7 +270,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "gannan": {
     "coords": [
@@ -225,7 +288,10 @@
       "费腿"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "独行"
+    ]
   },
   "tashkurgan-pamir": {
     "coords": [
@@ -238,7 +304,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "duku-highway": {
     "coords": [
@@ -251,7 +320,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "bayanbulak": {
     "coords": [
@@ -264,7 +336,10 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "koktokay": {
     "coords": [
@@ -278,7 +353,11 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "tianshan-tianchi": {
     "coords": [
@@ -292,7 +371,12 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "tekes-kalajun": {
     "coords": [
@@ -306,7 +390,11 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "chaka-salt-lake": {
     "coords": [
@@ -320,7 +408,12 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带娃",
+      "带爸妈",
+      "独行"
+    ]
   },
   "menyuan-rapeseed": {
     "coords": [
@@ -333,7 +426,11 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "daqaidam-emerald-lake": {
     "coords": [
@@ -347,7 +444,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "qilian-zhuoershan": {
     "coords": [
@@ -360,7 +460,10 @@
       "正常"
     ],
     "alt": true,
-    "difficulty": "折腾"
+    "difficulty": "折腾",
+    "companions": [
+      "独行"
+    ]
   },
   "guide-yellow-river": {
     "coords": [
@@ -373,7 +476,11 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   },
   "pingliang-kongtong": {
     "coords": [
@@ -387,6 +494,10 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转"
+    "difficulty": "一次中转",
+    "companions": [
+      "带爸妈",
+      "独行"
+    ]
   }
 }

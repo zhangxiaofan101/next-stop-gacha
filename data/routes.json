@@ -90,6 +90,10 @@
     "id": "dunhuang",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -182,6 +186,9 @@
     "id": "kuqa",
     "days": 2
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -271,6 +278,10 @@
     "id": "tekes-kalajun",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -357,6 +368,9 @@
     "id": "kuqa",
     "days": 2
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -448,6 +462,9 @@
     "id": "menyuan-rapeseed",
     "days": 1
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -534,6 +551,9 @@
     "id": "gannan",
     "days": 4
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -633,6 +653,10 @@
     "id": "datong",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -726,6 +750,10 @@
     "id": "yanji",
     "days": 1
    }
+  ],
+  "companions": [
+   "带娃",
+   "独行"
   ]
  },
  {
@@ -812,6 +840,10 @@
     "id": "aershan",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -909,6 +941,10 @@
     "id": "hangzhou",
     "days": 1
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1002,6 +1038,9 @@
     "id": "xiandu",
     "days": 1
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -1099,6 +1138,10 @@
     "id": "shexian",
     "days": 1
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1195,6 +1238,10 @@
     "id": "fujian-tulou",
     "days": 1
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1298,6 +1345,11 @@
     "id": "hongkong",
     "days": 2
    }
+  ],
+  "companions": [
+   "带娃",
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1385,6 +1437,10 @@
     "id": "huangyao",
     "days": 1
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1480,6 +1536,10 @@
     "id": "sanya",
     "days": 3
    }
+  ],
+  "companions": [
+   "带娃",
+   "带爸妈"
   ]
  },
  {
@@ -1575,6 +1635,10 @@
     "id": "sanqingshan",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1671,6 +1735,11 @@
     "id": "weihai",
     "days": 2
    }
+  ],
+  "companions": [
+   "带娃",
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -1760,6 +1829,9 @@
     "id": "daocheng-yading",
     "days": 3
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -1847,6 +1919,9 @@
     "id": "siguniangshan-danba",
     "days": 3
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -1942,6 +2017,9 @@
     "id": "lhasa",
     "days": 3
    }
+  ],
+  "companions": [
+   "独行"
   ]
  },
  {
@@ -2037,6 +2115,10 @@
     "id": "lijiang",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -2131,6 +2213,10 @@
     "id": "jiabang-terrace",
     "days": 1
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -2225,6 +2311,10 @@
     "id": "chishui",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -2317,6 +2407,10 @@
     "id": "fenghuang",
     "days": 1
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -2411,6 +2505,10 @@
     "id": "kaifeng",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  },
  {
@@ -2503,6 +2601,10 @@
     "id": "wudangshan",
     "days": 2
    }
+  ],
+  "companions": [
+   "带爸妈",
+   "独行"
   ]
  }
 ]
