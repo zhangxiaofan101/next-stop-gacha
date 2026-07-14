@@ -52,6 +52,7 @@ for f in files:
     all_rows += [(f, d) for d in arr]
 
 city_ids = {d.get("id") for _, d in all_rows}
+city_by_id = {d.get("id"): d for _, d in all_rows}
 
 # M18 线路卡：独立文件，记录自带全部字段（无需补丁），以 stops 字段区分于城市记录
 routes_path = os.path.join(DATA_DIR, "routes.json")
@@ -116,6 +117,23 @@ for src, d in all_rows:
                     errors.append(f"{tag} stop 结构非法: {s}")
                 elif s["id"] not in city_ids:
                     errors.append(f"{tag} stop 引用不存在的城市 id: {s['id']}")
+            ok = [s for s in st if isinstance(s, dict) and isinstance(s.get("days"), int) and s.get("id") in city_ids]
+            if len(ok) == len(st):
+                sids = [s["id"] for s in st]
+                if len(set(sids)) != len(sids):
+                    errors.append(f"{tag} stops 内有重复站点: {sids}")
+                for s in st:
+                    cmax = max(city_by_id[s["id"]]["days"])
+                    if not (1 <= s["days"] <= cmax):
+                        errors.append(f"{tag} stop {s['id']} 建议天数 {s['days']} 越界(1~{cmax})")
+                # 单一天数分配是事实真相；days 枚举是筛选档位，须包住合计（min ≤ Σstop.days ≤ max）
+                sm = sum(s["days"] for s in st)
+                dy = d.get("days")
+                if isinstance(dy, list) and dy and not (min(dy) <= sm <= max(dy)):
+                    errors.append(f"{tag} 站点天数合计 {sm} 不在 days 档位区间 [{min(dy)},{max(dy)}]")
+                # 高海拔保守口径：任一停留站 alt=true，线路必须 alt=true
+                if any(city_by_id[s["id"]].get("alt") for s in st) and not d.get("alt"):
+                    errors.append(f"{tag} 途经高海拔站点但线路 alt=false（健康警示需保守）")
         rg = d.get("regions")
         if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
             errors.append(f"{tag} regions 非法: {rg}")
@@ -146,5 +164,6 @@ open(HTML, "w", encoding="utf-8").write(html)
 by_region = {}
 for d in merged:
     by_region[d["region"]] = by_region.get(d["region"], 0) + 1
-print(f"OK: 共 {len(merged)} 个目的地，已注入 index.html ({len(html.encode('utf-8'))//1024}KB)")
+n_routes = sum(1 for d in merged if "stops" in d)
+print(f"OK: {len(merged) - n_routes} 个目的地 + {n_routes} 条线路（共 {len(merged)} 条），已注入 index.html ({len(html.encode('utf-8'))//1024}KB)")
 print("  ".join(f"{k}:{v}" for k, v in by_region.items()))
