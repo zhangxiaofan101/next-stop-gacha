@@ -614,6 +614,9 @@ function legInfo(a, b) {
   return { km: straight, mode, icon, hours: Math.round(hours * 10) / 10 };
 }
 const fmtH = h => h >= 1 ? `约${h}h` : `约${Math.round(h * 60)}分钟`;
+// 玩法节奏小清单：路线型目的地（玩法主体=沿线移动、按晚换落脚点），路书住宿建议按段订房。
+// 从严收录——单基地+一晚特色住宿（林芝/神农架/漠河）与双基地（乐山峨眉/晋东南）不算路线型。
+const ROUTE_STAY = new Set(["duku-highway", "chuanxi-loop", "xining-qinghai-lake", "hulunbuir", "gannan", "yili", "siguniangshan-danba", "altay"]);
 
 /* ================= 筛选面板 ================= */
 function buildConsole() {
@@ -1208,6 +1211,7 @@ function roadbookHTML() {
       <div class="rb-facts">
         <span><b>🍜 别错过：</b>${it.d.food.slice(0, 4).join("、")}</span>
         ${it.d.highlights.length ? `<span><b>✨ 特色：</b>${it.d.highlights.slice(0, 2).join("；")}</span>` : ""}
+        ${ROUTE_STAY.has(it.d.id) ? `<span><b>🧭 节奏：</b>路线型玩法，沿线多点换宿——按每晚落脚点分段订房，不必全程订一处</span>` : ""}
         <span><b>🏨 住宿：</b>${it.d.hotel || "以酒店 App 实查为准"}</span>
         <span><b>🚌 市内：</b>${it.d.local || "打车/公共交通"}</span>
         <span><b>🌤 季节：</b>${it.d.seasonNote}</span>
@@ -1236,6 +1240,7 @@ function roadbookText() {
     s += `D${it.start}${it.end > it.start ? "–D" + it.end : ""} ${it.d.name}（${it.d.chosenDays}天 · ${it.plan.title}）\n`;
     s += `  行程：${it.plan.route}\n`;
     s += `  美食：${it.d.food.slice(0, 4).join("、")}\n`;
+    if (ROUTE_STAY.has(it.d.id)) s += `  节奏：路线型玩法，沿线多点换宿（按每晚落脚点分段订房）\n`;
     s += `  住宿：${it.d.hotel || "以酒店App实查为准"}\n`;
     s += `  市内：${it.d.local || "打车/公共交通"}\n\n`;
     if (it.legOut) s += `【${it.d.name} → 上海】${it.legOut.mode} ${fmtH(it.legOut.hours)}（约${it.legOut.km}km）\n\n`;
