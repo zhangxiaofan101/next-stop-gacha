@@ -209,7 +209,7 @@
   }
   .dock.show { display: flex; }
   .dock-box {
-    display: flex; gap: 8px; align-items: center; background: var(--paper);
+    display: flex; gap: 8px; align-items: center; background: #fff6de;
     border: 2.5px solid var(--ink); border-radius: 16px; padding: 8px 12px;
     box-shadow: 4px 5px 0 rgba(51, 54, 73, .25);
   }
@@ -219,7 +219,6 @@
     font-size: 12px; font-family: inherit; color: inherit; background: #f3f9ff; border: 1.5px solid var(--ink); border-radius: 999px;
     padding: 1px 9px; cursor: pointer; white-space: nowrap;
   }
-  .dock-hint { font-size: 12px; color: var(--ink-soft); white-space: nowrap; padding: 2px 0; }
   .dock-chip:hover { background: #ffe3e2; text-decoration: line-through; }
   .dock-go {
     font-family: var(--round); font-size: 13px; color: #fff; border: 2px solid var(--ink); border-radius: 12px;
@@ -242,6 +241,7 @@
     overflow-y: auto; padding: 4vh 16px 60px;
   }
   .overlay.show { display: block; }
+  #detailOverlay { z-index: 55; } /* 详情可从扭蛋结果打开，须压在扭蛋层（50）之上 */
   .sheet { max-width: 760px; margin: 0 auto; position: relative; animation: pop .28s ease; }
   .sheet-close {
     position: absolute; top: -14px; right: -8px; z-index: 2;
@@ -909,19 +909,18 @@ function addRouteToTrip(routeId) {
   else toast(`已把「${route.name}」整条装入行程（${added} 站）`);
 }
 
-// dock 常驻（M19/codex F5）：空态也显示，给引导文案与计数 0；清空 ✕ 仅在有内容时出现
+// dock 有内容才显示（2026-07-14 用户真机使用后否决空态常驻方案，回退隐藏；显示时奶油底色与白色页面区分）
 function renderDock() {
-  document.getElementById("cmpBox").style.display = "flex";
-  document.getElementById("tripBox").style.display = "flex";
-  document.getElementById("dock").classList.add("show");
-  document.getElementById("cmpClear").style.display = state.cmp.length ? "" : "none";
-  document.getElementById("tripClear").style.display = state.trip.length ? "" : "none";
-  document.getElementById("cmpItems").innerHTML = state.cmp.length ? state.cmp.map(id => {
+  const hasCmp = state.cmp.length > 0, hasTrip = state.trip.length > 0;
+  document.getElementById("dock").classList.toggle("show", hasCmp || hasTrip);
+  document.getElementById("cmpBox").style.display = hasCmp ? "flex" : "none";
+  document.getElementById("tripBox").style.display = hasTrip ? "flex" : "none";
+  document.getElementById("cmpItems").innerHTML = state.cmp.map(id => {
     const d = byId(id); return `<button class="dock-chip" data-rmcmp="${id}" aria-label="从对比中移除${d.name}">${d.emoji}${d.name} ✕</button>`;
-  }).join("") : `<span class="dock-hint">0 个 · 点卡片上的「⚖️ 对比」挑几个来比</span>`;
-  document.getElementById("tripItems").innerHTML = state.trip.length ? state.trip.map(t => {
+  }).join("");
+  document.getElementById("tripItems").innerHTML = state.trip.map(t => {
     const d = byId(t.id); return `<button class="dock-chip" data-rmtrip="${t.id}" aria-label="从行程中移除${d.name}">${d.emoji}${d.name} ✕</button>`;
-  }).join("") : `<span class="dock-hint">0 站 · 点「🧳 行程」把想去的串起来</span>`;
+  }).join("");
 }
 
 /* ================= 详情 ================= */
