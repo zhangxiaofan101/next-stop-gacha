@@ -19,6 +19,9 @@ TAGS = {"美食", "博物馆", "古建筑", "古镇古村", "自然风光", "海
 EFFORTS = {"躺平", "正常", "费腿", "硬核"}  # effort 可为空数组=通配
 DIFFICULTIES = {"直达", "一次中转", "折腾"}
 COMPANIONS = {"带娃", "带爸妈", "独行", "情侣周末"}  # companions 可为空数组=通配；四档全打应写成空
+# F24 人工海拔断言清单：标准行程方案实际到达 2500m+ 的记录（马牙山/北台/金顶/神农顶/长白山天池），
+# alt 必须为 true。文本审计只能提示，这份清单是硬回归钉子——新增此类记录时人工补录。
+ALT_TRUE_PIN = {"tianshan-tianchi", "wutaishan", "leshan-emeishan", "shennongjia", "changbaishan"}
 REQ = ["id", "name", "emoji", "province", "region", "crowd", "cost", "seasons", "seasonNote", "days", "transit", "tagline", "tags", "food", "museums", "architecture", "highlights", "plans", "coords", "hotel", "local", "effort", "alt", "difficulty", "companions"]
 
 files = [f"data-{c}.json" for c in "abcdef"]
@@ -89,6 +92,8 @@ for src, d in all_rows:
     ef = d.get("effort")
     if not isinstance(ef, list) or any(x not in EFFORTS for x in ef) or len(set(ef)) != len(ef): errors.append(f"{tag} effort 非法: {ef}")
     if not isinstance(d.get("alt"), bool): errors.append(f"{tag} alt 非法: {d.get('alt')}")
+    if d.get("id") in ALT_TRUE_PIN and d.get("alt") is not True:
+        errors.append(f"{tag} 在人工海拔断言清单（标准方案到 2500m+），alt 必须为 true（F24）")
     if d.get("difficulty") not in DIFFICULTIES: errors.append(f"{tag} difficulty 非法: {d.get('difficulty')}")
     cp = d.get("companions")
     if not isinstance(cp, list) or any(x not in COMPANIONS for x in cp) or len(set(cp)) != len(cp) or len(cp) >= 4: errors.append(f"{tag} companions 非法(四档全打应留空): {cp}")
@@ -112,6 +117,13 @@ for src, d in all_rows:
             or not all(isinstance(x, (int, float)) for x in c)
             or not (18 <= c[0] <= 54 and 73 <= c[1] <= 135)):
         errors.append(f"{tag} coords 非法: {c}")
+    # F22/F24：海拔风险常在路上或山顶（垭口/达坂/北台/金顶），代理字段可能漏判。文本出现明确高海拔
+    # 信号却 alt=false 时给非阻塞警告——城市卡与线路卡都查（原只查线路，F24 后泛化）；不从自由文本硬判。
+    if not d.get("alt"):
+        blob = " ".join([d.get("seasonNote", ""), d.get("tagline", "")] + d.get("highlights", [])
+                        + [p.get("route", "") for p in (d.get("plans") or []) if isinstance(p, dict)])
+        if re.search(r"达坂|垭口|海拔\s*[3-5]\d{3}|[3-5]\d{3}\s*[m米]", blob):
+            warnings.append(f"{tag} 文本含高海拔信号（达坂/垭口/3000m+）但 alt=false，请人工复核是否应示警")
     # M18 线路卡：stops 字段存在即为线路卡，额外校验；regions 供多区域筛选，缺省时前端以 [region] 兜底
     if "stops" in d:
         # F8：线路名不得带日数——事实天数由 stops 分配决定，名称写死日数必然漂移
@@ -158,13 +170,17 @@ for src, d in all_rows:
                 for dv in dy:
                     if not (lo <= dv <= hi):
                         errors.append(f"{tag} days 档 {dv} 在行程单不可达（可达区间 [{lo},{hi}]）")
-        # F22：线路的海拔风险常在路上（翻垭口/达坂），代理停留站可能都 alt=false 而漏判。文本出现明确高海拔
-        # 信号却 alt=false 时给非阻塞警告（不从自由文本硬判，只提示人工复核）；与上面 schema 校验平行、不吞其缩进。
-        if "stops" in d and not d.get("alt"):
-            blob = " ".join([d.get("seasonNote", ""), d.get("tagline", "")]
-                            + d.get("highlights", []) + [p.get("route", "") for p in (d.get("plans") or [])])
-            if re.search(r"达坂|垭口|海拔\s*[3-5]\d{3}|[3-5]\d{3}\s*m", blob):
-                warnings.append(f"{tag} 文本含高海拔信号（达坂/垭口/3000m+）但 alt=false，请人工复核是否应示警")
+                # F26：plan 文本叙事顺序不得与 stops 逆行（曾出现 5 日版整条倒着走）。只查名字段出现的站，
+                # 漏站无法从自由文本可靠判定（海拉尔≠呼伦贝尔），覆盖性靠人工评审。非阻塞警告。
+                for p2 in (d.get("plans") or []):
+                    rt = p2.get("route", "") if isinstance(p2, dict) else ""
+                    pos = []
+                    for s in st:
+                        segs = [x for x in re.split(r"[·\s]+", city_by_id[s["id"]]["name"]) if x]
+                        found = [rt.find(x) for x in segs if rt.find(x) >= 0]
+                        if found: pos.append(min(found))
+                    if pos != sorted(pos):
+                        warnings.append(f"{tag} plan {p2.get('days')}天 文本站点顺序与 stops 不一致，请人工复核（F26）")
         rg = d.get("regions")
         if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
             errors.append(f"{tag} regions 非法: {rg}")

@@ -161,7 +161,7 @@
       "费腿",
       "硬核"
     ],
-    "alt": false,
+    "alt": true,
     "difficulty": "一次中转",
     "companions": [
       "带爸妈",
@@ -217,7 +217,7 @@
       "正常",
       "费腿"
     ],
-    "alt": false,
+    "alt": true,
     "difficulty": "直达",
     "companions": [
       "带娃",
