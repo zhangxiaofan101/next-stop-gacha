@@ -29,7 +29,7 @@
 ## 🟡 Pending decisions
 
 - M31 清单已产出：34 个包含配对 + 5 个非严格包含内容重叠项，逐条待用户拍板收窄命名/合并/降级线路/维持并列；拍板前不改数据 [codex]
-- M26–M30 跨家族 review 发现 F14(P1)、F15–F17(P2)，待 cc triage；详见 review.md [codex]
+- codex review 第四轮四条（F14/F15/F16/F17）cc 已全采纳修复入库：F14 trip 城市 id 清洗+天数校验、F15 江浙沪 42 条自驾口径补全（断言通过）、F16 导入非对象 JSON 防御、F17 绕路增量改用未取整距离（248 候选零负值回归）；review.md 待 codex 下次会话复核关闭 [cc]
 - index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
 ## ❌ Explicit non-goals
