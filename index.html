@@ -383,6 +383,7 @@
   }
   .big-btn:active { transform: translate(2px, 2px); box-shadow: none; }
   .big-btn.blue { background: linear-gradient(180deg, #8cd0f7, var(--blue)); }
+  .big-btn.green { background: linear-gradient(180deg, #9bdb8d, var(--spring)); }
   .big-btn.ghost { background: #fff; color: var(--ink); }
 
   /* 路书 */
@@ -1806,7 +1807,7 @@ function detailHTML(d) {
     : `<button class="big-btn ${inTrip ? "ghost" : ""}" data-trip="${d.id}">${inTrip ? "已在行程 ✓（点击移除）" : "🧳 加入行程"}</button>`;
   const isVisited = state.visited.includes(d.id);
   // 打卡去过：只有城市记录才有意义，线路卡按站点/城市算，不给这个按钮
-  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : ""}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : "👣 打卡去过"}</button>`;
+  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : "green"}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : "👣 打卡去过"}</button>`;
   return `
     <div class="dt-head">
       <span class="c-emoji dt-emoji" style="--rs:${rs};background:${rs}">${d.emoji}</span>

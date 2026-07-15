@@ -6,6 +6,7 @@
 
 （Phase 1 已封板 → 见 🪦 墓碑；M1–M25 全部条目与 Verified 证据明细在 git 历史（至 176512d）；新模块自 M26 起编号） [cc]
 
+- M32 — 详情页大按钮撞色修复 [R0 · S1] · cc in-session ｜ 2026-07-16 用户反馈「打卡去过和加入行程同色怪怪的」：打卡按钮新增 `big-btn.green`（--spring 绿渐变，足迹语义），与行程橙、对比蓝三色区分；已打卡仍转 ghost 弱化、取消恢复绿 ｜ Verified: 浏览器断言三按钮 computed background 各异 + 打卡/取消类切换正确 + 截图目检卡通风格一致；build 两跑幂等 [cc]
 - M27 — 行程单站点行移动端适配 [R1 · S1] · cc in-session ｜ Verified: Chrome 注入等效窄屏规则截图——站名整行、控件组第二行缩进（真机 680px 断点由用户手机复验） [cc]
 - M28 — 顺路彩蛋真顺路化 [R2 · S2] · cc in-session ｜ Verified: 杭州+黄山行程彩蛋推莫干山/安吉/南浔 +绕1km（莫干山确在黄山→上海返程直线上，插入位置=几何最优）；线路卡不入候选、insertOnWay 拒线路 id、6 站上限保持 [cc]
 - M29 — 路书逐日骨架 + 每晚落脚点 [R2 · S2] · 代码 cc，stays 数据 sonnet · medium 起草 + cc 复核（青甘大环线敦煌×2、伊犁十日分晚等主观点已核，标准节奏）｜ Verified: 独库3天+伊犁5天行程文本导出逐日行「20260707 D1 上海→独库公路（飞机 约8h），进线到那拉提 宿那拉提」全链正确；末日「当晚到家」；出发日期 localStorage 回环+垃圾输入拒绝；build 校验 stays 长度==days 两跑幂等 [cc]
@@ -23,6 +24,8 @@
 ## 🔜 Next batch
 
 （三期 M26–M31 已全部完成；M26–M30 跨家族 review 新发现 F14–F17，先 triage，不开下一实现批次。） [codex]
+
+- M33 — 内容扩容二期调研 [R2 · S2] · **已派活 codex**（2026-07-16 用户：新城市不强求、知名环线/多城线路尽量全覆盖）：brief 见 `.agent/m33-expansion-brief.md`——M31 模式只出清单+证据不改数据，含线路 schema 硬约束（stops 2~4、F8 可达档、alt 保守、leg 判断）、城市卡并列原则、路线型 6 张迁移义务、红线与交付格式；产出 `m33-expansion-survey.md` 后用户拍板、cc 执行写数据 [cc]
 
 ## ⏭ P1
 
