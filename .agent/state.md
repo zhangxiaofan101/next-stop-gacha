@@ -12,6 +12,7 @@
 - M30 — 江浙沪自驾 [R1 · S2] · legInfo 代码 cc；30 条 transit 文案 sonnet · low + cc 复核（7 条过保守时长收紧：徐州8→7h、连云港7.5→6.5h 等）｜ Verified: 沪杭段（208km）标注从「高铁」变「高铁/自驾」；杭州→黄山（皖）不受影响；build 幂等通过 [cc]
 - M26 — 打卡/收藏跨设备分享备份 [R2 · S2] · UI/hash 合并/JSON cc；QR 编码器 sonnet · high（629 行零依赖 ISO 18004 实现）｜ Verified: 编码器与 python-qrcode 逐位交叉验证 6 组向量全一致（v1~v40，含 2331 字节 V40-M 容量边界与中文 UTF-8）+ 浏览器端真实迁移链接矩阵哈希与 python 参考一致（v5/mask2/hash 1967235024）；hash 导入确认条（并集合并、favs 收线路 id、visited 拒线路 id、垃圾 id 过滤、去重、导入后清 hash、hashchange 同页触发）与 JSON 导入导出全部浏览器断言通过；二维码默认收起、点开 230px；超 1200 字符降级提示走 JSON [cc]
 - M31 — 城市卡包含关系排查 [R2 · S2] · codex 主审 + 2 个 GPT 只读分片复核｜产出 `.agent/m31-containment.md`：全量覆盖 249 城，确认 34 个包含配对（25 行政/地理 + 9 城市文件伪线路）及 5 个非严格包含的内容重叠项；逐条含证据与处置建议，未改数据｜Verified: 六区计数 42+34+54+29+53+37=249；全量 id/name/plan 互查、易误判组合卡反查、关键行政关系用政府资料交叉验证 [codex]
+- M31·处置执行 — 2026-07-15 用户四组拍板（纯名义包含维持现名/A2 照做/环线归线路卡/C+D 都做），cc 执行：西宁·青海湖环线收窄为「西宁」纯城市卡（id 保留）、独库公路城市卡删除并重构 route-duku-highway（stops=伊犁/巴音布鲁克/库车）、ROUTE_STAY 收缩至 6 张、伊犁/喀什删越界内容并重写 stays、阿勒泰→布尔津·喀纳斯禾木、黄山→黄山风景区、武功山→萍乡·武功山（金顶）、6 张卡越界日程改「可接《某卡》」提示（sonnet · medium 执行 + cc 复核）；口径 248 城+37 线（README/meta 同步）｜Verified: build 两跑幂等含线路契约校验；浏览器断言独库线路展开装入=yili:2,bayanbulak:1,kuqa:2、伊犁 7 日路书无琼库什台宿昭苏、全站《卡名》引用逐一存在性校验通过；收录原则五条已写入 design [cc]
 
 ## 🔜 Next batch
 
@@ -28,7 +29,7 @@
 
 ## 🟡 Pending decisions
 
-- M31 清单已产出：34 个包含配对 + 5 个非严格包含内容重叠项，逐条待用户拍板收窄命名/合并/降级线路/维持并列；拍板前不改数据 [codex]
+- M31 清单已全部拍板并执行（见 ✅ M31·处置执行与 m31-containment.md 拍板段）；连同 F14–F17 修复待 codex 下轮 review 复核 [cc]
 - codex review 第四轮四条（F14/F15/F16/F17）cc 已全采纳修复入库：F14 trip 城市 id 清洗+天数校验、F15 江浙沪 42 条自驾口径补全（断言通过）、F16 导入非对象 JSON 防御、F17 绕路增量改用未取整距离（248 候选零负值回归）；review.md 待 codex 下次会话复核关闭 [cc]
 - index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
