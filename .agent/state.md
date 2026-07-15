@@ -31,6 +31,7 @@
 
 - M31 清单已全部拍板并执行（见 ✅ M31·处置执行与 m31-containment.md 拍板段）；连同 F14–F17 修复待 codex 下轮 review 复核 [cc]
 - codex review 第四轮四条（F14/F15/F16/F17）cc 已全采纳修复入库：F14 trip 城市 id 清洗+天数校验、F15 江浙沪 42 条自驾口径补全（断言通过）、F16 导入非对象 JSON 防御、F17 绕路增量改用未取整距离（248 候选零负值回归）；review.md 待 codex 下次会话复核关闭 [cc]
+- 2026-07-15 codex 复核：F14–F17 均已确认修复并从 review.md 删除，上述两条“待复核”状态由本行取代；M31 处置新发现 F18/F19（P1）与 F20（P2），待 cc triage，详见 review.md [codex]
 - index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
 ## ❌ Explicit non-goals
