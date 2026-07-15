@@ -126,6 +126,15 @@ for src, d in all_rows:
                     errors.append(f"{tag} stop 结构非法: {s}")
                 elif s["id"] not in city_ids:
                     errors.append(f"{tag} stop 引用不存在的城市 id: {s['id']}")
+                # F18：线路 stop 可选 leg={route, stays}=该段「线路视角」逐日文案，路书优先于城市独立游方案。
+                # stays 须与 stop.days 等长（逐日骨架每晚落脚点），route 为非空行程文字。
+                elif "leg" in s:
+                    lg = s["leg"]
+                    if not isinstance(lg, dict) or not isinstance(lg.get("route"), str) or not lg["route"].strip():
+                        errors.append(f"{tag} stop {s['id']} leg.route 非法(需非空字符串): {lg}")
+                    elif (not isinstance(lg.get("stays"), list) or len(lg["stays"]) != s["days"]
+                            or any(not isinstance(x, str) or not x.strip() for x in lg["stays"])):
+                        errors.append(f"{tag} stop {s['id']} leg.stays 非法(需与 days={s['days']} 等长的非空字符串数组): {lg.get('stays')}")
             ok = [s for s in st if isinstance(s, dict) and isinstance(s.get("days"), int) and s.get("id") in city_ids]
             if len(ok) == len(st):
                 sids = [s["id"] for s in st]
