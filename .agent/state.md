@@ -106,6 +106,7 @@ Verified 证据汇总（2026-07-13 codex F2 采纳后补记 M1–M13；2026-07-1
 - M23 — 天气预报接入 [R1 · S1] → sonnet · low（2026-07-15 交付，used: sonnet 5 子代理实现 + fable 5 会话编排验收，routing 与标注一致）。Open-Meteo 免 key 纯前端 fetch：详情页 7 天预报小卡（今天/明天/周X + emoji + 高低温，线路卡取首站标「起点站」）、路书各站「⛅ 未来7天参考」行、文本导出只读缓存不发请求；localStorage 单键 TTL 3h 缓存+超 60 条淘汰最旧；AbortController 6s 超时；失败静默降级只 console.warn；防串数据（详情 data-id 核对/路书世代计数）。Verified（S1，会话侧真机 DOM+真实网络）: 杭州详情真实请求成功（7 格、今天 🌦37°/28°、缓存写入 nextstop_wx_v1）；河西走廊详情标题带「· 起点站」（取兰州坐标）；降级测试——fetch 打桩 reject 后开哈尔滨详情，wxSec 保持空、页面 245 卡正常、控制台仅预期 warn 无 error；路书杭州+苏州两站天气行均填充、文本导出含 2 行「天气参考（Open-Meteo 估算）」（纯缓存）；build 幂等（data/ 零 diff）、diff 仅 index.html +108 行。未验（不倒推）：移动端/微信内该接口的可达性未测（桌面 Chrome 网络正常），若用户真机反馈不稳再切和风天气备选 [cc]
 - M10 — 去过打卡 + 足迹统计 [R1 · S1] → sonnet · low（2026-07-15 交付，used: sonnet 5 子代理实现 + fable 5 会话 diff 审查与真机验收，routing 与标注一致）。详情页「👣 打卡去过/✓ 去过了」按钮（仅城市记录，线路卡不给）、卡片「✓ 去过」浅绿角标、筛选区「👣 隐藏去过的」开关（onlyFav/noAlt 同套覆盖机制，自动进 chip 计数/空池放宽/扭蛋摘要）、header 足迹胶囊「去过 N 个目的地 · 点亮 M 个省份」（N=0 隐藏）；visited 入 localStorage 主 state，loadLS 同套非法 id 过滤。diff +44/−3 全在 index.html。Verified（S1，本地 http.server + chrome DOM 真机）: 打卡杭州→toast/按钮转 ghost/卡片角标/胶囊「1 城 1 省」；4 城 3 省（杭/宁/苏/拉萨）省份去重正确；线路卡详情无打卡按钮；隐藏开关命中 245→241 且已打卡卡片消失；含 2 个垃圾 id 的 localStorage 刷新后被 loadLS 过滤只剩 4 合法；空池（搜「灵隐」+隐藏）出现「不隐藏去过的 → 能救回 1 个」候选、点击后杭州回归+开关熄灭；扭蛋摘要含「隐藏去过」且池数正确；resetFilters 复原开关但不动统计；build 幂等（data/ 零 diff）；console 零 error；测试残留已清。边界留档（不改）：toggleVisited 从控制台传非法 id 会 push 后在 toast 处抛错——UI 不可达（按钮只带合法 id），与既有 toggleFav/toggleTrip 同习语，loadLS 兜底；未验移动端（归既有 P1 口径） [cc]
 - M25 — 内容扩容三批：城市 + 联程线路 [R2 · S3] → codex（GPT 家族）实现 · cc 合并验收（2026-07-15 交付，used: codex 实现 commit 16d0bb4 + fable 5 会话独立审计与合并；本模块跨家族复核由 cc 验收构成）。+31 城（华北7/东北8/华南10/华中6）+10 线（华北2/华北·华中1/东北1/东北·华北1/江浙沪2/华南2/华中1）→ 249 城 + 37 线 = 286 条；契约执行干净——只动 5 个 data 文件、零越界、报告含边界判断与保守跳过清单（8 项跳过理由全部合理）。Verified（S3 独立审计，不采信自检报告自证）: ①对象级 append-only 断言覆盖全部 13 个数据文件（不只 codex 报的 5 个）：既有 218 城/27 线/全部补丁逐对象 exact 不变，data-e 两个单行文件旧内容 byte 前缀不变 ②独立复刻校验 41 条新增：REQ 键位/全部枚举/tags 3~6/coords 界内/上海视角 transit/plans.days∈days/线路每 days 档有 plan/Σstops∈[min,max]/stop 引用存在+天数界内+站内无重复/alt 保守继承/regions 覆盖站点大区/companions≤3/route- 前缀/名称无日数/全局 id 与归一化 name 唯一——零错误 ③品牌词扫描（hotel 全清单+其余文案强品牌词）零命中 ④build.py 全过：286 条注入 498KB ⑤人工抽样 5 条（崇礼/抚远黑瞎子岛/栾川老君山/京津承/晋南黄河）真实性与文风过硬；10 条新线路 plan 覆盖全部站点逐条核对（辽西走廊 5 天版经「山海关∈秦皇岛站」人工确认）⑥真机 DOM：286 卡渲染、countPill「249 个目的地 · 37 条线路」、新城市详情+M10 打卡按钮+hotel 无品牌、潮汕线「约4~5天 · 默认4天」+整条装入 shantou×2/chaozhou×2、打卡新城市→角标+足迹胶囊、1周桶 33→42、新记录天气真实请求成功、console 零 error。合并拓扑留档：codex 开工时把共享工作树切到了自己分支，导致上会话 M10 提交（774eadb）落错分支——codex 收工时已自行把它摘出到恢复分支 codex/m10-visited-recovered，main 依次收 774eadb（fast-forward）+ 16d0bb4（merge 007dfb6，文件不相交零冲突）；README/meta 口径 218+27→249+37 同步（含分区表 c=54/e=53），handoff-M25-codex.md 按契约删除。未验（不倒推）：新增内容的具体菜名/馆名/景点名为 codex 知识生成+机器校验+抽样档位，未逐条实地核实——同 M15/M18 既定精度档位；移动端真机仍归 P1 口径 [cc]
+- M24 — 零依赖 SVG 中国地图（足迹地图） [R2 · S1] → sonnet · medium（2026-07-15 交付，used: sonnet 5 子代理实现「简化脚本+UI」一体 + fable 5 会话编排验收，routing 与标注一致）。数据管线：用户审批后下载阿里云 DataV areas_v3 100000_full.json（实际 569KB，非预估 3MB）→ 新增 tools/make_footprint_map.py（自写 Douglas-Peucker，容差 0.02°，25240→11354 点，每省最大环强制保留故海南/台湾主岛不丢；等距圆柱+cos36.5° 投影，prj 参数随数据内嵌供运行时同公式撒点）→ 单行严格 JSON `const CN_MAP` 131,910B（≤200KB 拍板达标）嵌在 DATA 行下一行，原始 GeoJSON 不进仓库。UI：工具行「🗺 足迹地图」按钮（buildConsole 内部绑定，防 innerHTML 重建丢监听）+ 全屏弹层 z-52（详情 55 盖其上、扭蛋 50 在其下）；34 省填色（点亮=visited 城市 province 字符串 includes 省短名——泸沽湖「云南·四川交界」有意双省点亮，统计条计数仍按字符串去重与 footPill 一致）；撒 286 点（线路卡取首站坐标，非线路自身 coords——子代理选择，视觉上更准，采纳留档）：收藏♥ > 去过绿点 > 灰点，透明命中圆 r7 点开详情；toggleVisited/toggleFav 时地图开着即重渲染；南海诸段线虚线装饰；移动端 overflow-x 滚动 + svg min-width 660。index.html 498→632KB。Verified（S1 smoke + 真机 DOM，本地 http.server + chrome）：build 幂等（diff 仅 index.html +93 行，DATA 行 byte 级不变，data/ 零 diff）；CN_MAP 剥前缀后 json.loads 可解析、34 省短名集合精确匹配、无 </script 子串；真机——286 点全落 viewBox 内、点杭州点位→详情盖地图→真实点打卡按钮→关详情回地图即见浙江亮/杭州绿点/统计条「1 城 1 省」；luguhu 打卡后云南+四川 fill 同变 #dcf3dd 且统计=footPill=2 省；三亚+河西走廊收藏均出♥、线路点位 cx 与首站兰州投影值相等、线路点开详情正确；省份 getBBox 地理关系断言全过（黑龙江最北/海南最南/新疆最西/台湾在闽东/上海小块/内蒙古最宽）；ESC 全关（既有习语）；清测试态冷启动空态引导语回归、console 零 error。未验（不倒推）：CDP 截图接口仍超时，视觉效果未目测（以几何断言代替），省界简化形状与配色浓淡留用户线上复核；移动端真机归 P1 口径 [cc]
 - iOS Safari / 微信真机走查 [R1 · S2]（2026-07-14 收官）：会话侧交付 13 项清单（渲染/筛选触屏/中文输入搜索/弹层滚动穿透/dock 安全区/扭蛋动画/行程原生选择器/路书复制降级/打印/localStorage 持久化），用户 iOS Safari + 微信真机执行，**全项通过回报**。Verified: 用户 2026-07-14 回报"这些都没问题"，无 ❌ 项；本项验证主体是用户真机，会话未亲测移动端（工具仅桌面 Chrome），如实记录 [cc]
 - 真机反馈两处 UI 修正 [R1 · S1] [interrupt]（2026-07-14 用户走查通过后随即拍板，会话内直做 used: fable 5）：
   - ① dock 显隐回退：空态常驻（codex F5 方案）真机用下来"丑且碍事"，用户否决——回退为**有内容才显示**，空态引导文案/dock-hint 样式一并移除；显示时 dock 篮底色改奶油色 #fff6de（用户要求"明显一点但别太浓"），与白色卡片/页面区分。design.md M19 已同步终裁口径，等 codex 复核时注意 F5 结论已被用户实测反转
@@ -123,9 +124,9 @@ Verified 证据汇总（2026-07-13 codex F2 采纳后补记 M1–M13；2026-07-1
   - F7(P2) 可访问性：dock 单项删除 span→原生 button + aria-label（"从对比/行程中移除X"），两个清空 ✕ 加 aria-label 区分，chip 键盘可聚焦
   - Verified：build 全过（218+27 注入 417KB）；四项新校验反向测试（同长度重复站/stop 超上限/days 包不住/高海拔站 alt=false 共 5 例坏数据）全部被拒且报错定位正确、恢复后通过；真机 DOM——首访空态 dock 常驻两条引导文案+清空钮隐藏、河西走廊卡片显「全程6天」、整条装入后兰州下拉=[1,2,3]选中1、tripStats 全程 6 天与 state 一致、避开高海拔 224/245 且南疆线路消失、南疆卡⛰️徽章、dock chip=BUTTON+aria-label+可聚焦、清空钮 aria-label 正确、控制台零 error；线上口径（README/meta/build 输出）grep 复核一致。未验：键盘全流程走查只验了焦点可达性，完整 tab 序回归与读屏实测未做；移动端仍归 P1 [cc]
 
-## 🔜 Next batch（2026-07-15 用户开批：M10+M24 合并批次，两项 UX 已 AskUserQuestion 拍板）
-- M24 — 零依赖 SVG 中国地图（足迹地图） [R2 · S1] → sonnet · medium ｜ 拍板：全屏弹层（顶部工具区「🗺 足迹地图」按钮，与详情/对比同套 overlay 模式）；内嵌简化省界 SVG path（目标 ≤200KB）+ 自写投影撒 245 点：没去过灰点/去过点亮/收藏心形，点位可点开详情，顶部统计条；去过省份填色点亮。数据源：公开省界 GeoJSON 简化后内嵌（下载动作届时向用户报来源与大小） [cc]
-- （2026-07-15 M25 已交付合并 → ✅；M24 为本批次唯一剩余项） [cc]
+## 🔜 Next batch
+
+- （空——2026-07-15 M10+M24 合并批次全部交付：M10 ✅ M25 ✅ M24 ✅，无剩余项；下一批等用户开） [cc]
 - （2026-07-14 批次3 已全部完成：交通校准 / 玩法节奏 / 真机走查全过 + 两处真机反馈修正） [cc]
 - （2026-07-14）codex review（b9583f2）triage 已完成：F3~F7 五条全采纳修复并 push（0bdbe73）；F8~F10 二轮 triage 也已全部落库（d005369/d550402，codex 已复核 8709dfe）。codex 关闭 findings 一事用户 2026-07-15 表示不作为待办跟踪，哪天想跑再跑，不阻塞任何批次 [cc]
 
@@ -135,7 +136,6 @@ Verified 证据汇总（2026-07-13 codex F2 采纳后补记 M1–M13；2026-07-1
 
 ## ⏭ P2
 
-- M10+M24 — 打卡足迹 + 零依赖 SVG 中国地图（合并批次） [R2 · S1] ｜ 2026-07-15 用户采纳评估：两者合并做性价比翻倍——M24 内嵌简化中国 GeoJSON→SVG path（约100-200KB）+ 自写投影撒 245 点/行程连线/点击开详情，M10 打卡数据挂 localStorage、足迹地图=去过省份点亮。不用第三方瓦片（见 goal 不做清单）。约 2-3 模块小批次 [cc]
 - M11 — 海外版数据（复用 schema，换区域枚举） [R2 · S2] ｜ 理由：goal 里的长期方向，用户未启动 [cc]
 - M22 — 自选出发城市 [R2 · S2] ｜ 2026-07-14 用户拍板：目前写死上海，此项放遥远将来。届时分两步：小改=行程/路书起点选择器（预设城市坐标表+tripLegs 换起点，1 个模块量级）；大改=245 条 transit 文案与 difficulty 三档均为上海视角，多出发地需程序化重生成（M15 级数据工程），另立项 [cc]
 
@@ -148,7 +148,7 @@ Verified 证据汇总（2026-07-13 codex F2 采纳后补记 M1–M13；2026-07-1
 ## ❌ Explicit non-goals
 
 - 房价/余票实时数据：2026-07-15 复评维持不做，理由从「Artifact CSP 禁外联」更正为「无免费开放数据源，需后端+商业接口，与零依赖架构冲突」；天气已移出不做清单 → P1 M23 [cc]
-- 第三方瓦片地图（Leaflet+高德/天地图）：2026-07-15 复评维持不做——破坏单文件零依赖 + GCJ-02 坐标偏移；零依赖 SVG 中国地图翻案 → P2 M10+M24 合并批次 [cc]
+- 第三方瓦片地图（Leaflet+高德/天地图）：2026-07-15 复评维持不做——破坏单文件零依赖 + GCJ-02 坐标偏移；零依赖 SVG 中国地图翻案已作为 M10/M24 交付（2026-07-15 ✅） [cc]
 - 用户系统/云同步：localStorage 够用 [cc]
 
 ## 🪦 Sealed phases
