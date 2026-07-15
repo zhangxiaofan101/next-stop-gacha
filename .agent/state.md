@@ -11,12 +11,11 @@
 - M29 — 路书逐日骨架 + 每晚落脚点 [R2 · S2] · 代码 cc，stays 数据 sonnet · medium 起草 + cc 复核（青甘大环线敦煌×2、伊犁十日分晚等主观点已核，标准节奏）｜ Verified: 独库3天+伊犁5天行程文本导出逐日行「20260707 D1 上海→独库公路（飞机 约8h），进线到那拉提 宿那拉提」全链正确；末日「当晚到家」；出发日期 localStorage 回环+垃圾输入拒绝；build 校验 stays 长度==days 两跑幂等 [cc]
 - M30 — 江浙沪自驾 [R1 · S2] · legInfo 代码 cc；30 条 transit 文案 sonnet · low + cc 复核（7 条过保守时长收紧：徐州8→7h、连云港7.5→6.5h 等）｜ Verified: 沪杭段（208km）标注从「高铁」变「高铁/自驾」；杭州→黄山（皖）不受影响；build 幂等通过 [cc]
 - M26 — 打卡/收藏跨设备分享备份 [R2 · S2] · UI/hash 合并/JSON cc；QR 编码器 sonnet · high（629 行零依赖 ISO 18004 实现）｜ Verified: 编码器与 python-qrcode 逐位交叉验证 6 组向量全一致（v1~v40，含 2331 字节 V40-M 容量边界与中文 UTF-8）+ 浏览器端真实迁移链接矩阵哈希与 python 参考一致（v5/mask2/hash 1967235024）；hash 导入确认条（并集合并、favs 收线路 id、visited 拒线路 id、垃圾 id 过滤、去重、导入后清 hash、hashchange 同页触发）与 JSON 导入导出全部浏览器断言通过；二维码默认收起、点开 230px；超 1200 字符降级提示走 JSON [cc]
+- M31 — 城市卡包含关系排查 [R2 · S2] · codex 主审 + 2 个 GPT 只读分片复核｜产出 `.agent/m31-containment.md`：全量覆盖 249 城，确认 34 个包含配对（25 行政/地理 + 9 城市文件伪线路）及 5 个非严格包含的内容重叠项；逐条含证据与处置建议，未改数据｜Verified: 六区计数 42+34+54+29+53+37=249；全量 id/name/plan 互查、易误判组合卡反查、关键行政关系用政府资料交叉验证 [codex]
 
 ## 🔜 Next batch
 
-> 三期批次：2026-07-15 晚用户开批（7 条体验改进 → M26~M31）。分工修订：cc 实现 M26~M30，**大排查类（M31）交 codex**（用户同日拍板，取代此前「下一批全由 codex 实现」的宣布）；cc 代码仍由 codex 跨家族 review。实现顺序按依赖与量级：M27 → M28 → M30 → M29 → M26；M31 codex 并行随时可起。 [cc]
-
-- M31 — 城市卡包含关系排查 [R2 · S2] → **codex**（用户指定：大排查类）｜产出=「谁包含谁+建议处置」清单写 .agent/m31-containment.md，用户逐条拍板后另行修数据；不动代码。cc 已把 codex 会话启动提示词交给用户（2026-07-15 晚） [cc]
+（三期 M26–M31 已全部完成；M26–M30 跨家族 review 新发现 F14–F17，先 triage，不开下一实现批次。） [codex]
 
 ## ⏭ P1
 
@@ -29,9 +28,8 @@
 
 ## 🟡 Pending decisions
 
-- M31 排查清单（codex 产出后）逐条待用户拍板处置：收窄命名/合并/降级/维持并列 [cc]
-- M26~M30 为 cc 实现批次，待 codex 跨家族 review（可与 M31 排查同会话做） [cc]
-- codex review 第三轮四条（F8/F11/F12/F13）已全部修复入库（176512d），review.md 待 codex 下次会话复核关闭——不阻塞新批次 [cc]
+- M31 清单已产出：34 个包含配对 + 5 个非严格包含内容重叠项，逐条待用户拍板收窄命名/合并/降级线路/维持并列；拍板前不改数据 [codex]
+- M26–M30 跨家族 review 发现 F14(P1)、F15–F17(P2)，待 cc triage；详见 review.md [codex]
 - index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
 ## ❌ Explicit non-goals
