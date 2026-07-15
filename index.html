@@ -676,7 +676,9 @@ function loadLS() {
     state.favs = (s.favs || []).filter(id => ids.has(id));
     state.cmp = (s.cmp || []).filter(id => ids.has(id));
     state.trip = (s.trip || []).filter(t => ids.has(t.id));
-    state.visited = (s.visited || []).filter(id => ids.has(id));
+    // F13：visited 只认城市 id——schema 内合法但业务非法的线路 id 也要挡掉，并顺手去重
+    const cityIds = new Set(DATA.filter(d => !d.stops).map(d => d.id));
+    state.visited = [...new Set((s.visited || []).filter(id => cityIds.has(id)))];
   } catch (e) {}
 }
 
@@ -1003,12 +1005,17 @@ function render() {
   updateFootprint();
 }
 // 足迹统计：打卡数 + 点亮省份数（只算城市记录，线路卡不计入 visited）
+// F11：点亮省份唯一口径——CN_MAP 省短名被任一 visited 城市的 province 字符串 includes 即点亮
+// （跨省交界记录如泸沽湖「云南·四川交界」点亮两省）；地图填色、地图统计条、足迹胶囊三处同源
+function litProvinces() {
+  const vs = state.visited.map(byId).filter(Boolean);
+  return CN_MAP.prov.filter(p => vs.some(d => (d.province || "").includes(p.n))).map(p => p.n);
+}
 function updateFootprint() {
   const pill = document.getElementById("footPill");
   const n = state.visited.length;
   if (!n) { pill.style.display = "none"; return; }
-  const provs = new Set(state.visited.map(id => byId(id)?.province).filter(Boolean));
-  pill.textContent = `👣 去过 ${n} 个目的地 · 点亮 ${provs.size} 个省份`;
+  pill.textContent = `👣 去过 ${n} 个目的地 · 点亮 ${litProvinces().length} 个省份`;
   pill.style.display = "";
 }
 
@@ -1053,7 +1060,7 @@ function addRouteToTrip(routeId) {
   for (const s of route.stops) {
     if (state.trip.some(t => t.id === s.id)) continue;
     if (state.trip.length >= 6) { skippedFull = true; break; }
-    state.trip.push({ id: s.id, days: s.days });
+    state.trip.push({ id: s.id, days: s.days, r: 1 }); // r：线路装入标记——下拉放开 1~城市上限（短档=压站）
     added++;
   }
   saveLS(); render();
@@ -1153,7 +1160,7 @@ async function fillDetailWeather(d) {
     const info = wxInfo(x.code);
     return `<div class="wx-day"><div>${label}</div><div>${info.e}</div><div>${x.hi}°/${x.lo}°</div></div>`;
   }).join("");
-  box.innerHTML = `<div class="dt-sec"><h3>⛅ 未来 7 天${d.stops ? " · 起点站" : ""}</h3><div class="wx-row">${cells}</div><div class="wx-note">Open-Meteo 估算 · 出发前以天气 App 为准</div></div>`;
+  box.innerHTML = `<div class="dt-sec"><h3>⛅ 未来 7 天${d.stops ? " · 起点站" : ""}</h3><div class="wx-row">${cells}</div><div class="wx-note">数据 <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · 经本站整理换算）· 出发前以天气 App 为准</div></div>`;
 }
 
 /* ================= 对比 ================= */
@@ -1190,14 +1197,11 @@ function openMap() {
 }
 function renderMap() {
   const visited = state.visited.map(byId).filter(Boolean); // state.visited 只存城市 id
-  const provs = new Set(visited.map(d => d.province).filter(Boolean));
+  const lit = litProvinces(); // F11：与填色/足迹胶囊同一口径
   const statHTML = visited.length
-    ? `<div class="map-stat">👣 去过 ${visited.length} 个目的地 · 点亮 ${provs.size} 个省份 · ♥ 收藏 ${state.favs.length}</div>`
+    ? `<div class="map-stat">👣 去过 ${visited.length} 个目的地 · 点亮 ${lit.length} 个省份 · ♥ 收藏 ${state.favs.length}</div>`
     : `<div class="map-empty">还没打卡过——去任意目的地详情页点『👣 打卡去过』，地图就会亮起来</div>`;
-  // 点亮规则：省短名被 includes 到某个已打卡城市的 province 字符串里就算点亮（跨省交界城市会同时点亮两省，有意为之）
-  const litSet = new Set(
-    CN_MAP.prov.filter(p => visited.some(d => (d.province || "").includes(p.n))).map(p => p.n)
-  );
+  const litSet = new Set(lit);
   const provPaths = CN_MAP.prov.map(p => {
     const on = litSet.has(p.n);
     return `<path d="${p.d}" fill="${on ? "#dcf3dd" : "#f4f7fb"}" stroke="${on ? "#7fae8e" : "#b9c9dd"}" stroke-width="1"></path>`;
@@ -1319,7 +1323,7 @@ function roll() {
 }
 
 /* ================= 行程规划 ================= */
-function tripStops() { return state.trip.map(t => ({ ...byId(t.id), chosenDays: t.days })); }
+function tripStops() { return state.trip.map(t => ({ ...byId(t.id), chosenDays: t.days, fromRoute: !!t.r })); }
 
 function autoOrder() {
   const rest = [...state.trip];
@@ -1380,7 +1384,7 @@ function renderTrip() {
       <span class="c-emoji" style="width:36px;height:36px;font-size:18px;--rs:${REGION_COLOR[d.region]};background:${REGION_COLOR[d.region]}">${d.emoji}</span>
       <span class="stop-name">${d.name}<br><span class="sm">${d.province} · ${d.crowd}</span></span>
       <select data-days="${i}" title="这一站玩几天">
-        ${[...new Set([...d.days, d.chosenDays])].sort((a, b) => a - b).map(n => `<option value="${n}" ${n === d.chosenDays ? "selected" : ""}>${n}天</option>`).join("")}
+        ${(d.fromRoute ? Array.from({ length: Math.max(...d.days) }, (_, k) => k + 1) : [...new Set([...d.days, d.chosenDays])]).sort((a, b) => a - b).map(n => `<option value="${n}" ${n === d.chosenDays ? "selected" : ""}>${n}天</option>`).join("")}
       </select>
       <button class="mini" data-up="${i}" title="上移">↑</button>
       <button class="mini" data-down="${i}" title="下移">↓</button>
@@ -1465,7 +1469,7 @@ function roadbookHTML() {
   <div class="trip-stats rb-budget">
     <span>💰 人均预算 <b>¥${m.budget.lo.toLocaleString()} ~ ${m.budget.hi.toLocaleString()}</b>（含大交通与住宿餐饮，不含购物）</span>
   </div>
-  <div class="rb-note">※ 交通方式与时长为直线距离估算，出发前请以 12306 / 航旅 App 实际班次为准；房态与价格以酒店 App 实时为准。</div>
+  <div class="rb-note">※ 交通方式与时长为直线距离估算，出发前请以 12306 / 航旅 App 实际班次为准；房态与价格以酒店 App 实时为准。天气参考数据来自 <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>），经本站整理换算。</div>
   <div class="rb-actions no-print">
     <button class="big-btn blue" id="copyRbBtn">📋 复制路书文本</button>
     <button class="big-btn ghost" id="printRbBtn">🖨 打印 / 存 PDF</button>
@@ -1476,6 +1480,7 @@ function roadbookText() {
   const m = roadbookModel();
   const title = m.stops.map(d => d.name).join(" → ");
   let s = `🧭 ${title}（${m.budget.daySum}天 · 上海往返）\n`;
+  let wxUsed = false;
   s += `总里程约 ${m.budget.km}km · 人均预算 ¥${m.budget.lo}~${m.budget.hi}\n\n`;
   m.items.forEach((it, i) => {
     const inName = i === 0 ? "上海" : m.items[i - 1].d.name;
@@ -1487,11 +1492,12 @@ function roadbookText() {
     s += `  住宿：${it.d.hotel || "以酒店App实查为准"}\n`;
     s += `  市内：${it.d.local || "打车/公共交通"}\n`;
     const wxDays = wxCacheGet(it.d.id); // 只读缓存，不发请求；没缓存就不加这行
-    if (wxDays) s += `  天气参考（Open-Meteo 估算）：${wxLine(wxDays)}\n`;
+    if (wxDays) { wxUsed = true; s += `  天气参考：${wxLine(wxDays)}\n`; }
     s += `\n`;
     if (it.legOut) s += `【${it.d.name} → 上海】${it.legOut.mode} ${fmtH(it.legOut.hours)}（约${it.legOut.km}km）\n\n`;
   });
   s += "※ 时长为估算，请以 12306/航班动态为准。";
+  if (wxUsed) s += "\n※ 天气参考数据来自 Open-Meteo（https://open-meteo.com · CC BY 4.0 https://creativecommons.org/licenses/by/4.0/），经本站整理换算。";
   return s;
 }
 

@@ -137,6 +137,11 @@ for src, d in all_rows:
                 # 高海拔保守口径：任一停留站 alt=true，线路必须 alt=true
                 if any(city_by_id[s["id"]].get("alt") for s in st) and not d.get("alt"):
                     errors.append(f"{tag} 途经高海拔站点但线路 alt=false（健康警示需保守）")
+                # F8：线路装入后各站下拉放开为 1~城市上限，故每个 days 档必须 ∈ [站数, Σ城市上限] 才能在行程单调出
+                lo, hi = len(st), sum(max(city_by_id[s["id"]]["days"]) for s in st)
+                for dv in dy:
+                    if not (lo <= dv <= hi):
+                        errors.append(f"{tag} days 档 {dv} 在行程单不可达（可达区间 [{lo},{hi}]）")
         rg = d.get("regions")
         if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
             errors.append(f"{tag} regions 非法: {rg}")
