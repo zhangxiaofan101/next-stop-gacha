@@ -1,7 +1,7 @@
 [
  {
   "id": "route-hexi-corridor",
-  "name": "河西走廊 7 日",
+  "name": "河西走廊",
   "emoji": "🐫",
   "province": "甘肃",
   "region": "西北",
@@ -98,7 +98,7 @@
  },
  {
   "id": "route-south-xinjiang",
-  "name": "南疆丝路 7 日",
+  "name": "南疆丝路",
   "emoji": "🕌",
   "province": "新疆",
   "region": "西北",
@@ -193,7 +193,7 @@
  },
  {
   "id": "route-north-xinjiang",
-  "name": "北疆伊犁环线 10 日",
+  "name": "北疆伊犁环线",
   "emoji": "🏔️",
   "province": "新疆",
   "region": "西北",
@@ -286,7 +286,7 @@
  },
  {
   "id": "route-duku-highway",
-  "name": "独库公路自驾 7 日",
+  "name": "独库公路自驾",
   "emoji": "🚗",
   "province": "新疆",
   "region": "西北",
@@ -375,7 +375,7 @@
  },
  {
   "id": "route-qinghai-loop",
-  "name": "青海湖祁连环线 7 日",
+  "name": "青海湖祁连环线",
   "emoji": "🧂",
   "province": "青海",
   "region": "西北",
@@ -469,7 +469,7 @@
  },
  {
   "id": "route-gannan-secret",
-  "name": "甘南秘境 7 日",
+  "name": "甘南秘境",
   "emoji": "🙏",
   "province": "甘肃",
   "region": "西北",
@@ -558,7 +558,7 @@
  },
  {
   "id": "route-jinbei-ancient",
-  "name": "晋北古建朝圣 7 日",
+  "name": "晋北古建朝圣",
   "emoji": "🏯",
   "province": "山西",
   "region": "华北",
@@ -661,7 +661,7 @@
  },
  {
   "id": "route-dongbei-snow",
-  "name": "东北雪国 7 日",
+  "name": "东北雪国",
   "emoji": "❄️",
   "province": "黑龙江·吉林",
   "region": "东北",
@@ -758,7 +758,7 @@
  },
  {
   "id": "route-hulunbuir-aershan",
-  "name": "呼伦贝尔阿尔山 7 日",
+  "name": "呼伦贝尔阿尔山",
   "emoji": "🐎",
   "province": "内蒙古",
   "region": "东北",
@@ -848,7 +848,7 @@
  },
  {
   "id": "route-jiangnan-water",
-  "name": "江南水乡 5 日",
+  "name": "江南水乡",
   "emoji": "🏮",
   "province": "江苏·浙江",
   "region": "江浙沪",
@@ -949,7 +949,7 @@
  },
  {
   "id": "route-zhenan-shanshui",
-  "name": "浙南山水 7 日",
+  "name": "浙南山水",
   "emoji": "🏞️",
   "province": "浙江",
   "region": "江浙沪",
@@ -1045,7 +1045,7 @@
  },
  {
   "id": "route-huizhou-ancient",
-  "name": "皖南徽州古建 7 日",
+  "name": "皖南徽州古建",
   "emoji": "⛰️",
   "province": "安徽",
   "region": "华东",
@@ -1146,7 +1146,7 @@
  },
  {
   "id": "route-minnan-maritime",
-  "name": "闽南海丝 7 日",
+  "name": "闽南海丝",
   "emoji": "🛕",
   "province": "福建",
   "region": "华东",
@@ -1246,7 +1246,7 @@
  },
  {
   "id": "route-greater-bay",
-  "name": "粤港澳大湾区 7 日",
+  "name": "粤港澳大湾区",
   "emoji": "🌉",
   "province": "广东·澳门·香港",
   "region": "华南",
@@ -1354,7 +1354,7 @@
  },
  {
   "id": "route-guilin-karst",
-  "name": "桂林山水 5 日",
+  "name": "桂林山水",
   "emoji": "🛶",
   "province": "广西",
   "region": "华南",
@@ -1445,7 +1445,7 @@
  },
  {
   "id": "route-hainan-loop",
-  "name": "海南环岛 7 日",
+  "name": "海南环岛",
   "emoji": "🏝️",
   "province": "海南",
   "region": "华南",
@@ -1544,7 +1544,7 @@
  },
  {
   "id": "route-gandongbei",
-  "name": "赣东北 5 日",
+  "name": "赣东北",
   "emoji": "🌾",
   "province": "江西",
   "region": "华东",
@@ -1643,7 +1643,7 @@
  },
  {
   "id": "route-jiaodong-coast",
-  "name": "胶东海滨 5 日",
+  "name": "胶东海滨",
   "emoji": "🍺",
   "province": "山东",
   "region": "华东",
@@ -1744,7 +1744,7 @@
  },
  {
   "id": "route-chuanxi-yading",
-  "name": "稻城亚丁·川西高原 10日",
+  "name": "稻城亚丁·川西高原",
   "emoji": "🏔️",
   "province": "四川",
   "region": "西南",
@@ -1836,7 +1836,7 @@
  },
  {
   "id": "route-siguniang-danba",
-  "name": "四姑娘山·丹巴嘉绒 6日",
+  "name": "四姑娘山·丹巴嘉绒",
   "emoji": "⛰️",
   "province": "四川",
   "region": "西南",
@@ -1926,7 +1926,7 @@
  },
  {
   "id": "route-yunnan-tibet",
-  "name": "滇藏线·丽江到拉萨 14日",
+  "name": "滇藏线·丽江到拉萨",
   "emoji": "🛕",
   "province": "云南·西藏",
   "region": "西南",
@@ -2024,7 +2024,7 @@
  },
  {
   "id": "route-dali-lijiang",
-  "name": "大理·沙溪·丽江茶马道 6日",
+  "name": "大理·沙溪·丽江茶马道",
   "emoji": "🏞️",
   "province": "云南",
   "region": "西南",
@@ -2123,7 +2123,7 @@
  },
  {
   "id": "route-qiandongnan",
-  "name": "黔东南苗侗风情 6日",
+  "name": "黔东南苗侗风情",
   "emoji": "🥁",
   "province": "贵州",
   "region": "西南",
@@ -2221,7 +2221,7 @@
  },
  {
   "id": "route-guizhou-karst",
-  "name": "贵州喀斯特大环线 8日",
+  "name": "贵州喀斯特大环线",
   "emoji": "💧",
   "province": "贵州",
   "region": "西南",
@@ -2319,7 +2319,7 @@
  },
  {
   "id": "route-xiangxi-zhangjiajie",
-  "name": "张家界·凤凰湘西 6日",
+  "name": "张家界·凤凰湘西",
   "emoji": "🏞️",
   "province": "湖南",
   "region": "华中",
@@ -2415,7 +2415,7 @@
  },
  {
   "id": "route-henan-gudu",
-  "name": "河南古都·嵩山少林 6日",
+  "name": "河南古都·嵩山少林",
   "emoji": "🏯",
   "province": "河南",
   "region": "华中",
@@ -2513,7 +2513,7 @@
  },
  {
   "id": "route-chu-culture",
-  "name": "湖北楚文化·武当问道 6日",
+  "name": "湖北楚文化·武当问道",
   "emoji": "🗡️",
   "province": "湖北",
   "region": "华中",

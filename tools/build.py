@@ -108,6 +108,9 @@ for src, d in all_rows:
         errors.append(f"{tag} coords 非法: {c}")
     # M18 线路卡：stops 字段存在即为线路卡，额外校验；regions 供多区域筛选，缺省时前端以 [region] 兜底
     if "stops" in d:
+        # F8：线路名不得带日数——事实天数由 stops 分配决定，名称写死日数必然漂移
+        if re.search(r"\d\s*[日天]", d.get("name", "")):
+            errors.append(f"{tag} 线路名称不得含日数（改由卡面「约N~M天 · 默认Σ天」展示）: {d['name']}")
         st = d.get("stops")
         if not isinstance(st, list) or not (2 <= len(st) <= 4):
             errors.append(f"{tag} stops 长度非法(需 2~4): {st}")
