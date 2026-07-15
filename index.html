@@ -284,6 +284,13 @@
   .plan-title { font-weight: 600; font-size: 14px; }
   .plan-route { font-size: 13px; color: #55627f; margin-top: 2px; }
   .dt-actrow { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .wx-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .wx-day {
+    flex: 1 1 64px; min-width: 58px; text-align: center; font-size: 12px; line-height: 1.5;
+    background: #fff; border: 1.5px solid var(--ink); border-radius: 12px; padding: 6px 4px;
+  }
+  .wx-day div:nth-child(2) { font-size: 15px; }
+  .wx-note { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
 
   /* 扭蛋机 */
   .gacha-box { max-width: 560px; margin: 5vh auto 0; text-align: center; position: relative; }
@@ -553,6 +560,69 @@ const COMPANIONS = ["带娃", "带爸妈", "独行", "情侣周末"]; // 偏好�
 const CROWD_CLASS = { "热门": "hot", "适中": "mid", "小众": "hid" };
 const EFFORTS = ["躺平", "正常", "费腿", "硬核"]; // 偏好型多选 OR；记录 effort 为空数组 = 怎么玩都行（通配）
 const SH = { name: "上海", coords: [31.23, 121.47] };
+
+/* ================= M23 天气预报（Open-Meteo，失败静默降级） ================= */
+// WMO weather_code → {e: emoji, t: 简短中文}
+const WX_CODE_MAP = {
+  0: { e: "☀️", t: "晴" },
+  1: { e: "🌤", t: "多云" }, 2: { e: "🌤", t: "多云" },
+  3: { e: "☁️", t: "阴" },
+  45: { e: "🌫", t: "雾" }, 48: { e: "🌫", t: "雾" },
+  51: { e: "🌦", t: "毛毛雨" }, 53: { e: "🌦", t: "毛毛雨" }, 55: { e: "🌦", t: "毛毛雨" }, 56: { e: "🌦", t: "毛毛雨" }, 57: { e: "🌦", t: "毛毛雨" },
+  61: { e: "🌧", t: "雨" }, 63: { e: "🌧", t: "雨" }, 65: { e: "🌧", t: "雨" }, 66: { e: "🌧", t: "雨" }, 67: { e: "🌧", t: "雨" },
+  71: { e: "🌨", t: "雪" }, 73: { e: "🌨", t: "雪" }, 75: { e: "🌨", t: "雪" }, 77: { e: "🌨", t: "雪" },
+  80: { e: "🌦", t: "阵雨" }, 81: { e: "🌦", t: "阵雨" }, 82: { e: "🌦", t: "阵雨" },
+  85: { e: "🌨", t: "阵雪" }, 86: { e: "🌨", t: "阵雪" },
+  95: { e: "⛈", t: "雷雨" }, 96: { e: "⛈", t: "雷雨" }, 99: { e: "⛈", t: "雷雨" },
+};
+const wxInfo = code => WX_CODE_MAP[code] || { e: "🌡", t: "未知" };
+const wxLine = days => days.map(x => `${wxInfo(x.code).e}${x.hi}°`).join(" "); // 逐日 emoji+最高温压缩成一行
+
+const WX_LS_KEY = "nextstop_wx_v1";
+const WX_TTL = 3 * 60 * 60 * 1000; // 缓存 3 小时内直接复用，减少请求
+function wxCacheRead() {
+  try { return JSON.parse(localStorage.getItem(WX_LS_KEY) || "{}"); } catch (e) { return {}; }
+}
+function wxCacheWrite(cache) {
+  try {
+    const keys = Object.keys(cache);
+    if (keys.length > 60) keys.sort((a, b) => cache[a].t - cache[b].t).slice(0, keys.length - 60).forEach(k => delete cache[k]);
+    localStorage.setItem(WX_LS_KEY, JSON.stringify(cache));
+  } catch (e) {}
+}
+// 同步读缓存（仅 TTL 内命中才返回），供路书文本导出等不发请求的场景用
+function wxCacheGet(id) {
+  const hit = wxCacheRead()[id];
+  return (hit && Date.now() - hit.t < WX_TTL) ? hit.days : null;
+}
+// 拉 7 天预报；任何失败（超时/断网/非200/解析错）都只 console.warn 后返回 null，绝不抛错影响页面其他功能
+async function fetchWeather(d) {
+  const cached = wxCacheGet(d.id);
+  if (cached) return cached;
+  const coords = (d.stops && d.stops.length ? byId(d.stops[0].id)?.coords : d.coords) || null; // 线路卡取首站坐标，代表起点站
+  if (!coords) return null;
+  const [lat, lng] = coords;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FShanghai&forecast_days=7`, { signal: ctrl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const j = await res.json();
+    const days = j.daily.time.map((dt, i) => ({
+      dt, code: j.daily.weather_code[i],
+      hi: Math.round(j.daily.temperature_2m_max[i]), lo: Math.round(j.daily.temperature_2m_min[i]),
+    }));
+    const cache = wxCacheRead();
+    cache[d.id] = { t: Date.now(), days };
+    wxCacheWrite(cache);
+    return days;
+  } catch (e) {
+    console.warn("天气预报获取失败：", e);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 const PER_DAY_COST = { "¥": 380, "¥¥": 680, "¥¥¥": 1150 };
 // 序数·容忍型筛选：点一档=天花板，自动含更省/更易达的所有低档（花费、抵达难度）。
 // 偏好型筛选（体力/冷热/地区/季节）不在此，走纯多选 OR。值按 低→高 排列。
@@ -979,6 +1049,7 @@ function detailHTML(d) {
     ${sec("🏛 博物馆", chips(d.museums))}
     ${sec("🏯 古建古迹", chips(d.architecture))}
     ${sec("✨ 特色体验", d.highlights.length ? `<ul class="dt-list">${d.highlights.map(h => `<li>${h}</li>`).join("")}</ul>` : "")}
+    <div id="wxSec"></div>
     ${sec("🏨 住宿参考", d.hotel ? `<div class="note-box hotel">${d.hotel}</div>` : "")}
     ${sec("🚌 当地交通", d.local ? `<div class="note-box">${d.local}</div>` : "")}
     ${sec("🗓 行程方案", d.plans.map(p => `
@@ -996,6 +1067,27 @@ function openDetail(id) {
   const d = byId(id); if (!d) return;
   document.getElementById("detailBody").innerHTML = detailHTML(d);
   document.getElementById("detailOverlay").classList.add("show");
+  fillDetailWeather(d);
+}
+// 详情页 7 天预报：异步填充，用 data-id 核对——避免用户快速换卡片时把旧请求的结果写串
+async function fillDetailWeather(d) {
+  const box = document.getElementById("wxSec");
+  if (!box) return;
+  box.dataset.id = d.id;
+  const days = await fetchWeather(d);
+  if (!days || box.dataset.id !== d.id) return;
+  const WEEK = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+  const startOfDay = t => new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+  const todayTs = startOfDay(new Date());
+  const cells = days.map(x => {
+    const [y, m, dd] = x.dt.split("-").map(Number);
+    const dt = new Date(y, m - 1, dd);
+    const diff = Math.round((startOfDay(dt) - todayTs) / 86400000);
+    const label = diff === 0 ? "今天" : diff === 1 ? "明天" : WEEK[dt.getDay()];
+    const info = wxInfo(x.code);
+    return `<div class="wx-day"><div>${label}</div><div>${info.e}</div><div>${x.hi}°/${x.lo}°</div></div>`;
+  }).join("");
+  box.innerHTML = `<div class="dt-sec"><h3>⛅ 未来 7 天${d.stops ? " · 起点站" : ""}</h3><div class="wx-row">${cells}</div><div class="wx-note">Open-Meteo 估算 · 出发前以天气 App 为准</div></div>`;
 }
 
 /* ================= 对比 ================= */
@@ -1235,6 +1327,7 @@ function roadbookHTML() {
         <span><b>🏨 住宿：</b>${it.d.hotel || "以酒店 App 实查为准"}</span>
         <span><b>🚌 市内：</b>${it.d.local || "打车/公共交通"}</span>
         <span><b>🌤 季节：</b>${it.d.seasonNote}</span>
+        <span class="rb-wx" data-wx="${it.d.id}"></span>
       </div>
     </div>
     ${it.legOut ? legLine(it.legOut, it.d.name + " → 上海（返程）") : ""}
@@ -1262,17 +1355,31 @@ function roadbookText() {
     s += `  美食：${it.d.food.slice(0, 4).join("、")}\n`;
     if (ROUTE_STAY.has(it.d.id)) s += `  节奏：路线型玩法，沿线多点换宿（按每晚落脚点分段订房）\n`;
     s += `  住宿：${it.d.hotel || "以酒店App实查为准"}\n`;
-    s += `  市内：${it.d.local || "打车/公共交通"}\n\n`;
+    s += `  市内：${it.d.local || "打车/公共交通"}\n`;
+    const wxDays = wxCacheGet(it.d.id); // 只读缓存，不发请求；没缓存就不加这行
+    if (wxDays) s += `  天气参考（Open-Meteo 估算）：${wxLine(wxDays)}\n`;
+    s += `\n`;
     if (it.legOut) s += `【${it.d.name} → 上海】${it.legOut.mode} ${fmtH(it.legOut.hours)}（约${it.legOut.km}km）\n\n`;
   });
   s += "※ 时长为估算，请以 12306/航班动态为准。";
   return s;
 }
 
+let rbWxGen = 0; // 防止用户改动行程后快速重开路书时，旧请求把天气写串到新渲染的节点上
 function openRoadbook() {
   if (!state.trip.length) { toast("行程还是空的"); return; }
   document.getElementById("rbBody").innerHTML = roadbookHTML();
   document.getElementById("rbOverlay").classList.add("show");
+  fillRoadbookWeather(++rbWxGen);
+}
+async function fillRoadbookWeather(gen) {
+  const stops = tripStops();
+  await Promise.all(stops.map(async d => {
+    const days = await fetchWeather(d);
+    if (!days || gen !== rbWxGen) return;
+    const el = document.querySelector(`[data-wx="${d.id}"]`);
+    if (el) el.innerHTML = `<b>⛅ 未来7天参考：</b>${wxLine(days)}`;
+  }));
 }
 
 function copyText(txt) {
