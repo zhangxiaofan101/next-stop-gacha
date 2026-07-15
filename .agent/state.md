@@ -6,6 +6,7 @@
 
 （Phase 1 已封板 → 见 🪦 墓碑；M1–M25 全部条目与 Verified 证据明细在 git 历史（至 176512d）；新模块自 M26 起编号） [cc]
 
+- M33 — 内容扩容二期实施 [R2 · S3] → codex · high ｜先独立复核 3ef86ee，F24–F28 以正常构建、三类反例 fixture、jq 结构断言及平凉官方铁路信息复查全部关闭；新增 15 张完整 25 字段城市卡（长汀、珲春、延安、榆林、和田、轮台、武威、南宁、芒市、瑞丽、若尔盖、日喀则、普兰、札达、西昌）与构建器所需的等值 patch 镜像，新增 15 条联程线路并把河西走廊入口收束为武威，口径更新为 263 城 + 52 线；S3 复核中修正游轮登船日、九寨/黄龙顺序、错误标签与同行口径等语义问题，阿里南线因 10 日档无法诚实闭合而按 brief §3 拒绝该档、只保留 14 日拉萨闭环；海南西线/真环岛只产出 `.agent/m33-hainan-west-survey.md`，建议后续先做 4 新城 + 独立西线，真环岛需另立架构模块 ｜ Verified: 城市批两跑 263+37、SHA256 `347e13e9…4cee`；线路批两跑 263+52、SHA256 `aa22b7ea…f6b4`；文档/口径批两跑 263+52、SHA256 `9df8ecd6…db75`；15 城字段/patch 等值、52 线唯一 id、stops 存在与上限、F8 天数、海拔传播、必写 leg/stays、阿里闭环及旧线路仅河西一条预期变更均由机械断言通过，build 零 warning [codex]
 - M33 — 内容扩容二期调研 [R2 · S2] · codex reviewer ｜复核 fcec443：F23 已修复，正常构建及 alt:true / alt:false 两类失败 fixture 均恢复 F8 拦截；只读盘点 248 城 + 37 线，产出 .agent/m33-expansion-survey.md（15 条线路候选、15 张城市候选与不建议项），未改数据；全量城市/联程复核的新问题 F24–F28 已写 review.md｜Verified: tools/build.py、全量 id/region/schema/线路站序与 plans 语义互查、官方来源交叉核验 [codex]
 - F24–F28 triage（M33 调研随附复核，2026-07-16 cc）— 五条全采纳：**F24** 天山天池/五台山/乐山峨眉/神农架/长白山五卡 alt→true（patch 文件定点改，e 文件单行格式保留），北疆/晋北/东北雪国/宜昌神农架四线保守传播 alt→true；build 加 `ALT_TRUE_PIN` 人工海拔断言硬钉子 + F22 文本审计泛化到城市卡（原只查线路）；**F25** 青海湖祁连环线四站全补 leg（西宁-黑马河/茶卡/祁连×2/门源，大冬树山垭口 4120m 在 S204 已 web 核实）；**F26** 河西/呼伦贝尔/东北雪国三条 5 日档 plan 重写为覆盖全站且与 stops 同序，build 加 plan 文本顺序非阻塞警告（漏站判不了：海拉尔≠呼伦贝尔，靠评审）；**F27** 处置①改名「海南东线」（id 保留保收藏兼容，tagline/7日档标题去环岛口径；西线调研另派 codex）；**F28** 平凉 transit 重写——web 核实平凉至今仅宝中/西平线普速（2025-05 仅 K/6/7 字头），删「银西线高铁」编造，difficulty 一次中转不变｜Verified: build 两跑幂等；三个新闸门反例验证（五台山 alt=false→error、河西倒走文本→F26 警告、杭州塞垭口文本→F22 警告，复原后干净）；浏览器断言——青海湖环线整线装入路书含青海湖/黑马河/茶卡/大冬树山垭口/卓尔山/门源全部 leg 内容且无「版改编」、删茶卡站整组回退（leg 消失）、noAlt 筛选九个新 alt 记录全排除且杭州不误伤、海南东线名生效、平凉新口径生效 [cc]
 - M32 — 详情页大按钮撞色修复 [R0 · S1] · cc in-session ｜ 2026-07-16 用户反馈「打卡去过和加入行程同色怪怪的」：打卡按钮新增 `big-btn.green`（--spring 绿渐变，足迹语义），与行程橙、对比蓝三色区分；已打卡仍转 ghost 弱化、取消恢复绿 ｜ Verified: 浏览器断言三按钮 computed background 各异 + 打卡/取消类切换正确 + 截图目检卡通风格一致；build 两跑幂等 [cc]
@@ -25,9 +26,7 @@
 
 ## 🔜 Next batch
 
-（三期 M26–M31 已全部完成；M26–M30 跨家族 review 新发现 F14–F17，先 triage，不开下一实现批次。） [codex]
-
-- M33·实施 — 内容扩容二期数据写作 [R2 · S3] · **已派活 codex**（2026-07-16 用户拍板：15 条线路**全都要**含 L14 阿里南线与 L5 青甘大环线、15 张城卡全建含武威/西昌独立卡、海南改名东线 cc 已做+西线调研另出报告；数据写作明确交 codex，cc 收拢审查）：实施 brief 见 `.agent/m33-implementation-brief.md`——完整 schema/枚举/区→文件映射、leg 必写清单（L4/L5/L9/L11/L12/L14）、F26 全站同序纪律、F28 反编造红线、验收流程与角色反转（本批 codex 实现、cc 审查）；落地后口径 263 城+52 线 [cc]
+（M33 实施已完成；下一步按角色反转由 cc 做跨家族数据审查与浏览器整线装入回归，未预开新的实现模块。） [codex]
 
 ## ⏭ P1
 
@@ -45,7 +44,6 @@
 - 2026-07-15 codex 复核：F14–F17 均已确认修复并从 review.md 删除；M31 处置新发现 F18/F19（P1）与 F20（P2）——2026-07-16 cc 已全采纳修复入库（见 ✅ M31·收尾修复），review.md 待 codex 下轮复核关闭 [cc]
 - 2026-07-16 codex 复核：F18/F21/F22 已确认修复并从 review.md 删除；新发现 F23（P1，F22 审计块缩进使 F8 可达性校验对全部线路失效）——2026-07-16 cc 已修复入库（见 ✅ 第三轮），review.md 待 codex 下轮复核关闭 [cc]
 - 2026-07-16 codex 复核 `075066b`：F18/F21/F22 均确认修复并从 review.md 删除；相邻审计发现 F23（P1）——F22 海拔 warning 的缩进误将 F8 线路 `days` 可达性校验收进关键词分支，当前 37 条线路全部跳过该闸门；待 cc 按 review.md triage [codex]
-- 2026-07-16 F24–F28 cc 已全采纳修复入库（见 ✅ F24–F28 triage），review.md 待 codex 下轮复核关闭；F27 的西线/真环岛后续与 M33 实施一并派活 codex（brief §0.4） [cc]
 - index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
 ## ❌ Explicit non-goals
