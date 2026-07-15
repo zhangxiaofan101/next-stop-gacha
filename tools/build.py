@@ -21,7 +21,8 @@ DIFFICULTIES = {"直达", "一次中转", "折腾"}
 COMPANIONS = {"带娃", "带爸妈", "独行", "情侣周末"}  # companions 可为空数组=通配；四档全打应写成空
 # F24 人工海拔断言清单：标准行程方案实际到达 2500m+ 的记录（马牙山/北台/金顶/神农顶/长白山天池），
 # alt 必须为 true。文本审计只能提示，这份清单是硬回归钉子——新增此类记录时人工补录。
-ALT_TRUE_PIN = {"tianshan-tianchi", "wutaishan", "leshan-emeishan", "shennongjia", "changbaishan"}
+ALT_TRUE_PIN = {"tianshan-tianchi", "wutaishan", "leshan-emeishan", "shennongjia", "changbaishan",
+                "ruoergai", "shigatse", "pulan", "zanda"}
 REQ = ["id", "name", "emoji", "province", "region", "crowd", "cost", "seasons", "seasonNote", "days", "transit", "tagline", "tags", "food", "museums", "architecture", "highlights", "plans", "coords", "hotel", "local", "effort", "alt", "difficulty", "companions"]
 
 files = [f"data-{c}.json" for c in "abcdef"]
