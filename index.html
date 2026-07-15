@@ -596,15 +596,30 @@ function hav(a, b) {
   return Math.round(2 * R * Math.asin(Math.sqrt(h)));
 }
 const FLY_PROV = new Set(["西藏", "新疆", "海南", "香港", "澳门"]);
-// 渤海湾/胶东半岛：铁路大幅绕行（青岛真实 6h vs 直线估 3h），超 500km 的段倾向飞
-const SEA_DETOUR = new Set(["dalian", "yantai", "weihai", "qingdao"]);
+// 渤海湾/胶东半岛：铁路大幅绕行（青岛真实 6h vs 直线估 3h），超 500km 的段倾向飞。
+// 只对真跨海方向生效（codex F10），按对端方位判定，同侧陆路走廊不强制飞：
+//  · 大连：除东北三省（哈大/沈白直达）外，其余方向直线均跨渤海/黄海
+//  · 胶东三市南向：纬度<34.5 且经度>118（江浙沪及以南沿海）跨黄海；西/西南内陆（徐州、郑洛、石家庄）走陆路
+//  · 胶东三市北向：东北三省跨渤海海峡；烟台/威海位置近海角，北纬>38.8（京/承/大同一线）即跨渤海湾；
+//    青岛偏南基部，西北扇面（北京/正定）有陆路直达，仅东北向（承德/坝上，纬>39.5 且经>117.4）跨湾
+const SD_PEN = new Set(["qingdao", "yantai", "weihai"]);
+const NE_PROV = new Set(["辽宁", "吉林", "黑龙江"]);
+function seaDetour(p, q) {
+  const [lat, lng] = q.coords;
+  if (p.id === "dalian") return !NE_PROV.has(q.province);
+  if (!SD_PEN.has(p.id)) return false;
+  if (lat < 34.5 && lng > 118) return true;
+  if (NE_PROV.has(q.province)) return true;
+  if (p.id === "qingdao") return lat > 39.5 && lng > 117.4;
+  return lat > 38.8;
+}
 // 时长参数以 245 条 transit 人写时长回归标定（2026-07-14）：高铁=直线km/190+0.6，
 // 飞机=直线km/625+2.4（口径为门到门、含机场地面时间）；干线快/沿海支线慢的残差是直线模型固有的，输出恒标"估算"
 function legInfo(a, b) {
   const km = hav(a.coords, b.coords);
   const straight = Math.round(km * 1.25); // 近似实际里程
   const provFly = FLY_PROV.has(a.province) || FLY_PROV.has(b.province);
-  const needFly = provFly || (km >= 500 && (SEA_DETOUR.has(a.id) || SEA_DETOUR.has(b.id)));
+  const needFly = provFly || (km >= 500 && (seaDetour(a, b) || seaDetour(b, a)));
   let mode, icon, hours;
   if (km < 60) { mode = "打车/自驾"; icon = "🚕"; hours = Math.max(.6, km / 50); }
   else if (km < 160 && !needFly) { mode = "高铁/自驾"; icon = "🚄"; hours = km / 160 + .4; }
@@ -1359,7 +1374,7 @@ addEventListener("keydown", e => {
 /* ================= 启动 ================= */
 function boot() {
   loadLS();
-  document.getElementById("countPill").textContent = `🗺 ${DATA.length} 个目的地 · 现在是${CUR_SEASON}天`;
+  document.getElementById("countPill").textContent = `🗺 ${DATA.filter(d => !d.stops).length} 个目的地 · ${DATA.filter(d => d.stops).length} 条线路 · 现在是${CUR_SEASON}天`;
   buildConsole();
   render();
 }
