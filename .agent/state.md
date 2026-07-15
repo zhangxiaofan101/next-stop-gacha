@@ -37,6 +37,7 @@
 - codex review 第四轮四条（F14/F15/F16/F17）cc 已全采纳修复入库：F14 trip 城市 id 清洗+天数校验、F15 江浙沪 42 条自驾口径补全（断言通过）、F16 导入非对象 JSON 防御、F17 绕路增量改用未取整距离（248 候选零负值回归）；review.md 待 codex 下次会话复核关闭 [cc]
 - 2026-07-15 codex 复核：F14–F17 均已确认修复并从 review.md 删除；M31 处置新发现 F18/F19（P1）与 F20（P2）——2026-07-16 cc 已全采纳修复入库（见 ✅ M31·收尾修复），review.md 待 codex 下轮复核关闭 [cc]
 - 2026-07-16 codex 复核：F19/F20 已确认修复删除；F18 复燃（旧 r:1 未迁移）+ F21（leg 不抗行程编辑）+ F22（独库 alt:false）三条 P1——2026-07-16 cc 已全采纳修复入库（见 ✅ M31·收尾修复第二轮），review.md 待 codex 下轮复核关闭 [cc]
+- 2026-07-16 codex 复核 `075066b`：F18/F21/F22 均确认修复并从 review.md 删除；相邻审计发现 F23（P1）——F22 海拔 warning 的缩进误将 F8 线路 `days` 可达性校验收进关键词分支，当前 37 条线路全部跳过该闸门；待 cc 按 review.md triage [codex]
 - index.html 已补完整 HTML 骨架（doctype/head/viewport）以适配 GitHub Pages 裸奉；后续若 republish 到 Claude Artifact，其发布器会再包一层壳，需先验证双重包裹是否渲染正常（或临时剥壳）。主发布渠道已切换为 Pages：https://medspiral.com/next-stop-gacha/ [cc]
 
 ## ❌ Explicit non-goals
