@@ -151,6 +151,7 @@
   .badge.now { background: var(--yellow); color: var(--ink); }
   .badge.altb { background: #e9e2f9; color: #5c4a8f; }
   .badge.routeb { background: var(--orange); color: #fff; }
+  .badge.visitedb { background: #dcf3dd; color: #2e7d43; }
   .card.route-card { border-style: dashed; border-color: var(--orange-deep); }
   .c-body { padding: 12px 16px 14px; }
   .c-name-row { display: flex; align-items: center; gap: 10px; }
@@ -436,6 +437,7 @@
     <div class="title-row">
       <h1 class="logo"><span class="plane">✈️</span> 下一站，去哪玩</h1>
       <span class="count-pill" id="countPill">…</span>
+      <span class="count-pill" id="footPill" style="display:none"></span>
     </div>
     <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。</p>
   </header>
@@ -633,14 +635,15 @@ const CUR_SEASON = ["冬", "冬", "春", "春", "春", "夏", "夏", "夏", "秋
 
 const state = {
   region: new Set(), season: new Set(), days: new Set(),
-  crowd: new Set(), cost: new Set(), difficulty: new Set(), effort: new Set(), companions: new Set(), tags: new Set(), q: "", sort: "default", onlyFav: false, noAlt: false,
+  crowd: new Set(), cost: new Set(), difficulty: new Set(), effort: new Set(), companions: new Set(), tags: new Set(), q: "", sort: "default", onlyFav: false, noAlt: false, hideVisited: false,
   favs: [], cmp: [], trip: [], // trip: [{id, days}]
+  visited: [], // 已打卡的城市 id
 };
 
 /* ================= 本地存储 ================= */
 const LS_KEY = "nextstop_v2";
 function saveLS() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ favs: state.favs, cmp: state.cmp, trip: state.trip })); } catch (e) {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ favs: state.favs, cmp: state.cmp, trip: state.trip, visited: state.visited })); } catch (e) {}
 }
 function loadLS() {
   try {
@@ -649,6 +652,7 @@ function loadLS() {
     state.favs = (s.favs || []).filter(id => ids.has(id));
     state.cmp = (s.cmp || []).filter(id => ids.has(id));
     state.trip = (s.trip || []).filter(t => ids.has(t.id));
+    state.visited = (s.visited || []).filter(id => ids.has(id));
   } catch (e) {}
 }
 
@@ -740,6 +744,7 @@ function buildConsole() {
       </select>
       <button class="btn" id="altToggle">⛰️ 避开高海拔</button>
       <button class="btn" id="favToggle">♥ 只看收藏</button>
+      <button class="btn" id="visitedToggle">👣 隐藏去过的</button>
       <button class="btn" onclick="resetFilters()">清空筛选</button>
       <div class="hit" id="hitCount"></div>
     </div>`;
@@ -777,14 +782,20 @@ function buildConsole() {
     e.target.classList.toggle("on", state.noAlt);
     render();
   });
+  document.getElementById("visitedToggle").addEventListener("click", e => {
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle("on", state.hideVisited);
+    render();
+  });
 }
 
 function resetFilters() {
   ["region", "season", "days", "crowd", "cost", "difficulty", "effort", "companions", "tags"].forEach(k => state[k].clear());
-  state.q = ""; state.onlyFav = false; state.noAlt = false;
+  state.q = ""; state.onlyFav = false; state.noAlt = false; state.hideVisited = false;
   document.getElementById("searchBox").value = "";
   document.getElementById("favToggle").classList.remove("on");
   document.getElementById("altToggle").classList.remove("on");
+  document.getElementById("visitedToggle").classList.remove("on");
   document.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"));
   render();
 }
@@ -797,8 +808,10 @@ function matchOne(d, okey, oset) {
   const q = okey === "q" ? "" : state.q;
   const fav = okey === "onlyFav" ? false : state.onlyFav;
   const noAlt = okey === "noAlt" ? false : state.noAlt;
+  const hideV = okey === "hideVisited" ? false : state.hideVisited;
   if (fav && !state.favs.includes(d.id)) return false;
   if (noAlt && d.alt) return false;
+  if (hideV && state.visited.includes(d.id)) return false;
   if (g("region").size && !(d.regions || [d.region]).some(r => g("region").has(r))) return false;
   if (g("season").size && !d.seasons.some(s => g("season").has(s))) return false;
   if (g("days").size && !DAY_BUCKETS.some(b => g("days").has(b.key) && b.test(d.days))) return false;
@@ -881,6 +894,10 @@ function relaxCandidates() {
     label: "不避开高海拔", n: countWith("noAlt", null),
     apply: () => { state.noAlt = false; document.getElementById("altToggle").classList.remove("on"); },
   });
+  if (state.hideVisited) cands.push({
+    label: "不隐藏去过的", n: countWith("hideVisited", null),
+    apply: () => { state.hideVisited = false; document.getElementById("visitedToggle").classList.remove("on"); },
+  });
   return cands.filter(c => c.n > 0).sort((a, b) => b.n - a.n);
 }
 function applyRelax(i) {
@@ -915,6 +932,7 @@ function cardHTML(d, i) {
     <div class="c-strip">
       <span class="c-route">${isRoute ? `🎫 联程线路 · ${d.province}` : `上海 ✈ ${d.province} · ${d.region}`}</span>
       <span class="c-badges">
+        ${!isRoute && state.visited.includes(d.id) ? `<span class="badge visitedb">✓ 去过</span>` : ""}
         ${isRoute ? `<span class="badge routeb">线路卡</span>` : ""}
         ${d.seasons.includes(CUR_SEASON) ? `<span class="badge now">当季</span>` : ""}
         ${d.alt ? `<span class="badge altb">⛰️ 高海拔</span>` : ""}
@@ -956,12 +974,28 @@ function render() {
   }
   updateChipCounts();
   renderDock();
+  updateFootprint();
+}
+// 足迹统计：打卡数 + 点亮省份数（只算城市记录，线路卡不计入 visited）
+function updateFootprint() {
+  const pill = document.getElementById("footPill");
+  const n = state.visited.length;
+  if (!n) { pill.style.display = "none"; return; }
+  const provs = new Set(state.visited.map(id => byId(id)?.province).filter(Boolean));
+  pill.textContent = `👣 去过 ${n} 个目的地 · 点亮 ${provs.size} 个省份`;
+  pill.style.display = "";
 }
 
 /* ================= 收藏 / 对比 / 行程 篮子 ================= */
 function toggleFav(id) {
   const i = state.favs.indexOf(id);
   i >= 0 ? state.favs.splice(i, 1) : state.favs.push(id);
+  saveLS(); render();
+}
+function toggleVisited(id) {
+  const i = state.visited.indexOf(id);
+  if (i >= 0) { state.visited.splice(i, 1); toast("已取消打卡"); }
+  else { state.visited.push(id); toast(`👣 已打卡：${byId(id).name}`); }
   saveLS(); render();
 }
 function toggleCmp(id) {
@@ -1024,6 +1058,9 @@ function detailHTML(d) {
   const tripBtn = isRoute
     ? `<button class="big-btn" data-addroute="${d.id}">🎫 整条装入行程单</button>`
     : `<button class="big-btn ${inTrip ? "ghost" : ""}" data-trip="${d.id}">${inTrip ? "已在行程 ✓（点击移除）" : "🧳 加入行程"}</button>`;
+  const isVisited = state.visited.includes(d.id);
+  // 打卡去过：只有城市记录才有意义，线路卡按站点/城市算，不给这个按钮
+  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : ""}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : "👣 打卡去过"}</button>`;
   return `
     <div class="dt-head">
       <span class="c-emoji dt-emoji" style="--rs:${rs};background:${rs}">${d.emoji}</span>
@@ -1060,6 +1097,7 @@ function detailHTML(d) {
     <div class="dt-actrow">
       ${tripBtn}
       <button class="big-btn blue" data-cmp="${d.id}">⚖️ 加入对比</button>
+      ${visitBtn}
     </div>`;
 }
 
@@ -1130,6 +1168,7 @@ function openGacha() {
   if (state.companions.size) parts.push([...state.companions].join("/"));
   if (state.tags.size) parts.push([...state.tags].join("+"));
   if (state.noAlt) parts.push("避开高海拔");
+  if (state.hideVisited) parts.push("隐藏去过");
   if (state.q) parts.push(`「${state.q}」`);
   const pool = filtered();
   document.getElementById("gachaScope").innerHTML =
@@ -1447,6 +1486,8 @@ document.addEventListener("click", e => {
   if (del) { state.trip.splice(+del.dataset.del, 1); saveLS(); renderTrip(); render(); return; }
   if (e.target.id === "copyRbBtn") { copyText(roadbookText()); return; }
   if (e.target.id === "printRbBtn") { window.print(); return; }
+  const vis = e.target.closest("[data-visited]");
+  if (vis) { e.stopPropagation(); toggleVisited(vis.dataset.visited); if (vis.closest("#detailBody")) openDetail(vis.dataset.visited); return; }
   const card = e.target.closest(".card");
   if (card && !e.target.closest(".act")) openDetail(card.dataset.id);
 });
