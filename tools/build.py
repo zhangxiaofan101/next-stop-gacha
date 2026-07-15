@@ -152,18 +152,19 @@ for src, d in all_rows:
                 # 高海拔保守口径：任一停留站 alt=true，线路必须 alt=true
                 if any(city_by_id[s["id"]].get("alt") for s in st) and not d.get("alt"):
                     errors.append(f"{tag} 途经高海拔站点但线路 alt=false（健康警示需保守）")
-        # F22：线路的海拔风险常在路上（翻垭口/达坂），代理停留站可能都 alt=false 而漏判。
-        # 文本出现明确高海拔信号却 alt=false 时给非阻塞警告（不从自由文本硬判，只提示人工复核）。
-        if not d.get("alt"):
-            blob = " ".join([d.get("seasonNote", ""), d.get("tagline", "")]
-                            + d.get("highlights", []) + [p.get("route", "") for p in (d.get("plans") or [])])
-            if re.search(r"达坂|垭口|海拔\s*[3-5]\d{3}|[3-5]\d{3}\s*m", blob):
-                warnings.append(f"{tag} 文本含高海拔信号（达坂/垭口/3000m+）但 alt=false，请人工复核是否应示警")
                 # F8：线路装入后各站下拉放开为 1~城市上限，故每个 days 档必须 ∈ [站数, Σ城市上限] 才能在行程单调出
+                # （F23：此块必须留在 len(ok)==len(st) 通用校验层，勿被后加的分支缩进吞掉——曾因 F22 审计块漂移而对全部线路失效）
                 lo, hi = len(st), sum(max(city_by_id[s["id"]]["days"]) for s in st)
                 for dv in dy:
                     if not (lo <= dv <= hi):
                         errors.append(f"{tag} days 档 {dv} 在行程单不可达（可达区间 [{lo},{hi}]）")
+        # F22：线路的海拔风险常在路上（翻垭口/达坂），代理停留站可能都 alt=false 而漏判。文本出现明确高海拔
+        # 信号却 alt=false 时给非阻塞警告（不从自由文本硬判，只提示人工复核）；与上面 schema 校验平行、不吞其缩进。
+        if "stops" in d and not d.get("alt"):
+            blob = " ".join([d.get("seasonNote", ""), d.get("tagline", "")]
+                            + d.get("highlights", []) + [p.get("route", "") for p in (d.get("plans") or [])])
+            if re.search(r"达坂|垭口|海拔\s*[3-5]\d{3}|[3-5]\d{3}\s*m", blob):
+                warnings.append(f"{tag} 文本含高海拔信号（达坂/垭口/3000m+）但 alt=false，请人工复核是否应示警")
         rg = d.get("regions")
         if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
             errors.append(f"{tag} regions 非法: {rg}")
