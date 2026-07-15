@@ -1443,7 +1443,9 @@ function seaDetour(p, q) {
 }
 // 时长参数以 245 条 transit 人写时长回归标定（2026-07-14）：高铁=直线km/190+0.6，
 // 飞机=直线km/625+2.4（口径为门到门、含机场地面时间）；干线快/沿海支线慢的残差是直线模型固有的，输出恒标"估算"
-function legInfo(a, b) {
+// overland=true：该段是同一条完整 leg 组内的相邻站（招牌自驾/包车线，如 G318、阿里、沙漠公路），
+// 两站再远也是陆路翻山穿沙，不存在航班——此时禁用「飞机」判定，落包车/自驾（中途过夜由 leg.stays 承载）。
+function legInfo(a, b, overland) {
   const km = hav(a.coords, b.coords);
   const straight = Math.round(km * 1.25); // 近似实际里程
   const provFly = FLY_PROV.has(a.province) || FLY_PROV.has(b.province);
@@ -1452,6 +1454,8 @@ function legInfo(a, b) {
   const jzh = a.region === "江浙沪" && b.region === "江浙沪";
   let mode, icon, hours;
   if (km < 60) { mode = "打车/自驾"; icon = "🚕"; hours = Math.max(.6, km / 50); }
+  // overland：同一条完整 leg 组内的相邻站（招牌自驾/包车线），60km 以上一律陆路，不判高铁/飞机
+  else if (overland) { mode = "包车/自驾"; icon = "🚐"; hours = km / 55; }
   else if (km < 160 && !needFly) { mode = "高铁/自驾"; icon = "🚄"; hours = km / 160 + .4; }
   else if (km < 950 && !needFly) { mode = jzh && km < 400 ? "高铁/自驾" : "高铁"; icon = "🚄"; hours = km / 190 + .6; }
   else if (provFly && km < 400) { mode = "包车/大巴"; icon = "🚐"; hours = km / 55; }
@@ -2078,11 +2082,17 @@ function autoOrder() {
 
 function tripLegs() {
   const stops = tripStops();
+  const legIdx = legEligibleIndices(stops); // 整组完整启用 leg 的站下标（F21）
   const pts = [SH, ...stops, SH];
   const legs = [];
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i], b = pts[i + 1];
-    legs.push({ from: a, to: b, ...legInfo(a.coords ? a : { ...a }, b) });
+    const si = i - 1; // a 在 stops 中的下标（i≥1 时）；leg i 连接 stops[si]→stops[si+1]
+    // 相邻两站同属一条完整 leg 组（同 rid）→ 陆路段，禁用飞机判定
+    const overland = i >= 1 && i < stops.length
+      && legIdx.has(si) && legIdx.has(si + 1)
+      && stops[si].rid && stops[si].rid === stops[si + 1].rid;
+    legs.push({ from: a, to: b, ...legInfo(a.coords ? a : { ...a }, b, overland) });
   }
   return legs;
 }
