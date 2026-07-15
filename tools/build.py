@@ -101,6 +101,12 @@ for src, d in all_rows:
         for p2 in pl:
             if not isinstance(p2, dict) or not isinstance(p2.get("days"), int) or not p2.get("title") or not p2.get("route"):
                 errors.append(f"{tag} plan 结构非法")
+            # M29 路线型每晚落脚点：可选 stays，与该方案 days 等长，stays[i]=第 i 天晚上睡哪
+            elif "stays" in p2:
+                stv = p2["stays"]
+                if (not isinstance(stv, list) or len(stv) != p2["days"]
+                        or any(not isinstance(x, str) or not x.strip() for x in stv)):
+                    errors.append(f"{tag} plan {p2.get('days')}天 stays 非法(需与 days 等长的非空字符串数组): {stv}")
     c = d.get("coords")
     if (not isinstance(c, list) or len(c) != 2
             or not all(isinstance(x, (int, float)) for x in c)
