@@ -34,7 +34,7 @@
 
 每区配套 `data-X-patch.json` 补充 `coords`（坐标）/ `hotel`（住宿情报）/ `local`（当地交通）/ `effort`（体力档，空=通配）/ `alt`（高海拔 >2500m）/ `difficulty`（抵达难度）/ `companions`（同行适配，空=通配）。
 
-字段 schema：`id / name / emoji / province / region / crowd / cost / seasons / seasonNote / days / transit / tagline / tags / food / museums / architecture / highlights / plans[] / coords / hotel / local / effort[] / alt / difficulty / companions[]`；线路卡记录另有 `regions[]`（多区域筛选）与 `stops[]`（`{id, days}` 引用城市 + 建议停留），线路 `days` 为筛选档位、须包住各站天数合计，线路途经任一高海拔站则 `alt` 必须为 true，线路名称不带日数（卡面以「约N~M天 · 默认Σ天」展示，各站天数装入行程单后可调）。全部枚举与校验规则见 [`tools/build.py`](tools/build.py)。
+字段 schema：`id / name / emoji / province / region / crowd / cost / seasons / seasonNote / days / transit / tagline / tags / food / museums / architecture / highlights / plans[] / coords / hotel / local / effort[] / alt / difficulty / companions[]`；线路卡记录另有 `regions[]`（多区域筛选）与 `stops[]`（`{id, days, leg?}` 引用城市 + 建议停留；`leg` 可带线路视角逐日文案 `route`/每晚落脚点 `stays[]`/显式交通 `transport`），线路 `days` 为筛选档位、须包住各站天数合计，线路途经任一高海拔站则 `alt` 必须为 true，线路名称不带日数（卡面以「约N~M天 · 默认Σ天」展示，各站天数装入行程单后可调），另可选 `entry`/`exit` 声明与首末停留站不同的进出门户城市。全部枚举与校验规则见 [`tools/build.py`](tools/build.py)。
 
 ## 改数据 / 加目的地
 

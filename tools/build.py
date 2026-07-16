@@ -19,6 +19,7 @@ TAGS = {"美食", "博物馆", "古建筑", "古镇古村", "自然风光", "海
 EFFORTS = {"躺平", "正常", "费腿", "硬核"}  # effort 可为空数组=通配
 DIFFICULTIES = {"直达", "一次中转", "折腾"}
 COMPANIONS = {"带娃", "带爸妈", "独行", "情侣周末"}  # companions 可为空数组=通配；四档全打应写成空
+TRANSPORTS = {"游轮", "轮渡", "火车"}  # F30：leg.transport 显式交通语义枚举（默认陆路/飞机由距离启发式判，无需标注）
 # F24 人工海拔断言清单：标准行程方案实际到达 2500m+ 的记录（马牙山/北台/金顶/神农顶/长白山天池），
 # alt 必须为 true。文本审计只能提示，这份清单是硬回归钉子——新增此类记录时人工补录。
 ALT_TRUE_PIN = {"tianshan-tianchi", "wutaishan", "leshan-emeishan", "shennongjia", "changbaishan",
@@ -148,6 +149,13 @@ for src, d in all_rows:
                     elif (not isinstance(lg.get("stays"), list) or len(lg["stays"]) != s["days"]
                             or any(not isinstance(x, str) or not x.strip() for x in lg["stays"])):
                         errors.append(f"{tag} stop {s['id']} leg.stays 非法(需与 days={s['days']} 等长的非空字符串数组): {lg.get('stays')}")
+                    # F30：leg 可选 transport=显式交通语义（游轮/轮渡/火车），路书据此覆盖距离启发式，避免非公路 leg 被 F29 标成自驾
+                    elif "transport" in lg and lg["transport"] not in TRANSPORTS:
+                        errors.append(f"{tag} stop {s['id']} leg.transport 非法(需 ∈ {sorted(TRANSPORTS)}): {lg.get('transport')}")
+            # F31：线路可选 entry/exit=进出门户城市 id（如三亚进、海口出，与首末停留站不同），须引用存在的城市
+            for gk in ("entry", "exit"):
+                if gk in d and d[gk] not in city_ids:
+                    errors.append(f"{tag} {gk} 门户引用不存在的城市 id: {d[gk]}")
             ok = [s for s in st if isinstance(s, dict) and isinstance(s.get("days"), int) and s.get("id") in city_ids]
             if len(ok) == len(st):
                 sids = [s["id"] for s in st]
