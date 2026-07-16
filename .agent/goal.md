@@ -21,7 +21,7 @@
 
 ## 硬约束（已定）
 
-- 单文件静态网页，零依赖、无后端、无登录；主发布渠道为 GitHub Pages（2026-07 起，medspiral.com/next-stop-gacha/），保持可打包回 Claude Artifact 的自包含性
+- 单文件静态网页，零依赖、无后端、无登录；唯一内容源保持为本仓库，正式入口迁至 Cloudflare Workers 路径 `https://lab.medspiral.com/next-stop-gacha/`，每次 `main` 更新自动发布；迁移验收前 GitHub Pages 仅作回滚源，验收后取消旧入口发布；保持可打包回 Claude Artifact 的自包含性
 - 浅色卡通画风
 - 核心数据为人工知识生成 + schema 校验；页面上明示"以 12306/酒店 App 实查为准"。实时接入（2026-07-15 修订）：仅限免 key 的开放 API 纯前端调用（如天气预报），必须断网/接口失效优雅降级，不得成为页面可用性的前提
 
