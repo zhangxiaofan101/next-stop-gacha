@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "next-stop-gacha",
+  "main": "cloudflare/worker.mjs",
+  "compatibility_date": "2026-07-16",
+  "build": {
+    "command": "mkdir -p dist && cp index.html dist/index.html"
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "routes": [
+    {
+      "pattern": "lab.medspiral.com/next-stop-gacha/*",
+      "zone_name": "medspiral.com"
+    }
+  ]
+}

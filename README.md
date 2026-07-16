@@ -47,6 +47,12 @@ python3 tools/build.py
 
 校验不过会直接报错并指出是哪条数据的哪个字段。
 
+## 部署
+
+正式入口计划迁至 `https://lab.medspiral.com/next-stop-gacha/`，内容仍只在本仓库维护。`wrangler.jsonc` 会在 Cloudflare 构建时把自包含的 `index.html` 复制到隔离的 `dist/`，再由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀并交给静态资源服务。
+
+仓库配置只负责声明构建和目标 Route；首次上线还需要在 Cloudflare Workers 中连接本仓库并执行一次生产部署。不要给这个 Worker 绑定整个 `lab.medspiral.com` Custom Domain，以免接管 Lab 首页。
+
 ## 说明与免责
 
 - 交通方式与时长按坐标直线距离估算，仅供排程参考，出发前以 12306 / 航班动态为准
