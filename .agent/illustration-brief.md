@@ -6,7 +6,7 @@
 
 | 谁 | 干什么 |
 |----|--------|
-| **codex（文生图轨道）** | 按本工单的风格锁+prompt 生成图像。Codex 本体不出图——它的任务是：有图像 API（gpt-image-1 等）就写脚本批量调用；没有就把 prompt 整理成可逐条粘贴的清单交用户去 ChatGPT/即梦/Midjourney 手动生成。每个资产出 2~4 版，按下方「初筛核对清单」做第一轮筛选，产出放 `assets/illustrations/raw/`（PNG 原图，不进 git——.gitignore 已有约定后补） |
+| **codex（文生图轨道）** | 按本工单的风格锁+prompt 生成图像。Codex 本体不出图——它的任务是：有图像 API（gpt-image-1 等）就写脚本批量调用；没有就把 prompt 整理成可逐条粘贴的清单交用户去 ChatGPT/即梦/Midjourney 手动生成。每个资产出 2~4 版，按下方「初筛核对清单」做第一轮筛选，产出放 `assets/illustrations/raw/`（PNG 原图，不进 git；目录结构与流转规则见 `assets/illustrations/README.md`） |
 | **用户** | 终审：样张并排看，判「换画师」感；吉祥物三选一 |
 | **cc** | 质感层全部代码（字体/歪框/纸纹/rough.js，M39）；资产接入管线（webp 压缩、懒加载、emoji 回退，M42）；样张的卡片嵌入演示（M43）；风格锁若两轮跑不齐，回 cc 重新定锁 |
 
@@ -131,4 +131,4 @@ question mark doodle floating above its head, plain cream background.
 ## 交付规范
 
 - 文件名：`gacha-machine-v{n}.png` / `mascot-{capybara|shiba|penguin}-v{n}.png` / `empty-state-v{n}.png` / `region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png` / `dest-{hangzhou|dunhuang|sanya}-v{n}.png`
-- 原图 PNG ≥1024px 放 `assets/illustrations/raw/`（不进 git）；用户终审通过的版本由 cc 压缩为 webp 入库（尺寸/体积上限见 design 资产规范）
+- 原图 PNG ≥1024px 放 `assets/illustrations/raw/`（不进 git）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）

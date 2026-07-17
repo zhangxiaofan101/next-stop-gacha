@@ -34,7 +34,7 @@
 
 轨道并行：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/worker/构建）**，文件边界零冲突。代码轨道内 M37→M38 严格串行（换骨），M40/M41 可与 M39 并行（worker/ vs src/）。 [cc]
 
-1. M43 — 目的地插画样例 [R2 · S2] → codex（文生图轨道）｜即刻可开，不依赖任何代码；风格锁/prompt/初筛清单/交付规范见 `.agent/illustration-brief.md`；三张样张（杭州/敦煌/三亚）+ 吉祥物三选一交用户终审；cc 侧出卡片嵌入演示 [cc]
+1. M43 — 目的地插画样例 [R2 · S2] → codex（文生图轨道）｜即刻可开，不依赖任何代码；风格锁/prompt/初筛清单/交付规范见 `.agent/illustration-brief.md`；三张样张（杭州/敦煌/三亚）+ 吉祥物三选一交用户终审；cc 侧出卡片嵌入演示。2026-07-17 目录结构已就位：`assets/illustrations/{raw,picked}` + README 流转规则 + raw gitignore [cc]
 2. M42·生成 — 装饰插画首批 [R1 · S2] → codex（同轨道同工单）｜扭蛋机主视觉 + 吉祥物 + 空态（空态必须在吉祥物选定后引用其参照图生成）；九区题头第二批等样张定稿 [cc]
 3. M39·样稿 — 手绘质感样稿 [R1 · S1] → cc in-session 或 sonnet · low ｜现单文件复制件上做一页 throwaway 样稿（手写字体+歪框+纸纹，一张卡+扭蛋区），截图交用户终审质感方向；不合入主线 [cc]
 4. M37 — 前端工程化：脚手架与数据外置 [R2 · S3] → sonnet · high + cc 复核 ｜部署面改动配请求级测试；上线前 Wrangler dry-run 验证同 M36 流程 [cc]
