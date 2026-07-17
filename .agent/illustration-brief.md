@@ -42,32 +42,26 @@ small grassy mound with two tiny flowers. Single object, centered, plain
 cream background (#fff8ec).
 ```
 
-### A2 吉祥物（三选一，1024×1024，奶油底，全身、居中、单角色）
+### A2 吉祥物 `mascot`（已拍板：水豚；1024×1024，奶油底，全身、居中、单角色）
 
-> 风格锁 + 各变体：
+**原创性红线（用户要求：不得与现有水豚 IP 冲突）**：不得出现**头顶柑橘/柚子**、**嘴叼草**、**温泉毛巾/温泉场景**——这三类是已知水豚形象（カピバラさん Kapibara-san、"橘子头温泉水豚" meme 一族）的标志元素，prompt 里已显式排除，初筛必查。本角色的固定辨识三件套＝**黄色渔夫帽 + 红色小背包 + 摊开的纸地图**。
 
-- **v1 背包水豚**
-  ```
-  A round, chubby capybara wearing a tiny yellow bucket hat and a small red
-  backpack, holding an unfolded paper map, cheerful sleepy smile, standing
-  upright, full body, single character, centered, plain cream background.
-  ```
-- **v2 渔夫帽柴犬**
-  ```
-  A plump shiba inu wearing a teal fisherman hat and a tiny camera on a strap
-  around its neck, one paw raised as if hailing a train, happy squinting eyes,
-  full body, single character, centered, plain cream background.
-  ```
-- **v3 拖行李箱企鹅**
-  ```
-  A small round penguin pulling an amber vintage suitcase on wheels, wearing a
-  coral scarf, waddling pose, determined cute expression, full body, single
-  character, centered, plain cream background.
-  ```
+> 风格锁 +
 
-### A3 空态插画 `empty-state`（1024×1024，奶油底；**必须在吉祥物选定后、引用其通过图生成**）
+```
+An original capybara character design, not based on any existing mascot or
+brand character. A round, chubby capybara wearing a tiny yellow bucket hat
+and a small red backpack, holding an unfolded paper map, cheerful sleepy
+smile, standing upright, full body, single character, centered, plain cream
+background. No fruit or objects on top of the head, no grass in the mouth,
+no towel, no hot-spring elements.
+```
 
-> 风格锁 + 已选吉祥物参照图 +
+生成 3~4 版供用户挑体型/表情；通过版即全站唯一角色，header/空态/后续引导气泡复用。
+
+### A3 空态插画 `empty-state`（1024×1024，奶油底；**必须引用 A2 通过图生成，保证是同一只**）
+
+> 风格锁 + A2 通过图参照 +
 
 ```
 The same mascot character sitting on the ground, peering into an empty
@@ -127,8 +121,9 @@ question mark doodle floating above its head, plain cream background.
 - [ ] 饱和度与色相落在色板附近（对照风格锁五色）
 - [ ] 底色干净（奶油底均匀 / 透明底无杂边），主体居中完整不出血
 - [ ] 与基准图并排看，笔触密度接近
+- [ ] 吉祥物类资产：无头顶柑橘/叼草/温泉毛巾等既有水豚 IP 标志元素；辨识三件套（黄渔夫帽/红背包/纸地图）齐全
 
 ## 交付规范
 
-- 文件名：`gacha-machine-v{n}.png` / `mascot-{capybara|shiba|penguin}-v{n}.png` / `empty-state-v{n}.png` / `region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png` / `dest-{hangzhou|dunhuang|sanya}-v{n}.png`
+- 文件名：`gacha-machine-v{n}.png` / `mascot-capybara-v{n}.png` / `empty-state-v{n}.png` / `region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png` / `dest-{hangzhou|dunhuang|sanya}-v{n}.png`
 - 原图 PNG ≥1024px 放 `assets/illustrations/raw/`（不进 git）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
