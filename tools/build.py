@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""合并 data/ 下六区数据与补丁 → 校验 → 注入 index.html 的 DATA 数组。
+"""合并 data/ 下六区数据与补丁 → 校验 → 发布为 public/data/ 下的静态 JSON chunk。
 
 用法：python3 tools/build.py
-改了 data/*.json 之后跑一次即可，幂等。
+改了 data/*.json 之后跑一次即可，幂等；产出的 chunk 与 manifest.json 需随源数据一起提交
+（Wrangler 构建只跑 `vite build`，不在 Cloudflare 侧重新执行本脚本）。
 """
-import json, os, re, sys
+import glob, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
-HTML = os.path.join(ROOT, "index.html")
+PUBLIC_DATA_DIR = os.path.join(ROOT, "public", "data")
+CHUNK_SIZE = 40  # M37：纯粹为 HTTP 并行/分块缓存服务的批大小，无语义含义——顺序才是唯一不变式
 
 REGIONS = {"江浙沪", "华东", "华北", "东北", "华中", "华南", "西南", "西北", "港澳"}
 SEASONS = {"春", "夏", "秋", "冬"}
@@ -203,23 +205,29 @@ if warnings:
 ORDER = ["江浙沪", "华东", "华北", "东北", "华中", "华南", "西南", "西北", "港澳"]
 merged = sorted((d for _, d in all_rows), key=lambda d: ORDER.index(d["region"]))
 
-data_json = json.dumps(merged, ensure_ascii=False, separators=(",", ":"))
-if "</script" in data_json:
-    print("数据中含 </script，需转义", file=sys.stderr); sys.exit(1)
+# M37：不再注入 index.html，改发布为 public/data/ 下的静态 chunk（纯按固定批大小切分，
+# 无地理语义）。chunk 内部顺序=拼接顺序=merged 的全局顺序——filtered() 在用户未选排序方式时
+# 直接用 DATA 的原始顺序展示，故 manifest 的文件顺序是不变式，运行时必须按序拼接、不能按
+# fetch 完成顺序拼接。
+os.makedirs(PUBLIC_DATA_DIR, exist_ok=True)
+for stale in glob.glob(os.path.join(PUBLIC_DATA_DIR, "chunk-*.json")):
+    os.remove(stale)
 
-html = open(HTML, encoding="utf-8").read()
-new_line = f"const DATA = {data_json};"
-if "/*__DATA__*/[]" in html:
-    html = html.replace("const DATA = /*__DATA__*/[];", new_line, 1)
-else:
-    html, n = re.subn(r"const DATA = \[.*?\];", lambda m: new_line, html, count=1, flags=re.S)
-    if n != 1:
-        print("index.html 中找不到 DATA 注入点", file=sys.stderr); sys.exit(1)
-open(HTML, "w", encoding="utf-8").write(html)
+chunk_names = []
+for i in range(0, len(merged), CHUNK_SIZE):
+    batch = merged[i:i + CHUNK_SIZE]
+    name = f"chunk-{i // CHUNK_SIZE}.json"
+    chunk_json = json.dumps(batch, ensure_ascii=False, separators=(",", ":"))
+    open(os.path.join(PUBLIC_DATA_DIR, name), "w", encoding="utf-8").write(chunk_json)
+    chunk_names.append(name)
+open(os.path.join(PUBLIC_DATA_DIR, "manifest.json"), "w", encoding="utf-8").write(
+    json.dumps(chunk_names, ensure_ascii=False))
 
 by_region = {}
 for d in merged:
     by_region[d["region"]] = by_region.get(d["region"], 0) + 1
 n_routes = sum(1 for d in merged if "stops" in d)
-print(f"OK: {len(merged) - n_routes} 个目的地 + {n_routes} 条线路（共 {len(merged)} 条），已注入 index.html ({len(html.encode('utf-8'))//1024}KB)")
+total_bytes = sum(os.path.getsize(os.path.join(PUBLIC_DATA_DIR, n)) for n in chunk_names)
+print(f"OK: {len(merged) - n_routes} 个目的地 + {n_routes} 条线路（共 {len(merged)} 条），"
+      f"发布 {len(chunk_names)} 个 chunk 到 public/data/ ({total_bytes // 1024}KB)")
 print("  ".join(f"{k}:{v}" for k, v in by_region.items()))

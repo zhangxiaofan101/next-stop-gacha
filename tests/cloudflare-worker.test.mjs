@@ -75,6 +75,33 @@ test("strips the prefix from nested asset paths", async () => {
   assert.equal(calls[0].url, "https://lab.medspiral.com/assets/app.css?v=3");
 });
 
+// M37：数据从注入 index.html 改为构建期发布的 public/data/ 静态 chunk，运行时按 manifest
+// fetch；Worker 的前缀剥离对 dist/ 内任意资产路径都是同一套通用逻辑，这里显式钉住 data/
+// chunk 与 hashed JS bundle 两类新资产形状，不只靠旧版就有的 assets/app.css 隐式覆盖。
+test("strips the prefix from data chunk and manifest paths", async () => {
+  const { env, calls } = assetEnv();
+  await handleRequest(
+    new Request("https://lab.medspiral.com/next-stop-gacha/data/manifest.json"),
+    env,
+  );
+  assert.equal(calls[0].url, "https://lab.medspiral.com/data/manifest.json");
+
+  await handleRequest(
+    new Request("https://lab.medspiral.com/next-stop-gacha/data/chunk-0.json"),
+    env,
+  );
+  assert.equal(calls[1].url, "https://lab.medspiral.com/data/chunk-0.json");
+});
+
+test("strips the prefix from hashed Vite build assets", async () => {
+  const { env, calls } = assetEnv();
+  await handleRequest(
+    new Request("https://lab.medspiral.com/next-stop-gacha/assets/main-a1b2c3d4.js"),
+    env,
+  );
+  assert.equal(calls[0].url, "https://lab.medspiral.com/assets/main-a1b2c3d4.js");
+});
+
 test("preserves asset status, headers, and body", async () => {
   const { env } = assetEnv(() => new Response("missing", {
     status: 404,

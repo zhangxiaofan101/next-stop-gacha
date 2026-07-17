@@ -2,7 +2,7 @@
 
 > 选择困难症旅行救星：267 个中国目的地 + 53 条多城联游线路，筛一筛慢慢比，扭一个听天由命，串几站直接出路书。
 
-**单文件、零依赖、纯静态** —— 打开 `index.html` 就能用。
+**Vite + TypeScript + Preact 工程化，构建产物为纯静态资产** —— `bun install && bun run dev` 本地跑，`bun run build` 出 `dist/`。
 
 ## 能干什么
 
@@ -39,17 +39,28 @@
 ## 改数据 / 加目的地
 
 1. 编辑 `data/` 下对应区域的 JSON（新目的地记得在 patch 文件里补 coords/hotel/local/effort/alt/difficulty/companions；新线路直接加进 `routes.json`）
-2. 跑构建（校验 schema + 注入 `index.html`）：
+2. 跑构建校验闸门，通过后把校验+合并后的数据发布为 `public/data/` 下的静态 chunk：
 
 ```bash
 python3 tools/build.py
 ```
 
-校验不过会直接报错并指出是哪条数据的哪个字段。
+校验不过会直接报错并指出是哪条数据的哪个字段；通过后需要把 `public/data/*.json` 的改动跟着一起提交（Cloudflare 构建侧只跑前端构建，不重新执行这个脚本）。
+
+## 本地开发 / 构建
+
+```bash
+bun install       # 安装依赖（Vite + TypeScript + Preact）
+bun run dev       # 本地开发服务器
+bun run build     # 产出 dist/：index.html + 带哈希的 JS/CSS + public/data/ chunk
+bun test tests/   # 跑 Cloudflare Worker 请求级测试
+```
+
+代码在 `src/main.ts`（业务逻辑，M38 前仍是从旧单文件逐字迁移的未拆分版本）+ `src/style.css` + `src/cn-map.ts`（足迹地图 SVG 数据）；`index.html` 是 Vite 入口，只保留静态 body 标记。
 
 ## 部署
 
-正式入口计划迁至 `https://lab.medspiral.com/next-stop-gacha/`，内容仍只在本仓库维护。`wrangler.jsonc` 会在 Cloudflare 构建时把自包含的 `index.html` 复制到隔离的 `dist/`，再由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀并交给静态资源服务。
+正式入口计划迁至 `https://lab.medspiral.com/next-stop-gacha/`，内容仍只在本仓库维护。`wrangler.jsonc` 在 Cloudflare 构建时跑 `bun install && bun run build`（Vite 构建，产出多文件 `dist/`），再由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀并交给静态资源服务——该 Worker 逻辑与资产文件数量无关，天然支持多文件产物。
 
 仓库配置只负责声明构建和目标 Route；首次上线还需要在 Cloudflare Workers 中连接本仓库并执行一次生产部署。不要给这个 Worker 绑定整个 `lab.medspiral.com` Custom Domain，以免接管 Lab 首页。
 
