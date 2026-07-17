@@ -87,6 +87,7 @@
 ## 📥 Review backlog（triage 结果）
 
 - F30–F33（baseline eb33f58）：cc 已全采纳修复入库（见 ✅ M35·review triage），review.md 四条待 codex 下轮复核关闭 [cc]
+- 2026-07-17 codex 跨家族复核：F30–F33 已关闭；M28 二至四轮已完成真实浏览器点击/开关复验，活动发现与四期控制面审计结论见 review.md baseline df8f485。 [codex]
 - F14–F17、F18/F21/F22、F23、F24–F28：均已修复并经 codex 复核从 review.md 删除（历史见各 ✅ 条目） [cc]
 - 下轮 codex review 建议范围：eb33f58 之后的 F30–F33 修复 + M34/M35 + 本次四期控制面改版（goal/design/state/工单四文件） [cc]
 
