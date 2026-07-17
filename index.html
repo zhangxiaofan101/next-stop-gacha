@@ -2216,7 +2216,12 @@ function bestInsertion(c) {
       const dk = havRaw(e.coords, c.coords);
       if (dk <= NEAR_KM && legInfo(e, c).mode !== "飞机" && (m === null || dk < m)) { m = dk; anch = e; }
     }
-    if (m !== null && (m < add || (m === add && extra < tie))) { add = m; at = i; near = anch; tie = extra; }
+    if (m === null) continue;
+    // F34：单站行程时「锚点前」「锚点后」两个缺口对同一候选给出完全相同的 m/extra（对称算式），
+    // 严格 `<` 只会留住先遍历到的锚点前一侧，把「到了成都顺便乐山」插成「乐山→成都」。
+    // 完全并列（同锚点、同度量）时优先锚点后的出站位（a===anch，即插在锚点之后）。
+    const afterAnchorTie = m === add && extra === tie && anch !== null && anch === near && a === anch;
+    if (m < add || (m === add && extra < tie) || afterAnchorTie) { add = m; at = i; near = anch; tie = extra; }
   }
   return { add, at, near };
 }
@@ -2311,6 +2316,9 @@ function skeletonRows(items) {
         if (it.legIn.gwName || (stays && stayAt(0) !== name)) act += `，进线到${stayAt(0)}`;
       } else if (stays && stayAt(k) !== stayAt(k - 1)) {
         act = `${stayAt(k - 1)} → ${stayAt(k)}（沿线玩过去）`;
+      } else if (stays && TRANSPORT_META[stayAt(k)]) {
+        // F35：连住同一移动住宿（游轮/轮渡/火车）不是地名，「游X一带」句式读出「游游轮一带」的胡话
+        act = `${stayAt(k)}上继续游览沿途景点`;
       } else {
         act = `游${stays ? stayAt(k) + "一带" : name}`;
       }
