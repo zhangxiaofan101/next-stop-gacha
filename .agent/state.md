@@ -6,6 +6,8 @@
 
 三期（M26–M36）代码全部落地并上线 `lab.medspiral.com/next-stop-gacha/`（267 城 + 53 线，单文件版）；F30–F33 已修复待 codex 复核关闭。2026-07-17 用户拍板开**四期「换骨·换肤·加后端」**（M37–M44）：解除单文件约束做前端工程化、加 Cloudflare 免费后端、转手绘风。插画文生图轨道（codex）与代码轨道（cc）并行。 [cc]
 
+插画轨道 M43 目的地样图与 M42 首批装饰候选的生成/初筛已完成，原图按工单留在本机 `assets/illustrations/raw/`；当前等待用户终审三地风格一致性与水豚「咔啦」具体通过版，空态图仍被通过版硬门控。 [codex]
+
 ## ✅ Implemented
 
 （Phase 1 已封板 → 见 🪦 墓碑；M1–M25 全部条目与 Verified 证据明细在 git 历史（至 176512d）；新模块自 M26 起编号） [cc]
@@ -38,8 +40,10 @@
 
 轨道并行：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/worker/构建）**，文件边界零冲突。代码轨道内 M37→M38 严格串行（换骨），M40/M41 可与 M39 并行（worker/ vs src/）。 [cc]
 
-1. M43 — 目的地插画样例 [R2 · S2] → codex（文生图轨道）｜即刻可开，不依赖任何代码；风格锁/prompt/初筛清单/交付规范见 `.agent/illustration-brief.md`；三张样张（杭州/敦煌/三亚）+ 吉祥物三选一交用户终审；cc 侧出卡片嵌入演示。2026-07-17 目录结构已就位：`assets/illustrations/{raw,picked}` + README 流转规则 + raw gitignore [cc]
+1. M43 — 目的地插画样例 [R2 · S2] → codex（文生图轨道）｜即刻可开，不依赖任何代码；风格锁/prompt/初筛清单/交付规范见 `.agent/illustration-brief.md`；三张样张（杭州/敦煌/三亚）交用户终审，cc 侧出卡片嵌入演示。2026-07-17 目录结构已就位：`assets/illustrations/{raw,picked}` + README 流转规则 + raw gitignore [codex]
+   - 2026-07-17 生成阶段完成：built-in imagegen 以 `dest-hangzhou-v1` 为固定风格参照，杭州/敦煌/三亚各 2 版，并生成带文件名的并排 QA 图；逐图按工单六项初筛通过。Verified: 6 张均为 RGB PNG 1536×1024，无文字/水印、无照片或 3D 感，线条/纸纹/饱和度并排无明显「换画师」感；用户终审与 cc 卡片嵌入演示未完成，故仍留 🔜。 [codex]
 2. M42·生成 — 装饰插画首批 [R1 · S2] → codex（同轨道同工单）｜扭蛋机主视觉 + 水豚吉祥物（3~4 版挑体型表情）+ 空态（必须引用水豚通过图生成）；九区题头第二批等样张定稿 [cc]
+   - 2026-07-17 首批候选完成：扭蛋机 2 版 + 水豚「咔啦」4 版，并生成带文件名的并排 QA 图；逐图按工单七项初筛通过。Verified: 6 张均为 RGB PNG 1254×1254，主体/服装/道具完整、单角色不裁切、奶油底干净，水豚无既有 IP 标志元素且黄帽/红包/纸地图齐全；机械断言确认 `empty-state-v*.png` 与 `region-*-v*.png` 均不存在。等待用户选定 A2 具体通过版后再生成空态，故仍留 🔜。 [codex]
 3. M39·样稿 — 手绘质感样稿 [R1 · S1] → cc in-session 或 sonnet · low ｜现单文件复制件上做一页 throwaway 样稿（手写字体+歪框+纸纹，一张卡+扭蛋区），截图交用户终审质感方向；不合入主线 [cc]
 4. M37 — 前端工程化：脚手架与数据外置 [R2 · S3] → sonnet · high + cc 复核 ｜部署面改动配请求级测试；上线前 Wrangler dry-run 验证同 M36 流程 [cc]
 5. M38 — 前端工程化：逻辑组件化迁移 [R3 · S3] → opus/fable · xhigh ｜前置 M37；**落地后跨家族 review gate（codex 审大迁移）再进后续** [cc]
