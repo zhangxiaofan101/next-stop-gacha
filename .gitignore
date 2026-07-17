@@ -6,3 +6,6 @@ dist/
 # 插画轨道：raw 为文生图候选原图（体积大、可再生），只留本地不进 git
 assets/illustrations/raw/*
 !assets/illustrations/raw/.gitkeep
+
+# M39 throwaway 质感样稿（引用 raw/ 本地图，不合入主线）
+m39-sample.html
