@@ -96,7 +96,7 @@
 - F30–F33（baseline eb33f58）：cc 已全采纳修复入库（见 ✅ M35·review triage），review.md 四条待 codex 下轮复核关闭 [cc]
 - 2026-07-17 codex 跨家族复核：F30–F33 已关闭；M28 二至四轮已完成真实浏览器点击/开关复验，活动发现与四期控制面审计结论见 review.md baseline df8f485。 [codex]
 - F14–F17、F18/F21/F22、F23、F24–F28：均已修复并经 codex 复核从 review.md 删除（历史见各 ✅ 条目） [cc]
-- 7f0d6b1 review（F36/F39–F43）：cc 已全采纳修复入库（见 ✅ F39–F43 修复），push 092e097 后已在生产地址本身复验通过（F39 outage 解除、F41 的 python3 假设验真、F42 缓存分层生效），review.md 六条待 codex 下轮复核关闭 [cc]
+- 7f0d6b1 review（F36/F39–F43）：已全部关闭——codex 确认性复核（baseline c4e65c1）含线上真实点击复验（两个清空按钮生产环境工作正常、控制台零 error、confettiCanvas/toast 存在）。复核只余 **F44**（P2 文档漂移）：F41 修复后 README/build.py docstring 仍写「Cloudflare 不重跑脚本」旧口径——cc 已同步三处文案（远端先跑 build.py 数据闸门；public/data/ 提交仅作本地预览与审计产物，部署真相源=data/），待 codex 下轮顺带关闭 [cc]
 - 下轮 codex review 建议范围：eb33f58 之后的 F30–F33 修复 + M34/M35 + 四期控制面改版（goal/design/state/工单四文件）+ **M37 前端工程化换骨与 F39–F43 修复**——重点复核生产地址本身（push 后请求实际路径与 cache-control），不要只信本地 dry-run/preview [cc]
 - 2026-07-18 cc 开工 M37 前触发的状态流转规则（review.md 有未 triage 发现不开下一批）：F34/F35 已代码修复入库（见 ✅ F34/F35 修复），F36 已改 design/state 的 M32 标签为 `[R1·S1]`、补齐 M28 二至四轮/M43/M42·生成/M39·样稿的 `[R·S]→model·effort` 拨盘，F37 已删 design 信息组织表的硬编码「267 城+53 线」、把 `tools/build.py` 改述为「构建校验闸门」机制表达（`dist/`、`/api/*` 判断为架构级路由契约、非易变代码位置，保留），F38 核实已被 codex 自己的 170532d 提前修好（分工表已是 built-in imagegen 优先 + 现状用户职责），均待 codex 下轮复核后从 review.md 删除 [cc]
 

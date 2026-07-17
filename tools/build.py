@@ -2,8 +2,9 @@
 """合并 data/ 下六区数据与补丁 → 校验 → 发布为 public/data/ 下的静态 JSON chunk。
 
 用法：python3 tools/build.py
-改了 data/*.json 之后跑一次即可，幂等；产出的 chunk 与 manifest.json 需随源数据一起提交
-（Wrangler 构建只跑 `vite build`，不在 Cloudflare 侧重新执行本脚本）。
+改了 data/*.json 之后跑一次即可，幂等。Cloudflare 部署构建也会先跑本脚本（F41 数据闸门，
+见 wrangler.jsonc build.command）——远端总是从 data/ 重新生成，本地提交的 public/data/
+chunk 仅作本地预览与可审计产物，不是部署真相源。
 """
 import glob, hashlib, json, os, re, sys
 

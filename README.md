@@ -45,7 +45,7 @@
 python3 tools/build.py
 ```
 
-校验不过会直接报错并指出是哪条数据的哪个字段；通过后需要把 `public/data/*.json` 的改动跟着一起提交（Cloudflare 构建侧只跑前端构建，不重新执行这个脚本）。
+校验不过会直接报错并指出是哪条数据的哪个字段。Cloudflare 部署构建也会先重跑这个脚本（数据校验闸门，非法数据会让部署直接失败）；`public/data/*.json` 的改动仍建议跟着提交，用于本地预览与产物审计，但部署真相源始终是 `data/`。
 
 ## 本地开发 / 构建
 
@@ -60,7 +60,7 @@ bun test tests/   # 跑 Cloudflare Worker 请求级测试
 
 ## 部署
 
-正式入口计划迁至 `https://lab.medspiral.com/next-stop-gacha/`，内容仍只在本仓库维护。`wrangler.jsonc` 在 Cloudflare 构建时跑 `bun install && bun run build`（Vite 构建，产出多文件 `dist/`），再由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀并交给静态资源服务——该 Worker 逻辑与资产文件数量无关，天然支持多文件产物。
+正式入口 `https://lab.medspiral.com/next-stop-gacha/`，内容只在本仓库维护。`wrangler.jsonc` 在 Cloudflare 构建时跑 `python3 tools/build.py && bun install && bun run build`（先重跑数据校验闸门并从 `data/` 重新生成 chunk，再 Vite 构建产出多文件 `dist/`），最后由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀并交给静态资源服务——该 Worker 逻辑与资产文件数量无关，天然支持多文件产物，并按路径分层设置缓存（hash 命名资产 immutable 长缓存，HTML/manifest 短缓存重验证）。
 
 仓库配置只负责声明构建和目标 Route；首次上线还需要在 Cloudflare Workers 中连接本仓库并执行一次生产部署。不要给这个 Worker 绑定整个 `lab.medspiral.com` Custom Domain，以免接管 Lab 首页。
 
