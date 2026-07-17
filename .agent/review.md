@@ -18,34 +18,34 @@
 
 ## Active findings
 
-> Review baseline: df8f485，Codex/GPT reviewer，2026-07-17。审阅范围 `eb33f58..df8f485`，重点为 F30–F33、M28 二至四轮与四期控制面。`tools/build.py` 两跑均为 267 城 + 53 线、零 warning，生成 `index.html` SHA-256 均为 `14d200dbfceb18bf1de92f32c25fdcf2ad60f9661438807067a2d90c0329fd02`；Cloudflare 请求级测试 6/6，diff check 与工作树均干净。F30–F33 已独立复核关闭：真实浏览器确认三峡重庆→宜昌为 `🚢 游轮`，海南西线三亚进/海口出贯通行程单、逐日速览、详情、预算（总里程 4625km）；东方卡的海南铁路博物馆已进入 museums/highlights/2日与3日方案；三张西线卡 base+patch 均已删除“情侣周末”，全量海南无同类残留。M28 浏览器确认飞机段门控、避高海拔与隐藏去过的过滤生效，但点击插入暴露 F34。M36 与插画生成由 Codex 家族实施，本轮只复跑验证/核对控制面，不把它们计作跨家族签收。
+> Review baseline: 7f0d6b1，Codex/GPT reviewer，2026-07-18。审阅范围 `77b8cfa..7f0d6b1`（该范围仅一个 M37 commit），对照 goal/design/state/code，重点核对数据切片、运行时顺序、单文件抽取完整性与 Wrangler/Worker 正式路径。F34/F35/F37/F38 已复核关闭：F34/F35 的代码分支与迁移后浏览器证据一致；F37 的动态口径/构建器代码位置已收敛，`dist/` 与 `/api/*` 接受 implementer 所述“架构级契约”解释；F38 的工单已改为 built-in imagegen 优先且用户职责与当前拍板一致。F36 的非法 R0 与本轮新增拨盘大部已修，但 M32 仍缺完整拨盘，故收窄后保留如下。
+>
+> 本轮独立证据：`python3 tools/build.py` 为 267 城 + 53 线、8 个 40 条 chunk、495KB，重跑后 `git diff` 干净；解析 `77b8cfa:index.html` 的旧 `DATA` 与 manifest 顺序拼接后的 320 条对象逐字节等价，id 顺序亦完全相同（首卡杭州），故 `Promise.all(manifest.map(...))` + `chunks.flat()` 的顺序保证成立。旧 `<style>` 与 `src/style.css` 完全一致，旧 `CN_MAP` 与 `src/cn-map.ts` 完全一致，去掉 script 后静态 body 的 57 个 id 顺序完全一致，QR+业务脚本除预期的异步加载/`boot()` 改造外逐行一致——未发现第二个“漏抄元素”式文件切片缺口。`bun test tests/` 8/8、`bun run build` 通过；但正式 URL 实测暴露 F39/F40 所述边界语义问题。
 
-### F34 — [P1] 单站落脚顺游在等距时插到锚点前，实际走成“先乐山、后成都”
+### F36 — [P2] M32 已把 R0 修为 R1，但 state 条目仍没有 `→ model · effort`
 
-真实浏览器从空行程通过卡片加入成都后，彩蛋正确展示“成都·都江堰与青城山 · 距成都约56km”和“乐山·峨眉山 · 距成都约128km”；但点击乐山后，toast 为“已顺路插到第 1 站”，行程顺序变成 `乐山·峨眉山 → 成都`。这与三轮的用户语义“到了成都顺便乐山”相反，也说明四轮“插入位置本来就正确”的 bun 断言没有覆盖单站环线。
+design/state 的 M32 tag 现已合法为 `[R1 · S1]`，但 Implemented 条目仍只写 `· cc in-session`，没有协议要求的模型与 effort，也没有偏离拨盘的 `(used: …)`。这正是原 F36 要解决的复盘口径，不能只修 R 数字后关闭；补齐实际模型/effort 即可删除本条。M28 二至四轮、M39 样稿、M42/M43 顶层拨盘本轮已复核通过，不再重复追踪。
 
-根因是单站时 `上海→成都` 与 `成都→上海` 两段对同一锚点给出完全相同的 near 距离和三边差；`bestInsertion()` 的严格 `<` tie-break 保留先遍历的入站段（`at=0`），于是 `splice` 放到成都前。相同锚点、相同度量的并列应优先锚点后的出站位，且补真实点击回归：单站成都点乐山得到 `成都→乐山`，多站场景仍保持几何更优的一侧。
+### F39 — [P0] Vite 产物引用 host-root `/assets/*`，正式入口的 JS/CSS 全部 404
 
-### F35 — [P2] F30 交通已修正，但三峡逐日速览仍生成“游游轮一带”
+`vite.config.ts` 把默认 `base: "/"` 解释成“Worker 会先剥前缀”，但剥前缀只发生在**服务器收到请求之后**；浏览器先按 `dist/index.html` 里的绝对 URL 发请求。当前产物实际写出 `src="/assets/index-erHNfbjq.js"` 与 `href="/assets/index-BcmHx1jR.css"`，而 `wrangler.jsonc` 只把本 Worker 绑定到 `lab.medspiral.com/next-stop-gacha/*`，所以这两个 host-root 请求根本不会进入该 Worker。
 
-真实浏览器整条装入三峡游轮并生成路书，交通行已正确变为 `重庆 → 宜昌·三峡 · 游轮 约18.2h`；但 D2 仍显示 `游游轮一带`。`skeletonRows()` 把 `stays:["游轮","游轮"]` 当地名套进通用模板 `游${stayAt(k)}一带`，与 state 中“路书渲染目检正常”的记录不符。
+正式环境已坐实：`/next-stop-gacha/` 返回这份新 HTML；`/assets/index-erHNfbjq.js` 与对应 CSS 均 404，而手工补成 `/next-stop-gacha/assets/index-erHNfbjq.js` 则 200 且带 `x-content-owner: next-stop-gacha-repo`。因此线上现在只有静态骨架，无样式、无启动逻辑，M37 的正式路径验收未成立。应把 Vite base 改成相对或正式前缀，让浏览器请求仍落在 `/next-stop-gacha/*`；并加一条从真实 `dist/index.html` 提取 asset URL、经 Worker 路由到 ASSETS 的集成测试。现有测试只手工构造“已经带前缀”的资产 URL，恰好绕过了根因。
 
-移动住宿不应套基地型“游X一带”：游轮连续住宿日应输出“随航次航行/游览开放靠港点”一类诚实骨架，或从 leg 语义提供专用日动作。补一条三峡逐日速览文本断言，避免只验证交通 icon/mode。
+### F40 — [P1] classic script 改成 module 后，两个 `onclick="resetFilters()"` 不再能访问模块内函数
 
-### F36 — [P2] 四期 state 的标签与模型拨盘不符合协议，无法可靠路由/复盘
+静态空态按钮（`index.html`）和 `buildConsole()` 动态生成的“清空筛选”按钮仍使用 inline handler；`resetFilters` 现在定义在 `type="module"` 入口里，不会自动成为 `window` 属性。即使 F39 修好、bundle 成功加载，这两个按钮点击仍会报 `resetFilters is not defined`。这正是逐行抽取无法发现的“脚本执行语义”迁移缺口，并破坏 design 的空池最终兜底。应改为统一的 delegated/addEventListener 绑定（优先），或显式导出到 global；补“制造空池 → 全部清空”和工具行“清空筛选”真实点击回归。
 
-协议只允许 R1–R3，且每个 state 条目须写 `[R · S] → <model> · <effort>`，实际使用偏离时补 `(used: <model>)`。当前 design/state 的 M32 仍是非法 `[R0 · S1]`；新写的 M28 二至四轮没有任务标签和拨盘；M43/M42·生成只有 `→ codex（轨道说明）`、缺 effort；df8f485 的 M39·样稿落地后只写 `· cc in-session`，没有实际模型/effort 或 override 记录。
+### F41 — [P2] 部署构建不执行校验器，也不检查 `data/` 与已提交 chunk 是否漂移
 
-这些并非排版问题：M37–M44 正准备按标签委派，缺失/非法拨盘会让下一会话无法按同一规则选模型。应把 R0 归一为 R1，并为上述新增/完成条目补齐 canonical dial 与真实 `(used: …)`；轨道/复核说明放在拨盘之后，不替代拨盘。
+当前 320 条产物与旧 DATA/源数据确实完全一致；问题在后续提交路径：`wrangler.jsonc` 只跑 `bun install && bun run build`，Vite 会原样复制已提交的 `public/data/`，既不运行 `tools/build.py`，也不比较生成结果。于是改了 `data/*.json` 却漏跑脚本时，Cloudflare 会静默发布旧 chunk；提交了非法数据也不会触发 design 所称的“构建校验闸门”。这使运行时实际真相源变成可漂移的生成副本，而非 design 声明的 `data/`。
 
-### F37 — [P2] design 改称“无状态现在时”，standing prose 仍混入会随 landing 变化的数量与代码位置
+应让 deploy/CI 至少有一个确定性 gate：从 `data/` 重新生成后构建，或以 check 模式生成到临时目录并与 `public/data/` 比较，漂移即失败。README 的人工提醒不足以承担 S3 数据完整性不变式。
 
-四期改版已经在文件头声明 design 只存机制/不变式，但“信息组织”仍写死 `267 城 + 53 线`，下一次数据落地就必须改 design；架构 prose 还直接依赖 `tools/build.py`、`dist/`、`/api/*` 与 `.agent/illustration-brief.md` 等代码/工单位置。按本项目协议，动态口径属于 state/README，standing design 描述抽象职责而不是文件位置；工单消费归档后，当前设计也不能靠一个已不存在的路径才能还原风格锁。
+### F42 — [P2] 固定 chunk 名 + 默认 revalidate 响应没有实现 design 的“代码/数据分别长缓存”
 
-建议把动态数量移回 state/README，把 standing prose 改成“校验闸门/静态产物/API 路由/风格锁工单”这类机制表达；代码位置只留在未落地模块的 acceptance work order。M43 终审通过时，把冻结后的风格锁本体晋升进 design，再归档 brief。
+数据文件固定为 `chunk-0.json`…`chunk-7.json`，manifest 也固定名；没有 `_headers`/Worker cache policy。正式响应目前是 `cache-control: public, max-age=0, must-revalidate`，所以并非长缓存；若直接把这些固定名改成长 TTL，下一次数据更新又会让旧客户端长期读到旧 chunk。安全实现需要给 chunk 内容寻址（文件名带 hash/version），manifest 短缓存/重验证，hashed JS/CSS 与 hashed data chunk 才可 immutable 长缓存。否则应修订 design，明确只要求独立重验证而非长缓存。
 
-### F38 — [P2] illustration brief 的角色说明落后于已拍板与实际执行路径
+### F43 — [P2] state 仍称 M37“本地、尚未 push/未触发线上”，已与 git 和生产现实相反
 
-工单分工仍写“Codex 本体不出图，只能写 API 脚本或交用户手动生成”以及用户负责“吉祥物三选一”；但 state 已记录本轮实际通过 built-in imagegen 生成，用户也早已选定水豚，当前只需从四个水豚版本中挑通过版。剩余 A3/A4 与 M43 仍会继续消费这份工单，陈旧说明会把下一会话导向错误工具路径和已经关闭的用户决策。
-
-应把 codex 行改成当前可用的 built-in imagegen 优先、API/手动为降级，并把用户职责改为“三地风格终审 + 水豚具体通过版”；已完成的 A1/A2/样张生成阶段可标为已消费，避免误重跑。
+当前 `main` 与 `origin/main` 同在 `7f0d6b1`，正式 URL 也已返回该 commit 的 Vite 产物及同一组 hash 文件名，说明 push 与自动部署均已发生；state snapshot/Verified 仍把生产路径写成未验证，并称三期单文件版在线。这一漂移掩盖了 F39 的线上 outage。处置 F39 时同步改 state：明确已 push、当前生产验证结果及修复后的复验，不要把 `vite preview` 称作正式生产路径验收。

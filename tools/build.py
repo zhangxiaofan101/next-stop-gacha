@@ -5,7 +5,7 @@
 改了 data/*.json 之后跑一次即可，幂等；产出的 chunk 与 manifest.json 需随源数据一起提交
 （Wrangler 构建只跑 `vite build`，不在 Cloudflare 侧重新执行本脚本）。
 """
-import glob, json, os, re, sys
+import glob, hashlib, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
@@ -209,6 +209,9 @@ merged = sorted((d for _, d in all_rows), key=lambda d: ORDER.index(d["region"])
 # 无地理语义）。chunk 内部顺序=拼接顺序=merged 的全局顺序——filtered() 在用户未选排序方式时
 # 直接用 DATA 的原始顺序展示，故 manifest 的文件顺序是不变式，运行时必须按序拼接、不能按
 # fetch 完成顺序拼接。
+# F42：文件名带内容 hash（而非固定 chunk-N.json）才能安全 immutable 长缓存——数据一变
+# hash 就变，旧客户端手里的旧 manifest 仍指向旧 hash 文件，不会读到半新不旧的内容；
+# manifest.json 本身文件名不变，靠 Worker 侧短缓存/must-revalidate 保证客户端能发现新 hash。
 os.makedirs(PUBLIC_DATA_DIR, exist_ok=True)
 for stale in glob.glob(os.path.join(PUBLIC_DATA_DIR, "chunk-*.json")):
     os.remove(stale)
@@ -216,8 +219,9 @@ for stale in glob.glob(os.path.join(PUBLIC_DATA_DIR, "chunk-*.json")):
 chunk_names = []
 for i in range(0, len(merged), CHUNK_SIZE):
     batch = merged[i:i + CHUNK_SIZE]
-    name = f"chunk-{i // CHUNK_SIZE}.json"
     chunk_json = json.dumps(batch, ensure_ascii=False, separators=(",", ":"))
+    digest = hashlib.sha256(chunk_json.encode("utf-8")).hexdigest()[:10]
+    name = f"chunk-{i // CHUNK_SIZE}-{digest}.json"
     open(os.path.join(PUBLIC_DATA_DIR, name), "w", encoding="utf-8").write(chunk_json)
     chunk_names.append(name)
 open(os.path.join(PUBLIC_DATA_DIR, "manifest.json"), "w", encoding="utf-8").write(

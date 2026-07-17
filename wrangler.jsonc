@@ -4,7 +4,7 @@
   "main": "cloudflare/worker.mjs",
   "compatibility_date": "2026-07-16",
   "build": {
-    "command": "bun install && bun run build"
+    "command": "python3 tools/build.py && bun install && bun run build"
   },
   "assets": {
     "directory": "./dist",

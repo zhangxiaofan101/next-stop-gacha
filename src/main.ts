@@ -9,8 +9,12 @@ import "./style.css";
 // filtered() 默认（未选排序方式时）的展示顺序，故拼接顺序不可用 fetch 完成顺序代替。
 let DATA = [];
 async function loadData() {
-  const manifest = await fetch("data/manifest.json").then(r => r.json());
-  const chunks = await Promise.all(manifest.map(f => fetch(`data/${f}`).then(r => r.json())));
+  // import.meta.env.BASE_URL（= vite.config.ts 的 base，"/next-stop-gacha/"）而非相对路径：
+  // 相对路径在当前唯一入口下也能凑巧解析对，但显式用 Vite 的 base 常量不依赖调用时机/页面
+  // URL 形状，与 F39 的教训一致——资产引用必须落在 Worker 路由前缀内，不能假设隐式解析。
+  const base = import.meta.env.BASE_URL;
+  const manifest = await fetch(`${base}data/manifest.json`).then(r => r.json());
+  const chunks = await Promise.all(manifest.map(f => fetch(`${base}data/${f}`).then(r => r.json())));
   return chunks.flat();
 }
 
@@ -881,7 +885,7 @@ function buildConsole() {
       <button class="btn" id="visitedToggle">👣 隐藏去过的</button>
       <button class="btn" id="mapBtn">🗺 足迹地图</button>
       <button class="btn" id="shareBtn">📤 分享/备份</button>
-      <button class="btn" onclick="resetFilters()">清空筛选</button>
+      <button class="btn" id="resetConsoleBtn">清空筛选</button>
       <div class="hit" id="hitCount"></div>
     </div>`;
 
@@ -925,6 +929,9 @@ function buildConsole() {
   });
   document.getElementById("mapBtn").addEventListener("click", openMap);
   document.getElementById("shareBtn").addEventListener("click", openShare);
+  // F40：module 化后顶层函数不再落到 window，inline onclick="resetFilters()" 会报
+  // ReferenceError——两处清空按钮改走 addEventListener，与本函数其余按钮一致
+  document.getElementById("resetConsoleBtn").addEventListener("click", resetFilters);
 }
 
 function resetFilters() {
@@ -1963,6 +1970,7 @@ document.getElementById("empty").addEventListener("click", e => {
   const b = e.target.closest("[data-relax]");
   if (b) applyRelax(+b.dataset.relax);
 });
+document.getElementById("emptyResetBtn").addEventListener("click", resetFilters);
 document.getElementById("gRelaxBtn").addEventListener("click", () => { applyRelax(0); openGacha(); });
 document.getElementById("gDetailBtn").addEventListener("click", () => lastPick && openDetail(lastPick.id));
 document.getElementById("gTripBtn").addEventListener("click", () => {
