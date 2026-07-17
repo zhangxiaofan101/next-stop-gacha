@@ -2179,25 +2179,31 @@ function renderTrip() {
     <span>💰 人均预算 <b>¥${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()}</b></span>`;
 
   // 顺路彩蛋（M28）：真顺路=插进现有环线（上海→各站→上海）后绕路最少的候选，
-  // 绕路 200km 内才算顺路；线路卡不进彩蛋（整条装入是行程单动作，不能被当成单站塞进 trip）
+  // 绕路 200km 内才算顺路；线路卡不进彩蛋（整条装入是行程单动作，不能被当成单站塞进 trip）；
+  // 飞机段不产生顺路候选（见 bestInsertion）——全程直飞的行程没有彩蛋，是诚实答案
   const near = DATA
     .filter(d => !d.stops && !state.trip.some(t => t.id === d.id))
-    .map(d => ({ d, ...bestInsertion(d.coords) }))
+    .map(d => ({ d, ...bestInsertion(d) }))
     .filter(x => x.add < 200)
     .sort((a, b2) => a.add - b2.add).slice(0, 3);
   document.getElementById("tripSugg").innerHTML = near.length
     ? `💡 顺路彩蛋（这几个基本不用绕路）：` + near.map(x =>
-      `<button class="chip" data-onway="${x.d.id}" style="margin-left:6px">${x.d.emoji} ${x.d.name} · +绕${Math.max(0, Math.round(x.add))}km ＋</button>`).join("")
+      `<button class="chip" data-onway="${x.d.id}" style="margin-left:6px">${x.d.emoji} ${x.d.name} · +绕${Math.max(1, Math.round(x.add))}km ＋</button>`).join("")
     : "";
 }
 
 // M28：候选点插入现有环线哪一段绕路最少（add=增量直线km，at=对应 state.trip 的插入下标）
-// F17：差值用不取整的 havRaw——取整后的三边差可为负，展示时再取整并夹到 ≥0
+// F17：差值用不取整的 havRaw——取整后的三边差可为负，展示时再取整并夹到 ≥1
+// M28 二轮（用户反馈）：纯几何三边差只对陆路段有意义——直飞大圆航线正下方的点增量≈0
+// （上海⇄拉萨曾推「苏州 +绕0km」），但飞机段上不存在「顺路」。段本身或插入后两条
+// 子段任一 legInfo 判「飞机」则该段不可插；没有可插段时 add=Infinity，被 <200 过滤。
 function bestInsertion(c) {
-  const pts = [SH.coords, ...tripStops().map(d => d.coords), SH.coords];
+  const pts = [SH, ...tripStops(), SH];
   let add = Infinity, at = 0;
   for (let i = 0; i < pts.length - 1; i++) {
-    const extra = havRaw(pts[i], c) + havRaw(c, pts[i + 1]) - havRaw(pts[i], pts[i + 1]);
+    const a = pts[i], b = pts[i + 1];
+    if (legInfo(a, b).mode === "飞机" || legInfo(a, c).mode === "飞机" || legInfo(c, b).mode === "飞机") continue;
+    const extra = havRaw(a.coords, c.coords) + havRaw(c.coords, b.coords) - havRaw(a.coords, b.coords);
     if (extra < add) { add = extra; at = i; }
   }
   return { add, at };
@@ -2206,7 +2212,8 @@ function insertOnWay(id) {
   const d = byId(id);
   if (!d || d.stops || state.trip.some(t => t.id === id)) return;
   if (state.trip.length >= 6) { toast("一次行程最多 6 站，贪多嚼不烂～"); return; }
-  const { at } = bestInsertion(d.coords);
+  const { add, at } = bestInsertion(d);
+  if (!isFinite(add)) return; // 防御：无可插的陆路段（正常情况下按钮就不会渲染）
   state.trip.splice(at, 0, { id, days: Math.min(...d.days) });
   saveLS(); render(); renderTrip();
   toast(`已顺路插到第 ${at + 1} 站：${d.name}`);
