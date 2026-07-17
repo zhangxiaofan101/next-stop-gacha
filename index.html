@@ -2178,35 +2178,45 @@ function renderTrip() {
     <span>📏 总里程 <b>约 ${b.km} km</b></span>
     <span>💰 人均预算 <b>¥${b.lo.toLocaleString()} ~ ${b.hi.toLocaleString()}</b></span>`;
 
-  // 顺路彩蛋（M28）：真顺路=插进现有环线（上海→各站→上海）后绕路最少的候选，
-  // 绕路 200km 内才算顺路；线路卡不进彩蛋（整条装入是行程单动作，不能被当成单站塞进 trip）；
-  // 飞机段不产生顺路候选（见 bestInsertion）——全程直飞的行程没有彩蛋，是诚实答案
+  // 顺路彩蛋（M28）：两类候选同池混排（度量同为 km，取小者），绕路/距离 <200km，前 3 个；
+  // ①廊道顺路=插进陆路段绕路最少（+绕Nkm）②落脚顺游=贴着某站 ≤150km 的短驳（距X Nkm）；
+  // 线路卡不进彩蛋（整条装入是行程单动作）；全程直飞且各站周边无卡的行程没有彩蛋，是诚实答案
   const near = DATA
     .filter(d => !d.stops && !state.trip.some(t => t.id === d.id))
     .map(d => ({ d, ...bestInsertion(d) }))
     .filter(x => x.add < 200)
     .sort((a, b2) => a.add - b2.add).slice(0, 3);
   document.getElementById("tripSugg").innerHTML = near.length
-    ? `💡 顺路彩蛋（这几个基本不用绕路）：` + near.map(x =>
-      `<button class="chip" data-onway="${x.d.id}" style="margin-left:6px">${x.d.emoji} ${x.d.name} · +绕${Math.max(1, Math.round(x.add))}km ＋</button>`).join("")
+    ? `💡 顺路彩蛋（顺路捡一站 / 到站顺游）：` + near.map(x =>
+      `<button class="chip" data-onway="${x.d.id}" style="margin-left:6px">${x.d.emoji} ${x.d.name} · ${x.near ? `距${x.near.name.split(" · ")[0]}约${Math.max(1, Math.round(x.add))}km` : `+绕${Math.max(1, Math.round(x.add))}km`} ＋</button>`).join("")
     : "";
 }
 
-// M28：候选点插入现有环线哪一段绕路最少（add=增量直线km，at=对应 state.trip 的插入下标）
+// M28：候选点插入现有环线哪一段绕路最少（add=度量km，at=对应 state.trip 的插入下标）
 // F17：差值用不取整的 havRaw——取整后的三边差可为负，展示时再取整并夹到 ≥1
 // M28 二轮（用户反馈）：纯几何三边差只对陆路段有意义——直飞大圆航线正下方的点增量≈0
-// （上海⇄拉萨曾推「苏州 +绕0km」），但飞机段上不存在「顺路」。段本身或插入后两条
-// 子段任一 legInfo 判「飞机」则该段不可插；没有可插段时 add=Infinity，被 <200 过滤。
+// （上海⇄拉萨曾推「苏州 +绕0km」），但飞机段上不存在「顺路」。
+// M28 三轮（落脚顺游）：「到了成都顺便乐山」成立——候选贴着某个非上海站点（直线 ≤150km
+// 且该短驳非飞机）时允许插在该站旁，near=锚定站，add 改用「距锚定站 km」（spur 的
+// 三边差会把往返里程虚大，距离才是用户关心的量）。两类度量同为 km，混排取小者优先。
+const NEAR_KM = 150;
 function bestInsertion(c) {
   const pts = [SH, ...tripStops(), SH];
-  let add = Infinity, at = 0;
+  let add = Infinity, at = 0, near = null, tie = Infinity;
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i], b = pts[i + 1];
-    if (legInfo(a, b).mode === "飞机" || legInfo(a, c).mode === "飞机" || legInfo(c, b).mode === "飞机") continue;
     const extra = havRaw(a.coords, c.coords) + havRaw(c.coords, b.coords) - havRaw(a.coords, b.coords);
-    if (extra < add) { add = extra; at = i; }
+    const anyFly = legInfo(a, b).mode === "飞机" || legInfo(a, c).mode === "飞机" || legInfo(c, b).mode === "飞机";
+    let m = null, anch = null;
+    if (!anyFly) m = extra; // 廊道顺路：段与两子段全陆路，度量=绕路增量
+    else for (const e of [a, b]) { // 落脚顺游：只认贴着本段非上海端点的候选
+      if (e === SH) continue;
+      const dk = havRaw(e.coords, c.coords);
+      if (dk <= NEAR_KM && legInfo(e, c).mode !== "飞机" && (m === null || dk < m)) { m = dk; anch = e; }
+    }
+    if (m !== null && (m < add || (m === add && extra < tie))) { add = m; at = i; near = anch; tie = extra; }
   }
-  return { add, at };
+  return { add, at, near };
 }
 function insertOnWay(id) {
   const d = byId(id);
