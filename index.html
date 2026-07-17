@@ -2180,9 +2180,11 @@ function renderTrip() {
 
   // 顺路彩蛋（M28）：两类候选同池混排（度量同为 km，取小者），绕路/距离 <200km，前 3 个；
   // ①廊道顺路=插进陆路段绕路最少（+绕Nkm）②落脚顺游=贴着某站 ≤150km 的短驳（距X Nkm）；
-  // 线路卡不进彩蛋（整条装入是行程单动作）；全程直飞且各站周边无卡的行程没有彩蛋，是诚实答案
+  // 线路卡不进彩蛋（整条装入是行程单动作）；全程直飞且各站周边无卡的行程没有彩蛋，是诚实答案；
+  // 尊重「避开高海拔」「隐藏去过的」两个开关（四轮）——不给避高原的人推高海拔、不重推去过的
   const near = DATA
-    .filter(d => !d.stops && !state.trip.some(t => t.id === d.id))
+    .filter(d => !d.stops && !state.trip.some(t => t.id === d.id)
+      && !(state.noAlt && d.alt) && !(state.hideVisited && state.visited.includes(d.id)))
     .map(d => ({ d, ...bestInsertion(d) }))
     .filter(x => x.add < 200)
     .sort((a, b2) => a.add - b2.add).slice(0, 3);
