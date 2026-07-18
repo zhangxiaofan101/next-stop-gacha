@@ -17,6 +17,15 @@
       "id": "f4933a0844864509a80fe3524b40b27a"
     }
   ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "RATE_LIMITER", "class_name": "RateLimiter" },
+      { "name": "SYNC_CODE_STORE", "class_name": "SyncCodeStore" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RateLimiter", "SyncCodeStore"] }
+  ],
   "routes": [
     {
       "pattern": "lab.medspiral.com/next-stop-gacha/*",

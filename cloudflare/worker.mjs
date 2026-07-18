@@ -1,10 +1,8 @@
 import { apiNotFound, handleShareCreate, handleShareGet, handleSyncCreate, handleSyncGet, handleSyncPut } from "./api.mjs";
-
-const GAME_PREFIX = "/next-stop-gacha";
-
-export function isGamePath(pathname) {
-  return pathname === GAME_PREFIX || pathname.startsWith(`${GAME_PREFIX}/`);
-}
+// Durable Object 类必须从 wrangler.jsonc 的 `main` 入口模块导出（F47/F48 修复，见 durableObjects.mjs 头注）。
+export { RateLimiter, SyncCodeStore } from "./durableObjects.mjs";
+export { GAME_PREFIX, isGamePath } from "./gamePath.mjs";
+import { GAME_PREFIX, isGamePath } from "./gamePath.mjs";
 
 // F42：设计要求「HTML/JS 与数据分别长缓存，改数据不失效代码缓存」。Vite 的
 // assets/* 文件名自带内容 hash，数据 chunk 也已改名为内容 hash（见 tools/build.py）——

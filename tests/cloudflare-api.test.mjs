@@ -1,23 +1,21 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+// /api/* 请求级测试。跑在 @cloudflare/vitest-pool-workers 的本地 workerd 沙箱里（见
+// vitest.workers.config.ts），`env` 是 wrangler.jsonc 里声明的真实绑定的本地模拟——APP_KV 是真
+// 本地 KV、RATE_LIMITER/SYNC_CODE_STORE 是真 Durable Object（真的 input gate 串行化，不是手写
+// fakeKV 能模拟的）。每个 test() 自动拿到隔离存储，互不污染，不需要手动重置。
+//
+// F47/F48（2026-07-19 codex 复核第二轮）：手写的 fakeKV 证明不了「同 key 每秒限写 1 次」和「两个
+// 并发 PUT 到底会不会丢数据」这类真实约束/竞态——codex 用受限频 fake 和并发 barrier fake 分别把
+// 限流失效、并集合并丢数据都实测复现了。这个文件换成真实 DO 语义后，能真正对着「两个请求同时打到
+// 同一个 DO 实例」写回归（见 "F48 regression"/"F47 regression" 两条），而不是只能证明「顺序请求时
+// 逻辑对」。
+import { env, runDurableObjectAlarm } from "cloudflare:test";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { handleRequest } from "../cloudflare/worker.mjs";
-
-function fakeKV(initial = {}) {
-  const store = new Map(Object.entries(initial));
-  const putCalls = [];
-  return {
-    store,
-    putCalls,
-    async get(key) { return store.has(key) ? store.get(key) : null; },
-    async put(key, value, opts) { store.set(key, value); putCalls.push({ key, value, opts }); },
-  };
-}
 
 function req(pathname, opts) {
   return new Request(`https://lab.medspiral.com/next-stop-gacha${pathname}`, opts);
 }
-
 function post(pathname, body, headers) {
   return req(pathname, {
     method: "POST",
@@ -25,7 +23,6 @@ function post(pathname, body, headers) {
     headers: { "content-type": "application/json", ...headers },
   });
 }
-
 function put(pathname, body, headers) {
   return req(pathname, {
     method: "PUT",
@@ -34,302 +31,303 @@ function put(pathname, body, headers) {
   });
 }
 
+// randomCode()/randomSyncCode() 都是 `crypto.getRandomValues(new Uint8Array(N))` 逐字节取模映射
+// 字符——固定返回全 0 字节，两套字母表 [0] 分别是 "2"（share）和 "0"（sync），可以稳定复现同一个候选码。
+function stubRandomBytesOnce(byteValue) {
+  const spy = vi.spyOn(crypto, "getRandomValues").mockImplementationOnce((arr) => {
+    arr.fill(byteValue);
+    return arr;
+  });
+  return spy;
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 test("POST /api/share creates a well-formed 6-char code and GET roundtrips a marks payload", async () => {
-  const env = { APP_KV: fakeKV() };
   const body = { type: "marks", payload: { favs: ["hangzhou"], visited: ["chengdu"] } };
   const createRes = await handleRequest(post("/api/share", body), env);
-  assert.equal(createRes.status, 200);
+  expect(createRes.status).toBe(200);
   const { code } = await createRes.json();
-  assert.match(code, /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$/);
+  expect(code).toMatch(/^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$/);
 
   const getRes = await handleRequest(req(`/api/share/${code}`), env);
-  assert.equal(getRes.status, 200);
-  assert.deepEqual(await getRes.json(), body);
+  expect(getRes.status).toBe(200);
+  expect(await getRes.json()).toEqual(body);
 });
 
 test("GET roundtrips a trip payload", async () => {
-  const env = { APP_KV: fakeKV() };
   const body = { type: "trip", payload: { trip: [{ id: "hangzhou", days: 3 }, { id: "chengdu", days: 2, r: "route-x" }], tripStart: "2026-08-01" } };
   const createRes = await handleRequest(post("/api/share", body), env);
-  assert.equal(createRes.status, 200);
+  expect(createRes.status).toBe(200);
   const { code } = await createRes.json();
   const getRes = await handleRequest(req(`/api/share/${code}`), env);
-  assert.deepEqual(await getRes.json(), body);
+  expect(await getRes.json()).toEqual(body);
 });
 
-test("GET an unknown but well-formed code returns 404", async () => {
-  const env = { APP_KV: fakeKV() };
+test("GET an unknown but well-formed share code returns 404", async () => {
   const res = await handleRequest(req("/api/share/ABCDEF"), env);
-  assert.equal(res.status, 404);
+  expect(res.status).toBe(404);
 });
 
-test("GET a malformed code returns 404 without touching KV", async () => {
-  const kv = fakeKV();
-  let getCalls = 0;
-  const origGet = kv.get.bind(kv);
-  kv.get = async (k) => { getCalls++; return origGet(k); };
-  const env = { APP_KV: kv };
+test("GET a malformed share code returns 404", async () => {
   const res = await handleRequest(req("/api/share/short"), env);
-  assert.equal(res.status, 404);
-  assert.equal(getCalls, 0);
+  expect(res.status).toBe(404);
 });
 
 test("rejects invalid type, malformed JSON, and oversized payload", async () => {
-  const env = { APP_KV: fakeKV() };
-
   const badType = await handleRequest(post("/api/share", { type: "nope", payload: {} }), env);
-  assert.equal(badType.status, 400);
+  expect(badType.status).toBe(400);
 
   const badJson = await handleRequest(post("/api/share", "{not json"), env);
-  assert.equal(badJson.status, 400);
+  expect(badJson.status).toBe(400);
 
   const big = "x".repeat(9000);
   const oversized = await handleRequest(post("/api/share", { type: "marks", payload: { favs: [big], visited: [] } }), env);
-  assert.equal(oversized.status, 413);
+  expect(oversized.status).toBe(413);
 });
 
 test("rejects malformed trip payload items (bad days / bad shape)", async () => {
-  const env = { APP_KV: fakeKV() };
   const badDays = await handleRequest(post("/api/share", { type: "trip", payload: { trip: [{ id: "hangzhou", days: 99 }] } }), env);
-  assert.equal(badDays.status, 400);
+  expect(badDays.status).toBe(400);
 
   const notArray = await handleRequest(post("/api/share", { type: "trip", payload: { trip: "nope" } }), env);
-  assert.equal(notArray.status, 400);
+  expect(notArray.status).toBe(400);
 });
 
-test("rate limits after the daily cap per IP", async () => {
-  const env = { APP_KV: fakeKV() };
+test("rate limits after the daily cap per IP (real Durable Object counting)", async () => {
   const body = { type: "marks", payload: { favs: [], visited: [] } };
   let last;
   for (let i = 0; i < 21; i++) {
     last = await handleRequest(post("/api/share", body, { "cf-connecting-ip": "1.2.3.4" }), env);
   }
-  assert.equal(last.status, 429);
+  expect(last.status).toBe(429);
 });
 
 test("a different IP is not affected by another IP's rate limit", async () => {
-  const env = { APP_KV: fakeKV() };
   const body = { type: "marks", payload: { favs: [], visited: [] } };
   for (let i = 0; i < 20; i++) await handleRequest(post("/api/share", body, { "cf-connecting-ip": "1.1.1.1" }), env);
   const other = await handleRequest(post("/api/share", body, { "cf-connecting-ip": "2.2.2.2" }), env);
-  assert.equal(other.status, 200);
+  expect(other.status).toBe(200);
 });
 
-test("retries on short-code collision", async () => {
-  const kv = fakeKV();
-  let shareGetCalls = 0;
-  const origGet = kv.get.bind(kv);
-  kv.get = async (key) => {
-    if (key.startsWith("share:")) {
-      shareGetCalls++;
-      if (shareGetCalls === 1) return JSON.stringify({ type: "marks", payload: { favs: [], visited: [] } }); // 第一次判占用
-    }
-    return origGet(key);
-  };
-  const env = { APP_KV: kv };
-  const res = await handleRequest(post("/api/share", { type: "marks", payload: { favs: [], visited: [] } }), env);
-  assert.equal(res.status, 200);
-  assert.ok(shareGetCalls >= 2, "expected a retry after the first code collided");
+test("retries share code generation on collision", async () => {
+  stubRandomBytesOnce(0); // 第一次候选码全靠字母表[0]="2"×6="222222"
+  const first = await handleRequest(post("/api/share", { type: "marks", payload: { favs: [], visited: [] } }), env);
+  const { code: firstCode } = await first.json();
+  expect(firstCode).toBe("222222");
+
+  stubRandomBytesOnce(0); // 第二次还是撞上同一个候选码——应该在内部重掷（真实 crypto 会拿到另一个）
+  const second = await handleRequest(post("/api/share", { type: "marks", payload: { favs: [], visited: [] } }), env);
+  expect(second.status).toBe(200);
+  const { code: secondCode } = await second.json();
+  expect(secondCode).not.toBe("222222"); // 重掷成功，拿到了一个没被占用的新码
 });
 
 test("returns 503 (not a crash) when the KV binding isn't provisioned yet", async () => {
-  const env = {};
-  const createRes = await handleRequest(post("/api/share", { type: "marks", payload: { favs: [], visited: [] } }), env);
-  assert.equal(createRes.status, 503);
-  const getRes = await handleRequest(req("/api/share/ABCDEF"), env);
-  assert.equal(getRes.status, 503);
+  const bareEnv = { RATE_LIMITER: env.RATE_LIMITER };
+  const createRes = await handleRequest(post("/api/share", { type: "marks", payload: { favs: [], visited: [] } }), bareEnv);
+  expect(createRes.status).toBe(503);
+  const getRes = await handleRequest(req("/api/share/ABCDEF"), bareEnv);
+  expect(getRes.status).toBe(503);
+});
+
+test("unknown /api/* routes return a JSON 404 and never reach ASSETS", async () => {
+  const withAssets = { ...env, ASSETS: { fetch: async () => { throw new Error("should not reach ASSETS for /api/* paths"); } } };
+  const res = await handleRequest(req("/api/whatever"), withAssets);
+  expect(res.status).toBe(404);
+  expect((await res.json()).error).toBe("not_found");
 });
 
 // M41 同步码云同步
 
 test("POST /api/sync creates a 12-digit code seeded with the caller's payload, GET returns it with updatedAt", async () => {
-  const env = { APP_KV: fakeKV() };
   const body = { favs: ["hangzhou"], visited: ["chengdu"] };
   const createRes = await handleRequest(post("/api/sync", body), env);
-  assert.equal(createRes.status, 200);
+  expect(createRes.status).toBe(200);
   const { code } = await createRes.json();
-  assert.match(code, /^[0-9]{12}$/);
+  expect(code).toMatch(/^[0-9]{12}$/);
 
   const getRes = await handleRequest(req(`/api/sync/${code}`), env);
-  assert.equal(getRes.status, 200);
+  expect(getRes.status).toBe(200);
   const got = await getRes.json();
-  assert.deepEqual(got.favs, body.favs);
-  assert.deepEqual(got.visited, body.visited);
-  assert.equal(typeof got.updatedAt, "string");
+  expect(got.favs).toEqual(body.favs);
+  expect(got.visited).toEqual(body.visited);
+  expect(typeof got.updatedAt).toBe("string");
 });
 
-test("PUT /api/sync/:code overwrites the payload and refreshes updatedAt; GET reflects the new data", async () => {
-  const env = { APP_KV: fakeKV() };
+test("PUT /api/sync/:code merges into the payload and refreshes updatedAt; GET reflects the new data", async () => {
   const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
 
   const putRes = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: ["chengdu"] }), env);
-  assert.equal(putRes.status, 200);
+  expect(putRes.status).toBe(200);
   const putBody = await putRes.json();
-  assert.equal(putBody.ok, true);
-  assert.deepEqual(putBody.favs, ["hangzhou", "chengdu"]);
-  assert.deepEqual(putBody.visited, ["chengdu"]);
+  expect(putBody.ok).toBe(true);
+  expect(putBody.favs).toEqual(["hangzhou", "chengdu"]);
+  expect(putBody.visited).toEqual(["chengdu"]);
 
   const getRes = await handleRequest(req(`/api/sync/${code}`), env);
   const got = await getRes.json();
-  assert.deepEqual(got.favs, ["hangzhou", "chengdu"]);
-  assert.deepEqual(got.visited, ["chengdu"]);
+  expect(got.favs).toEqual(["hangzhou", "chengdu"]);
+  expect(got.visited).toEqual(["chengdu"]);
 });
 
-test("PUT to an unknown (never-created) code returns 404 — codes must originate from POST", async () => {
-  const env = { APP_KV: fakeKV() };
+test("PUT performs a server-side union merge — an item this device doesn't know about survives", async () => {
+  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+  await handleRequest(put(`/api/sync/${code}`, { favs: ["sanya"], visited: [] }), env); // 模拟另一台设备已推送 sanya
+
+  const res = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: [] }), env);
+  const body = await res.json();
+  expect([...body.favs].sort()).toEqual(["chengdu", "hangzhou", "sanya"]);
+});
+
+// F48 regression：两个请求真的并发打到同一个 DO 实例（不是先后串行发出），DO 的 input gate 保证
+// 各自的 get→put 不会交错——最终结果必须是两边独占新增项的并集，不能是其中一个整体覆盖另一个。
+test("F48 regression: two truly concurrent PUTs to the same code never lose either side's data", async () => {
+  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+
+  const [r1, r2] = await Promise.all([
+    handleRequest(put(`/api/sync/${code}`, { favs: ["chengdu"], visited: [] }), env),
+    handleRequest(put(`/api/sync/${code}`, { favs: ["sanya"], visited: [] }), env),
+  ]);
+  expect(r1.status).toBe(200);
+  expect(r2.status).toBe(200);
+
+  const final = await (await handleRequest(req(`/api/sync/${code}`), env)).json();
+  expect(new Set(final.favs)).toEqual(new Set(["hangzhou", "chengdu", "sanya"]));
+});
+
+test("PUT to an unknown (never-created) code returns 404 — codes must originate from POST, PUT never revives", async () => {
   const res = await handleRequest(put("/api/sync/000000000000", { favs: [], visited: [] }), env);
-  assert.equal(res.status, 404);
+  expect(res.status).toBe(404);
 });
 
 test("GET an unknown sync code returns 404", async () => {
-  const env = { APP_KV: fakeKV() };
   const res = await handleRequest(req("/api/sync/123456789012"), env);
-  assert.equal(res.status, 404);
+  expect(res.status).toBe(404);
 });
 
-test("malformed sync codes (wrong length/non-digit) 404 without touching KV, for both GET and PUT", async () => {
-  const kv = fakeKV();
-  let getCalls = 0;
-  const origGet = kv.get.bind(kv);
-  kv.get = async (k) => { getCalls++; return origGet(k); };
-  const env = { APP_KV: kv };
-
+test("malformed sync codes (wrong length/non-digit) 404 for both GET and PUT", async () => {
   const getRes = await handleRequest(req("/api/sync/short"), env);
-  assert.equal(getRes.status, 404);
+  expect(getRes.status).toBe(404);
   const putRes = await handleRequest(put("/api/sync/ABCDEFGHIJKL", { favs: [], visited: [] }), env);
-  assert.equal(putRes.status, 404);
-  assert.equal(getCalls, 0);
+  expect(putRes.status).toBe(404);
 });
 
 test("sync create/put reject non-marks payloads and oversized payloads", async () => {
-  const env = { APP_KV: fakeKV() };
-
   const badShape = await handleRequest(post("/api/sync", { trip: [] }), env);
-  assert.equal(badShape.status, 400);
+  expect(badShape.status).toBe(400);
 
   const badJson = await handleRequest(post("/api/sync", "{not json"), env);
-  assert.equal(badJson.status, 400);
+  expect(badJson.status).toBe(400);
 
   const big = "x".repeat(9000);
   const oversized = await handleRequest(post("/api/sync", { favs: [big], visited: [] }), env);
-  assert.equal(oversized.status, 413);
+  expect(oversized.status).toBe(413);
 
   const { code } = await (await handleRequest(post("/api/sync", { favs: [], visited: [] }), env)).json();
   const badPut = await handleRequest(put(`/api/sync/${code}`, { trip: [] }), env);
-  assert.equal(badPut.status, 400);
+  expect(badPut.status).toBe(400);
 });
 
-test("sync KV entries are written with the sync TTL (create and every PUT refresh)", async () => {
-  const kv = fakeKV();
-  const env = { APP_KV: kv };
-  const { code } = await (await handleRequest(post("/api/sync", { favs: [], visited: [] }), env)).json();
-  await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou"], visited: [] }), env);
+test("PUT rejects when the merged result would exceed the size cap, without persisting it", async () => {
+  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+  const many = Array.from({ length: 2000 }, (_, i) => `city-${i}`); // 远超 8KB
+  const res = await handleRequest(put(`/api/sync/${code}`, { favs: many, visited: [] }), env);
+  expect(res.status).toBe(413);
 
-  const writes = kv.putCalls.filter((c) => c.key === `sync:${code}`);
-  assert.equal(writes.length, 2);
-  for (const w of writes) assert.equal(w.opts.expirationTtl, 400 * 24 * 60 * 60);
+  const getRes = await handleRequest(req(`/api/sync/${code}`), env);
+  const got = await getRes.json();
+  expect(got.favs).toEqual(["hangzhou"]); // 拒绝的合并结果没有落盘，原值不变
+});
+
+// TTL：SyncCodeStore 没有 KV 那种 expirationTtl，靠 alarm 自己实现「闲置过期」——直接触发这个
+// 实例的 alarm（模拟到期），验证之后 read()/merge() 都会认为这个码不存在了。
+test("sync code expires via its Durable Object alarm (idle TTL), matching the POST-only/no-revival contract", async () => {
+  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+  const stub = env.SYNC_CODE_STORE.getByName(code);
+
+  expect(await stub.read()).not.toBeNull();
+  const ran = await runDurableObjectAlarm(stub);
+  expect(ran).toBe(true);
+  expect(await stub.read()).toBeNull();
+
+  const getRes = await handleRequest(req(`/api/sync/${code}`), env);
+  expect(getRes.status).toBe(404);
+  const putRes = await handleRequest(put(`/api/sync/${code}`, { favs: [], visited: [] }), env);
+  expect(putRes.status).toBe(404); // 过期后 PUT 依然不能复活，同 POST-only 约束
 });
 
 test("sync-create rate limit is a separate bucket from share-create and from sync read/write", async () => {
-  const env = { APP_KV: fakeKV() };
   const ip = "9.9.9.9";
   for (let i = 0; i < 20; i++) await handleRequest(post("/api/share", { type: "marks", payload: { favs: [], visited: [] } }, { "cf-connecting-ip": ip }), env);
-  // share-create bucket is now maxed out for this IP; sync-create must be unaffected
   const syncCreate = await handleRequest(post("/api/sync", { favs: [], visited: [] }, { "cf-connecting-ip": ip }), env);
-  assert.equal(syncCreate.status, 200);
+  expect(syncCreate.status).toBe(200); // share-create 的额度用尽不影响 sync-create
 });
 
 test("sync create hits its own daily rate limit after enough requests from one IP", async () => {
-  const env = { APP_KV: fakeKV() };
   const ip = "8.8.8.8";
   let last;
   for (let i = 0; i < 21; i++) {
     last = await handleRequest(post("/api/sync", { favs: [], visited: [] }, { "cf-connecting-ip": ip }), env);
   }
-  assert.equal(last.status, 429);
+  expect(last.status).toBe(429);
 });
 
 test("sync read/write share one rate-limit bucket, capped higher than creation", async () => {
-  const env = { APP_KV: fakeKV() };
   const ip = "7.7.7.7";
   const { code } = await (await handleRequest(post("/api/sync", { favs: [], visited: [] }, { "cf-connecting-ip": "1.0.0.1" }), env)).json();
   let last;
   for (let i = 0; i < 61; i++) {
     last = await handleRequest(req(`/api/sync/${code}`, { headers: { "cf-connecting-ip": ip } }), env);
   }
-  assert.equal(last.status, 429);
+  expect(last.status).toBe(429);
 });
 
-// F47（限流 fail-open + 提到 KV 读之前）
-
-test("rate limiter fails open when the KV write throws (e.g. Cloudflare's 1-write-per-key-per-second limit)", async () => {
-  const kv = fakeKV();
-  const origPut = kv.put.bind(kv);
-  kv.put = async (key, value, opts) => {
-    if (key.startsWith("ratelimit:")) throw new Error("simulated: 1 write per second per key");
-    return origPut(key, value, opts);
-  };
-  const env = { APP_KV: kv };
-  const res = await handleRequest(post("/api/sync", { favs: [], visited: [] }), env);
-  assert.equal(res.status, 200); // 限流计数器写入异常不该把整个请求炸成 500
+// F47 regression：N 个请求真的并发发出（不是循环里 await 出来的串行请求），最终成功数必须恰好等于
+// 限额——不多（说明没有并发计数竞态导致超放）、不少（说明没有并发写丢计数导致提前/额外拒绝）。
+test("F47 regression: concurrent requests from one IP never exceed the rate limit", async () => {
+  const ip = "6.6.6.6";
+  const results = await Promise.all(
+    Array.from({ length: 25 }, () => handleRequest(post("/api/sync", { favs: [], visited: [] }, { "cf-connecting-ip": ip }), env)),
+  );
+  const successCount = results.filter((r) => r.status === 200).length;
+  expect(successCount).toBe(20); // RATE_LIMIT_PER_DAY
 });
 
-test("a real GET-then-PUT syncNow() sequence doesn't 500 even when the same rate-limit key can't be written twice within a second", async () => {
-  const kv = fakeKV();
-  const seenRlWrites = new Set();
-  const origPut = kv.put.bind(kv);
-  kv.put = async (key, value, opts) => {
-    if (key.startsWith("ratelimit:")) {
-      if (seenRlWrites.has(key)) throw new Error("simulated: same key written twice within 1s");
-      seenRlWrites.add(key);
-    }
-    return origPut(key, value, opts);
-  };
-  const env = { APP_KV: kv };
-  const ip = { "cf-connecting-ip": "5.5.5.5" };
-  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+test("retries sync code generation on collision", async () => {
+  stubRandomBytesOnce(0); // 全 0 字节 → 字母表[0]="0" 重复 12 位 = "000000000000"
+  const first = await handleRequest(post("/api/sync", { favs: [], visited: [] }), env);
+  const { code: firstCode } = await first.json();
+  expect(firstCode).toBe("000000000000");
 
-  const getRes = await handleRequest(req(`/api/sync/${code}`, { headers: ip }), env);
-  assert.equal(getRes.status, 200);
-  const putRes = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: [] }, ip), env);
-  assert.equal(putRes.status, 200); // GET 和 PUT 共用 sync-rw bucket，第二次计数写会抛错，fail-open 后请求仍成功
+  stubRandomBytesOnce(0); // 再撞一次同一个已占用的候选码，应该重掷成功
+  const second = await handleRequest(post("/api/sync", { favs: [], visited: [] }), env);
+  expect(second.status).toBe(200);
+  const { code: secondCode } = await second.json();
+  expect(secondCode).not.toBe("000000000000");
 });
 
-test("PUT to an unknown code is throttled by the rate limiter before the KV existence read (no free reads to probe codes)", async () => {
-  const env = { APP_KV: fakeKV() };
-  const ip = { "cf-connecting-ip": "6.6.6.6" };
-  let last;
-  for (let i = 0; i < 61; i++) {
-    last = await handleRequest(put("/api/sync/000000000001", { favs: [], visited: [] }, ip), env);
-  }
-  assert.equal(last.status, 429); // 若限流被绕过会一直是 404，而不是最终转 429
+test("sync endpoints return 503 (not a crash) when the Durable Object binding isn't provisioned yet", async () => {
+  const bareEnv = { RATE_LIMITER: env.RATE_LIMITER };
+  const createRes = await handleRequest(post("/api/sync", { favs: [], visited: [] }), bareEnv);
+  expect(createRes.status).toBe(503);
+  const getRes = await handleRequest(req("/api/sync/123456789012"), bareEnv);
+  expect(getRes.status).toBe(503);
+  const putRes = await handleRequest(put("/api/sync/123456789012", { favs: [], visited: [] }), bareEnv);
+  expect(putRes.status).toBe(503);
 });
 
-// F48（服务器端并集合并，PUT 不再是 last-write-wins 整体覆盖）
-
-test("PUT performs a server-side union merge — an item this device doesn't know about (already pushed by another device) survives", async () => {
-  const env = { APP_KV: fakeKV() };
-  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
-  await handleRequest(put(`/api/sync/${code}`, { favs: ["sanya"], visited: [] }), env); // 模拟另一台设备已推送 sanya
-
-  // 本设备并不知道 sanya 的存在，推送自己那份（只有 hangzhou + chengdu）
-  const res = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: [] }), env);
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.deepEqual([...body.favs].sort(), ["chengdu", "hangzhou", "sanya"]); // sanya 没有被这次「看起来不完整」的 PUT 覆盖掉
-});
-
-// F49（解析 JSON 前对原始请求体做有界读取）
+// F49（有界流读取）——与 DO/KV 无关，纯粹是 request body 解析层，跟原来 KV 版本行为一致。
 
 test("a small legit payload padded with a huge irrelevant extra field is rejected as too_large, not silently accepted via the trimmed projection", async () => {
-  const env = { APP_KV: fakeKV() };
   const junk = "x".repeat(20000);
   const res = await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [], junk }), env);
-  assert.equal(res.status, 413);
+  expect(res.status).toBe(413);
 });
 
 test("oversized body is rejected via streaming byte-count even without a Content-Length header", async () => {
-  const env = { APP_KV: fakeKV() };
   const bigBody = JSON.stringify({ favs: ["x".repeat(20000)], visited: [] });
   const stream = new ReadableStream({
     start(controller) {
@@ -343,44 +341,46 @@ test("oversized body is rejected via streaming byte-count even without a Content
     duplex: "half",
     headers: { "content-type": "application/json" },
   });
-  assert.equal(request.headers.get("content-length"), null); // 确认走的是流式计数路径，不是 content-length 快路径
+  expect(request.headers.get("content-length")).toBeNull();
   const res = await handleRequest(request, env);
-  assert.equal(res.status, 413);
+  expect(res.status).toBe(413);
 });
 
-test("retries sync code generation on collision", async () => {
-  const kv = fakeKV();
-  let syncGetCalls = 0;
-  const origGet = kv.get.bind(kv);
-  kv.get = async (key) => {
-    if (key.startsWith("sync:")) {
-      syncGetCalls++;
-      if (syncGetCalls === 1) return JSON.stringify({ favs: [], visited: [], updatedAt: "x" }); // 第一次判占用
-    }
-    return origGet(key);
-  };
-  const env = { APP_KV: kv };
-  const res = await handleRequest(post("/api/sync", { favs: [], visited: [] }), env);
-  assert.equal(res.status, 200);
-  assert.ok(syncGetCalls >= 2, "expected a retry after the first code collided");
+test("unknown /api/* routes return a JSON 404 and never reach ASSETS (sync-adjacent paths too)", async () => {
+  const withAssets = { ...env, ASSETS: { fetch: async () => { throw new Error("should not reach ASSETS for /api/* paths"); } } };
+  const res = await handleRequest(req("/api/sync-typo"), withAssets);
+  expect(res.status).toBe(404);
+  expect((await res.json()).error).toBe("not_found");
 });
 
-test("sync endpoints return 503 (not a crash) when the KV binding isn't provisioned yet", async () => {
-  const env = {};
-  const createRes = await handleRequest(post("/api/sync", { favs: [], visited: [] }), env);
-  assert.equal(createRes.status, 503);
-  const getRes = await handleRequest(req("/api/sync/123456789012"), env);
-  assert.equal(getRes.status, 503);
-  const putRes = await handleRequest(put("/api/sync/123456789012", { favs: [], visited: [] }), env);
-  assert.equal(putRes.status, 503);
+// Durable Object 直接单测（补充 HTTP 层测不到的原语级保证，同官方 skill 推荐的 Unit Tests 打法）
+
+describe("SyncCodeStore (direct DO access)", () => {
+  test("create() returns null on the second call to the same instance (collision-safety primitive)", async () => {
+    const stub = env.SYNC_CODE_STORE.getByName("direct-test-code");
+    const first = await stub.create(["hangzhou"], []);
+    expect(first).not.toBeNull();
+    const second = await stub.create(["chengdu"], []); // 同一个实例，模拟两个并发 create() 撞同一个候选码
+    expect(second).toBeNull();
+  });
+
+  test("merge() on a never-created instance returns null", async () => {
+    const stub = env.SYNC_CODE_STORE.getByName("never-created-code");
+    expect(await stub.merge(["hangzhou"], [], 8192)).toBeNull();
+  });
+
+  test("different instance names are fully isolated", async () => {
+    const a = env.SYNC_CODE_STORE.getByName("iso-a");
+    const b = env.SYNC_CODE_STORE.getByName("iso-b");
+    await a.create(["hangzhou"], []);
+    expect(await b.read()).toBeNull();
+  });
 });
 
-test("unknown /api/* routes return a JSON 404 and never reach ASSETS", async () => {
-  const env = {
-    APP_KV: fakeKV(),
-    ASSETS: { fetch: async () => { throw new Error("should not reach ASSETS for /api/* paths"); } },
-  };
-  const res = await handleRequest(req("/api/whatever"), env);
-  assert.equal(res.status, 404);
-  assert.equal((await res.json()).error, "not_found");
+describe("RateLimiter (direct DO access)", () => {
+  test("checkAndIncrement allows up to the limit then denies", async () => {
+    const stub = env.RATE_LIMITER.getByName("direct-rl-test");
+    for (let i = 0; i < 3; i++) expect(await stub.checkAndIncrement(3)).toBe(true);
+    expect(await stub.checkAndIncrement(3)).toBe(false);
+  });
 });
