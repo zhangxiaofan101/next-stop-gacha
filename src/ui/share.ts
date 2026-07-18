@@ -104,9 +104,26 @@ export async function syncNow() {
   const code = typed || saved;
   if (!/^\d{12}$/.test(code)) { toast("同步码应为 12 位数字"); return; }
 
-  const remote = await pullSync(code);
-  if (!remote) { toast("同步失败：同步码不存在或网络异常，本机数据未受影响"); return; }
+  const pulled = await pullSync(code);
+  if (!pulled.ok) {
+    // F50：区分「码确实不存在/已过期」和「单纯网络抖动」——前者如果就是本机当前绑定的那个码，
+    // 直接自动解绑，不能让用户对着一个死码反复点同步却猜不到问题在哪（同步码严格 POST-only，
+    // 没有「PUT 复活」这回事，见 cloudflare/api.mjs 顶部注释）。
+    if (pulled.reason === "not_found") {
+      if (code === saved) {
+        clearSyncCode();
+        renderSyncStatus();
+        toast("这个同步码已不存在（可能已过期），已自动解绑本机——重新点「同步」即可生成新码");
+      } else {
+        toast("这个同步码不存在，检查一下是不是输错了");
+      }
+    } else {
+      toast("同步失败：网络异常，本机数据未受影响");
+    }
+    return;
+  }
 
+  const remote = pulled.data;
   const p = parseShare(`f:${remote.favs.join(".")};v:${remote.visited.join(".")}`, DATA);
   if (p && (p.favs.length || p.visited.length)) {
     const r = mergeUnion({ favs: state.favs, visited: state.visited }, p);
@@ -118,6 +135,16 @@ export async function syncNow() {
   renderSyncStatus();
 
   const pushed = await pushSync(code, { favs: state.favs, visited: state.visited });
+  if (pushed) {
+    // 服务器端现在做并集合并（design/state F48）：回传的结果可能比本机这份更全——另一台设备
+    // 可能在本机 GET 之后、PUT 之前也推送过——用它再并集一次，不能只信本机刚推上去的那份。
+    const p2 = parseShare(`f:${pushed.favs.join(".")};v:${pushed.visited.join(".")}`, DATA);
+    if (p2) {
+      const r2 = mergeUnion({ favs: state.favs, visited: state.visited }, p2);
+      state.favs = r2.favs; state.visited = r2.visited;
+      saveLS(); render();
+    }
+  }
   toast(pushed
     ? `已同步：♥ ${state.favs.length} 收藏 · 👣 ${state.visited.length} 打卡`
     : "已合并到本机，但回传服务器失败——下次同步会自动补上");

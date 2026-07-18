@@ -164,7 +164,10 @@ test("PUT /api/sync/:code overwrites the payload and refreshes updatedAt; GET re
 
   const putRes = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: ["chengdu"] }), env);
   assert.equal(putRes.status, 200);
-  assert.deepEqual(await putRes.json(), { ok: true });
+  const putBody = await putRes.json();
+  assert.equal(putBody.ok, true);
+  assert.deepEqual(putBody.favs, ["hangzhou", "chengdu"]);
+  assert.deepEqual(putBody.visited, ["chengdu"]);
 
   const getRes = await handleRequest(req(`/api/sync/${code}`), env);
   const got = await getRes.json();
@@ -255,6 +258,94 @@ test("sync read/write share one rate-limit bucket, capped higher than creation",
     last = await handleRequest(req(`/api/sync/${code}`, { headers: { "cf-connecting-ip": ip } }), env);
   }
   assert.equal(last.status, 429);
+});
+
+// F47（限流 fail-open + 提到 KV 读之前）
+
+test("rate limiter fails open when the KV write throws (e.g. Cloudflare's 1-write-per-key-per-second limit)", async () => {
+  const kv = fakeKV();
+  const origPut = kv.put.bind(kv);
+  kv.put = async (key, value, opts) => {
+    if (key.startsWith("ratelimit:")) throw new Error("simulated: 1 write per second per key");
+    return origPut(key, value, opts);
+  };
+  const env = { APP_KV: kv };
+  const res = await handleRequest(post("/api/sync", { favs: [], visited: [] }), env);
+  assert.equal(res.status, 200); // 限流计数器写入异常不该把整个请求炸成 500
+});
+
+test("a real GET-then-PUT syncNow() sequence doesn't 500 even when the same rate-limit key can't be written twice within a second", async () => {
+  const kv = fakeKV();
+  const seenRlWrites = new Set();
+  const origPut = kv.put.bind(kv);
+  kv.put = async (key, value, opts) => {
+    if (key.startsWith("ratelimit:")) {
+      if (seenRlWrites.has(key)) throw new Error("simulated: same key written twice within 1s");
+      seenRlWrites.add(key);
+    }
+    return origPut(key, value, opts);
+  };
+  const env = { APP_KV: kv };
+  const ip = { "cf-connecting-ip": "5.5.5.5" };
+  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+
+  const getRes = await handleRequest(req(`/api/sync/${code}`, { headers: ip }), env);
+  assert.equal(getRes.status, 200);
+  const putRes = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: [] }, ip), env);
+  assert.equal(putRes.status, 200); // GET 和 PUT 共用 sync-rw bucket，第二次计数写会抛错，fail-open 后请求仍成功
+});
+
+test("PUT to an unknown code is throttled by the rate limiter before the KV existence read (no free reads to probe codes)", async () => {
+  const env = { APP_KV: fakeKV() };
+  const ip = { "cf-connecting-ip": "6.6.6.6" };
+  let last;
+  for (let i = 0; i < 61; i++) {
+    last = await handleRequest(put("/api/sync/000000000001", { favs: [], visited: [] }, ip), env);
+  }
+  assert.equal(last.status, 429); // 若限流被绕过会一直是 404，而不是最终转 429
+});
+
+// F48（服务器端并集合并，PUT 不再是 last-write-wins 整体覆盖）
+
+test("PUT performs a server-side union merge — an item this device doesn't know about (already pushed by another device) survives", async () => {
+  const env = { APP_KV: fakeKV() };
+  const { code } = await (await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [] }), env)).json();
+  await handleRequest(put(`/api/sync/${code}`, { favs: ["sanya"], visited: [] }), env); // 模拟另一台设备已推送 sanya
+
+  // 本设备并不知道 sanya 的存在，推送自己那份（只有 hangzhou + chengdu）
+  const res = await handleRequest(put(`/api/sync/${code}`, { favs: ["hangzhou", "chengdu"], visited: [] }), env);
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.deepEqual([...body.favs].sort(), ["chengdu", "hangzhou", "sanya"]); // sanya 没有被这次「看起来不完整」的 PUT 覆盖掉
+});
+
+// F49（解析 JSON 前对原始请求体做有界读取）
+
+test("a small legit payload padded with a huge irrelevant extra field is rejected as too_large, not silently accepted via the trimmed projection", async () => {
+  const env = { APP_KV: fakeKV() };
+  const junk = "x".repeat(20000);
+  const res = await handleRequest(post("/api/sync", { favs: ["hangzhou"], visited: [], junk }), env);
+  assert.equal(res.status, 413);
+});
+
+test("oversized body is rejected via streaming byte-count even without a Content-Length header", async () => {
+  const env = { APP_KV: fakeKV() };
+  const bigBody = JSON.stringify({ favs: ["x".repeat(20000)], visited: [] });
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(bigBody));
+      controller.close();
+    },
+  });
+  const request = new Request("https://lab.medspiral.com/next-stop-gacha/api/sync", {
+    method: "POST",
+    body: stream,
+    duplex: "half",
+    headers: { "content-type": "application/json" },
+  });
+  assert.equal(request.headers.get("content-length"), null); // 确认走的是流式计数路径，不是 content-length 快路径
+  const res = await handleRequest(request, env);
+  assert.equal(res.status, 413);
 });
 
 test("retries sync code generation on collision", async () => {
