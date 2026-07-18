@@ -1,10 +1,13 @@
 /* M26 分享/备份（打卡+收藏跨设备迁移）——payload/合并语义在 logic/share，这里是链接/QR/JSON 三通道的 DOM 侧。
-   M40 短链（后端增强形态）也走这里：生成短链复用同一份 marks payload，打开短链复用同一条并集合并路径。 */
+   M40 短链（后端增强形态）也走这里：生成短链复用同一份 marks payload，打开短链复用同一条并集合并路径。
+   M41 同步码云同步（design「后端·同步码云同步」）同样复用 mergeUnion/parseShare 这套并集合并信任边界——
+   区别只是触发方式（用户主动点「同步」，不是被动打开一条别人发来的链接），故直接合并不再弹确认条。 */
 import { sanitizeTripItems } from "../logic/persist";
 import { qrEncode } from "../logic/qr";
 import { mergeUnion, parseImportJSON, parseShare, serializeShare, type SharePayload } from "../logic/share";
 import { createMarksShareLink, fetchShare } from "../services/shareApi";
-import { DATA, saveLS, state } from "../store";
+import { createSyncCode, pullSync, pushSync } from "../services/syncApi";
+import { clearSyncCode, DATA, getSyncCode, saveLS, setSyncCode, state } from "../store";
 import { copyText } from "./clipboard";
 import { $ } from "./dom";
 import { render } from "./render";
@@ -70,7 +73,61 @@ export async function generateShareCode() {
 export function openShare() {
   $("shareStats").textContent = `本机现有：♥ ${state.favs.length} 个收藏 · 👣 ${state.visited.length} 个打卡`;
   $("qrWrap").style.display = "none";
+  renderSyncStatus();
   $("shareOverlay").classList.add("show");
+}
+
+function renderSyncStatus() {
+  const code = getSyncCode();
+  $<HTMLInputElement>("syncCodeInput").value = code;
+  $("syncStatus").textContent = code ? `本机已绑定同步码 ${code}` : "本机尚未绑定同步码";
+  $("syncForgetBtn").style.display = code ? "" : "none";
+}
+
+// 用户主动点「同步」：留空=生成一个新码（种子=本机当前数据）；填了码（新绑或已绑）=拉取→并集
+// 合并进本机→把合并后的结果整份写回去，让远端始终是「见过的并集」，双设备各自同步几次后自然收敛。
+export async function syncNow() {
+  const input = $<HTMLInputElement>("syncCodeInput");
+  const typed = input.value.trim();
+  const saved = getSyncCode();
+
+  if (!typed && !saved) {
+    const code = await createSyncCode({ favs: state.favs, visited: state.visited });
+    if (!code) { toast("同步码生成失败，请稍后重试"); return; }
+    setSyncCode(code);
+    renderSyncStatus();
+    copyText(code);
+    toast(`已生成同步码并复制：${code}（记得抄到另一台设备）`);
+    return;
+  }
+
+  const code = typed || saved;
+  if (!/^\d{12}$/.test(code)) { toast("同步码应为 12 位数字"); return; }
+
+  const remote = await pullSync(code);
+  if (!remote) { toast("同步失败：同步码不存在或网络异常，本机数据未受影响"); return; }
+
+  const p = parseShare(`f:${remote.favs.join(".")};v:${remote.visited.join(".")}`, DATA);
+  if (p && (p.favs.length || p.visited.length)) {
+    const r = mergeUnion({ favs: state.favs, visited: state.visited }, p);
+    state.favs = r.favs; state.visited = r.visited;
+    saveLS(); render();
+  }
+
+  setSyncCode(code);
+  renderSyncStatus();
+
+  const pushed = await pushSync(code, { favs: state.favs, visited: state.visited });
+  toast(pushed
+    ? `已同步：♥ ${state.favs.length} 收藏 · 👣 ${state.visited.length} 打卡`
+    : "已合并到本机，但回传服务器失败——下次同步会自动补上");
+}
+
+export function forgetSync() {
+  clearSyncCode();
+  $<HTMLInputElement>("syncCodeInput").value = "";
+  renderSyncStatus();
+  toast("已解绑本机同步码（服务器数据不受影响，换个设备粘贴同一个码仍能同步）");
 }
 export function renderShareQR() { // 二维码默认收起，点按钮才展开（用户要求：别大别占地方）
   const wrap = $("qrWrap"), hint = $("qrHint"), cv = $<HTMLCanvasElement>("qrCanvas");

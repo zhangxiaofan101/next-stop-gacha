@@ -28,3 +28,15 @@ export function loadLS() {
     Object.assign(state, normalizePersisted(s, DATA)); // 非法形状在 normalize 内抛出 → 整体放弃，维持默认值（与旧版一致）
   } catch (e) {}
 }
+
+// M41：本机绑定的同步码（不是长命资产本身，只是「这台设备认哪个码」的指针，丢了不影响 favs/visited）。
+const SYNC_LS_KEY = "nextstop_sync_v1";
+export function getSyncCode(): string {
+  try { return localStorage.getItem(SYNC_LS_KEY) || ""; } catch (e) { return ""; }
+}
+export function setSyncCode(code: string) {
+  try { localStorage.setItem(SYNC_LS_KEY, code); } catch (e) {}
+}
+export function clearSyncCode() {
+  try { localStorage.removeItem(SYNC_LS_KEY); } catch (e) {}
+}

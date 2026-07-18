@@ -1,4 +1,4 @@
-import { apiNotFound, handleShareCreate, handleShareGet } from "./api.mjs";
+import { apiNotFound, handleShareCreate, handleShareGet, handleSyncCreate, handleSyncGet, handleSyncPut } from "./api.mjs";
 
 const GAME_PREFIX = "/next-stop-gacha";
 
@@ -27,11 +27,19 @@ export async function handleRequest(request, env) {
   const strippedPath = url.pathname.slice(GAME_PREFIX.length) || "/";
   url.pathname = strippedPath;
 
-  // M40：/api/* 先于静态资产代理匹配——绝不把 API 请求转给 ASSETS（design「后端·API 与静态资产同 Worker」）。
+  // M40/M41：/api/* 先于静态资产代理匹配——绝不把 API 请求转给 ASSETS（design「后端·API 与静态资产同 Worker」）。
   if (strippedPath.startsWith("/api/")) {
     if (strippedPath === "/api/share" && request.method === "POST") return handleShareCreate(request, env);
     if (strippedPath.startsWith("/api/share/") && request.method === "GET") {
       return handleShareGet(env, strippedPath.slice("/api/share/".length));
+    }
+    if (strippedPath === "/api/sync" && request.method === "POST") return handleSyncCreate(request, env);
+    if (strippedPath.startsWith("/api/sync/") && request.method === "GET") {
+      const ip = request.headers.get("cf-connecting-ip") || "unknown";
+      return handleSyncGet(env, strippedPath.slice("/api/sync/".length), ip);
+    }
+    if (strippedPath.startsWith("/api/sync/") && request.method === "PUT") {
+      return handleSyncPut(request, env, strippedPath.slice("/api/sync/".length));
     }
     return apiNotFound();
   }

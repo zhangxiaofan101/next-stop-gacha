@@ -9,7 +9,7 @@ import { $ } from "./dom";
 import { getLastPick, openGacha, roll } from "./gacha";
 import { applyRelax, render } from "./render";
 import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
-import { generateShareCode, importJSON, renderShareQR, shareJSON, shareLink } from "./share";
+import { forgetSync, generateShareCode, importJSON, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
 import { toast } from "./toast";
 import { autoOrder, insertOnWay, openTrip, renderTrip } from "./trip";
 
@@ -74,6 +74,8 @@ export function wireEvents() {
   $("shareQrBtn").addEventListener("click", renderShareQR);
   $("shareJsonBtn").addEventListener("click", () => copyText(shareJSON()));
   $("shareShortBtn").addEventListener("click", generateShareCode);
+  $("syncNowBtn").addEventListener("click", syncNow);
+  $("syncForgetBtn").addEventListener("click", forgetSync);
   $("importBtn").addEventListener("click", importJSON);
   $("autoOrderBtn").addEventListener("click", autoOrder);
   $<HTMLInputElement>("tripStartInput").addEventListener("change", e => {

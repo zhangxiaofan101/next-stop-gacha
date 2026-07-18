@@ -151,6 +151,16 @@
       <textarea id="importBox" rows="3" placeholder='{"favs":["..."],"visited":["..."]}'></textarea>
       <button class="btn" id="importBtn">合并导入</button>
     </details>
+    <details class="share-import">
+      <summary>☁️ 同步码（多设备持续互相同步）</summary>
+      <p class="share-hint">同步码是一串数字，不是账号密码——谁有码谁就能看到用这个码同步过的收藏/打卡，请自行保管。留空点「同步」生成新码；粘贴已有的码再点「同步」即可拉取合并。</p>
+      <div class="share-row">
+        <input id="syncCodeInput" placeholder="12 位同步码，留空=生成新码" inputmode="numeric">
+        <button class="btn" id="syncNowBtn">🔄 同步</button>
+        <button class="btn ghost-btn" id="syncForgetBtn" style="display:none">解绑本机</button>
+      </div>
+      <div class="share-hint" id="syncStatus"></div>
+    </details>
   </div>
 </div>
 
