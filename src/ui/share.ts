@@ -1,9 +1,14 @@
-/* M26 分享/备份（打卡+收藏跨设备迁移）——payload/合并语义在 logic/share，这里是链接/QR/JSON 三通道的 DOM 侧 */
+/* M26 分享/备份（打卡+收藏跨设备迁移）——payload/合并语义在 logic/share，这里是链接/QR/JSON 三通道的 DOM 侧。
+   M40 短链（后端增强形态）也走这里：生成短链复用同一份 marks payload，打开短链复用同一条并集合并路径。 */
+import { sanitizeTripItems } from "../logic/persist";
 import { qrEncode } from "../logic/qr";
 import { mergeUnion, parseImportJSON, parseShare, serializeShare, type SharePayload } from "../logic/share";
+import { createMarksShareLink, fetchShare } from "../services/shareApi";
 import { DATA, saveLS, state } from "../store";
+import { copyText } from "./clipboard";
 import { $ } from "./dom";
 import { render } from "./render";
+import { openSharedRoadbook } from "./roadbook";
 import { toast } from "./toast";
 
 const SHARE_QR_MAX = 1200; // QR 40-M 上限 2331 字节，留足裕量；超了提示走 JSON
@@ -20,16 +25,47 @@ function mergeRecords(p: SharePayload) { // 并集合并，绝不覆盖本机已
   saveLS(); render();
   toast(r.addedFavs || r.addedVisited ? `已合并：新收藏 ${r.addedFavs} · 新打卡 ${r.addedVisited} 🎒` : "这些记录本机都有啦");
 }
-export function checkShareHash() { // 带 #s= 打开页面：顶部确认条，点「合并」才写入；无论如何都清掉 hash
-  if (!location.hash.startsWith("#s=")) return;
-  const p = parseShare(decodeURIComponent(location.hash.slice(3)), DATA);
-  history.replaceState(null, "", location.pathname + location.search);
-  if (!p || (!p.favs.length && !p.visited.length)) return;
+function showImportBar(p: SharePayload) {
   const bar = $("importBar");
   $("importBarText").textContent = `收到一份迁移记录：♥ ${p.favs.length} 收藏 · 👣 ${p.visited.length} 打卡。合并进本机？`;
   bar.style.display = "flex";
   $("importYes").onclick = () => { bar.style.display = "none"; mergeRecords(p); };
   $("importNo").onclick = () => { bar.style.display = "none"; };
+}
+
+export function checkShareHash() { // 带 #s= 打开页面：顶部确认条，点「合并」才写入；无论如何都清掉 hash
+  if (!location.hash.startsWith("#s=")) return;
+  const p = parseShare(decodeURIComponent(location.hash.slice(3)), DATA);
+  history.replaceState(null, "", location.pathname + location.search);
+  if (!p || (!p.favs.length && !p.visited.length)) return;
+  showImportBar(p);
+}
+
+// M40：短链是 ①/② 的增强形态——`?sc=` 打开页面时向 /api/share/:code 取回 payload 再走同一套渲染/合并。
+// 任何失败（码不存在/过期/API 未配置或挂掉）一律静默不打扰——用户可能压根没点过分享，只是普通打开页面。
+export async function checkShareCode() {
+  const url = new URL(location.href);
+  const code = url.searchParams.get("sc");
+  if (!code) return;
+  url.searchParams.delete("sc");
+  history.replaceState(null, "", url.pathname + url.search + url.hash);
+
+  const share = await fetchShare(code);
+  if (!share) return;
+  if (share.type === "marks") {
+    const p = parseShare(`f:${(share.payload.favs || []).join(".")};v:${(share.payload.visited || []).join(".")}`, DATA);
+    if (!p || (!p.favs.length && !p.visited.length)) return;
+    showImportBar(p);
+  } else {
+    const trip = sanitizeTripItems(share.payload.trip, DATA);
+    if (trip.length) openSharedRoadbook(trip, share.payload.tripStart || "");
+  }
+}
+
+export async function generateShareCode() {
+  const code = await createMarksShareLink({ favs: state.favs, visited: state.visited });
+  if (!code) { toast("短链生成失败，用二维码或复制 JSON 代替"); return; }
+  copyText(`${location.origin}${import.meta.env.BASE_URL}?sc=${code}`);
 }
 export function openShare() {
   $("shareStats").textContent = `本机现有：♥ ${state.favs.length} 个收藏 · 👣 ${state.visited.length} 个打卡`;

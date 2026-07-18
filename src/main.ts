@@ -7,7 +7,7 @@ import { buildConsole } from "./ui/console";
 import { $ } from "./ui/dom";
 import { wireEvents } from "./ui/events";
 import { render } from "./ui/render";
-import { checkShareHash } from "./ui/share";
+import { checkShareCode, checkShareHash } from "./ui/share";
 
 // ================= M37 数据外置 =================
 // 目的地/线路数据不再注入本文件，而是由 tools/build.py 校验后发布到 public/data/
@@ -32,6 +32,7 @@ function boot() {
   buildConsole();
   render();
   checkShareHash();
+  checkShareCode(); // M40：短链是增强形态，异步取回不阻塞其余启动（同后端「从不是可用性前提」哲学）
 }
 
 wireEvents();

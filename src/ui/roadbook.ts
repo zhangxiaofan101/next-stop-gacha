@@ -1,35 +1,39 @@
 /* 路书（HTML 渲染 + 天气异步填充；模型/文本装配在 logic/roadbook） */
 import { ROUTE_STAY } from "../logic/constants";
 import { fmtMD, roadbookModel, roadbookText, shortName, skelDayLabel, skeletonRows, tripDate, type RoadbookModel } from "../logic/roadbook";
-import type { TripLeg } from "../logic/types";
+import type { TripItem, TripLeg } from "../logic/types";
 import { fmtH } from "../logic/transport";
+import { createTripShareLink } from "../services/shareApi";
 import { fetchWeather, wxCacheGet, wxLine } from "../services/weather";
 import { byId, state } from "../store";
+import { copyText } from "./clipboard";
 import { $ } from "./dom";
 import { toast } from "./toast";
 
-function roadbookHTML(): string {
-  const m = roadbookModel(state.trip, byId);
+// M40：分享打开的路书是「别人的只读副本」，绝不能写进本机 state.trip（会悄悄覆盖访问者自己在编的行程）——
+// 渲染/文本导出/天气填充全部改为显式接收 trip/tripStart，不再隐式读 state。
+function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): string {
   const now = new Date();
   const title = m.stops.map(shortName).join(" → ");
   const legLine = (l: TripLeg, note: string) => `<div class="rb-leg">${l.icon} ${note} · ${l.mode} ${fmtH(l.hours)}（约${l.km}km，估算）</div>`;
   const dayRange = (it: RoadbookModel["items"][number]) => { // 「D2–D3」＋设了出发日期时的「07-08~07-09」
     const tag = `D${it.start}${it.end > it.start ? "–D" + it.end : ""}`;
-    const t1 = tripDate(it.start, state.tripStart);
+    const t1 = tripDate(it.start, tripStart);
     if (!t1) return tag;
-    const t2 = tripDate(it.end, state.tripStart);
+    const t2 = tripDate(it.end, tripStart);
     return `${tag}（${fmtMD(t1)}${it.end > it.start ? " ~ " + fmtMD(t2!) : ""}）`;
   };
   const rows = skeletonRows(m.items);
   return `
+  ${readonly ? `<div class="rb-shared-banner no-print">📎 来自分享链接的路书副本 · 只读，不会保存到本机行程</div>` : ""}
   <div class="rb-cover">
     <h2 class="rb-title">🧭 ${title}</h2>
-    <div class="rb-meta">${m.budget.daySum} 天 · ${m.stops.length} 站 · 总里程约 ${m.budget.km}km · 上海往返${state.tripStart ? ` · ${state.tripStart} 出发` : ""} · 生成于 ${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}</div>
+    <div class="rb-meta">${m.budget.daySum} 天 · ${m.stops.length} 站 · 总里程约 ${m.budget.km}km · 上海往返${tripStart ? ` · ${tripStart} 出发` : ""} · 生成于 ${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}</div>
   </div>
   <div class="rb-skel">
     <div class="rb-skel-t">🗓 逐日速览</div>
     ${rows.map(r => {
-      const lb = skelDayLabel(r.n, state.tripStart);
+      const lb = skelDayLabel(r.n, tripStart);
       return `<div class="rb-sk-row">${lb.date ? `<span class="rb-sk-date">${lb.date}</span>` : ""}<span class="rb-sk-d">${lb.d}</span><span class="rb-sk-act">${r.act}</span><span class="rb-sk-stay">${r.stay === "🏠 回家" ? r.stay : "宿 " + r.stay}</span></div>`;
     }).join("")}
   </div>
@@ -58,27 +62,51 @@ function roadbookHTML(): string {
   <div class="rb-actions no-print">
     <button class="big-btn blue" id="copyRbBtn">📋 复制路书文本</button>
     <button class="big-btn ghost" id="printRbBtn">🖨 打印 / 存 PDF</button>
+    ${readonly ? "" : `<button class="big-btn ghost" id="shareRbBtn">🔗 生成分享短链</button>`}
   </div>`;
 }
 
-// 文本导出：天气行只读缓存（不发请求），与 design「实时天气」的静默降级口径一致
+let currentRbTrip: TripItem[] = [];
+let currentRbTripStart = "";
+let rbWxGen = 0; // 防止用户改动行程后快速重开路书时，旧请求把天气写串到新渲染的节点上
+
+function renderRoadbookOverlay(trip: TripItem[], tripStart: string, readonly: boolean) {
+  currentRbTrip = trip;
+  currentRbTripStart = tripStart;
+  const m = roadbookModel(trip, byId);
+  $("rbBody").innerHTML = roadbookHTML(m, tripStart, readonly);
+  $("rbOverlay").classList.add("show");
+  fillRoadbookWeather(++rbWxGen, trip);
+}
+
+export function openRoadbook() {
+  if (!state.trip.length) { toast("行程还是空的"); return; }
+  renderRoadbookOverlay(state.trip, state.tripStart, false);
+}
+
+// M40：/api/share 短链取回的 trip 类型载荷——只读预览，绝不写 state.trip/saveLS。
+export function openSharedRoadbook(trip: TripItem[], tripStart: string) {
+  renderRoadbookOverlay(trip, tripStart, true);
+}
+
+// 文本导出：天气行只读缓存（不发请求），与 design「实时天气」的静默降级口径一致。
+// 导出当前打开的路书（自己的行程或分享打开的只读副本），而非总是 state.trip。
 export function currentRoadbookText(): string {
-  const m = roadbookModel(state.trip, byId);
-  return roadbookText(m, state.tripStart, id => {
+  const m = roadbookModel(currentRbTrip, byId);
+  return roadbookText(m, currentRbTripStart, id => {
     const days = wxCacheGet(id);
     return days ? wxLine(days) : null;
   });
 }
 
-let rbWxGen = 0; // 防止用户改动行程后快速重开路书时，旧请求把天气写串到新渲染的节点上
-export function openRoadbook() {
-  if (!state.trip.length) { toast("行程还是空的"); return; }
-  $("rbBody").innerHTML = roadbookHTML();
-  $("rbOverlay").classList.add("show");
-  fillRoadbookWeather(++rbWxGen);
+export async function shareCurrentRoadbook() {
+  const code = await createTripShareLink({ trip: currentRbTrip, tripStart: currentRbTripStart || undefined });
+  if (!code) { toast("短链生成失败，用「复制路书文本」代替"); return; }
+  copyText(`${location.origin}${import.meta.env.BASE_URL}?sc=${code}`);
 }
-async function fillRoadbookWeather(gen: number) {
-  const stops = state.trip.map(t => byId(t.id)!);
+
+async function fillRoadbookWeather(gen: number, trip: TripItem[]) {
+  const stops = trip.map(t => byId(t.id)!);
   await Promise.all(stops.map(async d => {
     const days = await fetchWeather(d, byId);
     if (!days || gen !== rbWxGen) return;

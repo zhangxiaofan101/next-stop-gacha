@@ -8,8 +8,8 @@ import { openDetail } from "./detail";
 import { $ } from "./dom";
 import { getLastPick, openGacha, roll } from "./gacha";
 import { applyRelax, render } from "./render";
-import { currentRoadbookText, openRoadbook } from "./roadbook";
-import { importJSON, renderShareQR, shareJSON, shareLink } from "./share";
+import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
+import { generateShareCode, importJSON, renderShareQR, shareJSON, shareLink } from "./share";
 import { toast } from "./toast";
 import { autoOrder, insertOnWay, openTrip, renderTrip } from "./trip";
 
@@ -38,6 +38,7 @@ export function wireEvents() {
     if (del) { state.trip.splice(+del.dataset.del!, 1); saveLS(); renderTrip(); render(); return; }
     if (t.id === "copyRbBtn") { copyText(currentRoadbookText()); return; }
     if (t.id === "printRbBtn") { window.print(); return; }
+    if (t.id === "shareRbBtn") { shareCurrentRoadbook(); return; }
     const vis = t.closest<HTMLElement>("[data-visited]");
     if (vis) { e.stopPropagation(); toggleVisited(vis.dataset.visited!); if (vis.closest("#detailBody")) openDetail(vis.dataset.visited!); return; }
     const mapDot = t.closest<HTMLElement>("[data-mapdot]");
@@ -72,6 +73,7 @@ export function wireEvents() {
   $("shareLinkBtn").addEventListener("click", () => copyText(shareLink()));
   $("shareQrBtn").addEventListener("click", renderShareQR);
   $("shareJsonBtn").addEventListener("click", () => copyText(shareJSON()));
+  $("shareShortBtn").addEventListener("click", generateShareCode);
   $("importBtn").addEventListener("click", importJSON);
   $("autoOrderBtn").addEventListener("click", autoOrder);
   $<HTMLInputElement>("tripStartInput").addEventListener("change", e => {
