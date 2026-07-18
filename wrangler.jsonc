@@ -11,6 +11,12 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  "kv_namespaces": [
+    {
+      "binding": "APP_KV",
+      "id": "f4933a0844864509a80fe3524b40b27a"
+    }
+  ],
   "routes": [
     {
       "pattern": "lab.medspiral.com/next-stop-gacha/*",
