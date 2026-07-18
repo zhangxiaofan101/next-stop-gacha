@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import preact from "@preact/preset-vite";
 
 // F39：base 必须是 /next-stop-gacha/，不是 "/"——前缀剥离发生在请求已经到达
 // Worker 之后（用于查询 dist/ 内部的 ASSETS 绑定），但浏览器是先按 index.html 里
@@ -7,7 +6,6 @@ import preact from "@preact/preset-vite";
 // 这个请求归不归本 Worker 管。host-root 的 /assets/* 根本进不了这个 Worker。
 export default defineConfig({
   base: "/next-stop-gacha/",
-  plugins: [preact()],
   build: {
     outDir: "dist",
   },

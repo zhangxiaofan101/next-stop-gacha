@@ -1,0 +1,59 @@
+// 全局渲染编排 + 空池定向放宽的执行侧（候选计算在 logic/filter，DOM 复位在这里）。
+import { CN_MAP } from "../cn-map";
+import { filtered, relaxCandidates, type RelaxAction, type RelaxCandidate } from "../logic/filter";
+import { litProvinces } from "../logic/map";
+import type { Destination } from "../logic/types";
+import { byId, CUR_SEASON, DATA, state } from "../store";
+import { cardHTML } from "./cards";
+import { syncChips, updateChipCounts } from "./console";
+import { renderDock } from "./dock";
+import { $ } from "./dom";
+
+// 放宽候选缓存：render()（空网格）与 openGacha()（空蛋池）写入，data-relax 点击按下标执行
+let relaxCands: RelaxCandidate[] = [];
+export function computeRelax(): RelaxCandidate[] {
+  relaxCands = relaxCandidates(DATA, state);
+  return relaxCands;
+}
+export function applyRelax(i: number) {
+  const c = relaxCands[i];
+  if (!c) return;
+  applyRelaxAction(c.action); syncChips(); render();
+}
+function applyRelaxAction(a: RelaxAction) {
+  switch (a.type) {
+    case "dropTag": state.tags.delete(a.tag); break;
+    case "clearGroup": state[a.key].clear(); break;
+    case "clearQ": state.q = ""; $<HTMLInputElement>("searchBox").value = ""; break;
+    case "clearOnlyFav": state.onlyFav = false; $("favToggle").classList.remove("on"); break;
+    case "clearNoAlt": state.noAlt = false; $("altToggle").classList.remove("on"); break;
+    case "clearHideVisited": state.hideVisited = false; $("visitedToggle").classList.remove("on"); break;
+  }
+}
+
+export function render() {
+  const list = filtered(DATA, state, CUR_SEASON);
+  $("grid").innerHTML = list.map(cardHTML).join("");
+  $("empty").style.display = list.length ? "none" : "block";
+  $("hitCount").textContent = `命中 ${list.length} / ${DATA.length}`;
+  if (!list.length) {
+    computeRelax();
+    $("relaxBox").innerHTML = relaxCands.slice(0, 3).map((c, i) =>
+      `<button class="btn relax" data-relax="${i}">${c.label} → 能救回 ${c.n} 个</button>`).join("");
+  }
+  updateChipCounts();
+  renderDock();
+  updateFootprint();
+}
+
+// 足迹口径（F11）：地图填色、地图统计条、足迹胶囊三处同源——都走这一个函数
+export function litVisitedProvinces(): string[] {
+  return litProvinces(state.visited.map(byId).filter(Boolean) as Destination[], CN_MAP.prov);
+}
+export function updateFootprint() {
+  const pill = $("footPill");
+  const n = state.visited.length;
+  if (!n) { pill.style.display = "none"; return; }
+  pill.textContent = `👣 去过 ${n} 个目的地 · 点亮 ${litVisitedProvinces().length} 个省份`;
+  pill.style.display = "";
+}

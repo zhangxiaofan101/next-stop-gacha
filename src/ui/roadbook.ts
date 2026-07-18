@@ -1,0 +1,88 @@
+/* 路书（HTML 渲染 + 天气异步填充；模型/文本装配在 logic/roadbook） */
+import { ROUTE_STAY } from "../logic/constants";
+import { fmtMD, roadbookModel, roadbookText, shortName, skelDayLabel, skeletonRows, tripDate, type RoadbookModel } from "../logic/roadbook";
+import type { TripLeg } from "../logic/types";
+import { fmtH } from "../logic/transport";
+import { fetchWeather, wxCacheGet, wxLine } from "../services/weather";
+import { byId, state } from "../store";
+import { $ } from "./dom";
+import { toast } from "./toast";
+
+function roadbookHTML(): string {
+  const m = roadbookModel(state.trip, byId);
+  const now = new Date();
+  const title = m.stops.map(shortName).join(" → ");
+  const legLine = (l: TripLeg, note: string) => `<div class="rb-leg">${l.icon} ${note} · ${l.mode} ${fmtH(l.hours)}（约${l.km}km，估算）</div>`;
+  const dayRange = (it: RoadbookModel["items"][number]) => { // 「D2–D3」＋设了出发日期时的「07-08~07-09」
+    const tag = `D${it.start}${it.end > it.start ? "–D" + it.end : ""}`;
+    const t1 = tripDate(it.start, state.tripStart);
+    if (!t1) return tag;
+    const t2 = tripDate(it.end, state.tripStart);
+    return `${tag}（${fmtMD(t1)}${it.end > it.start ? " ~ " + fmtMD(t2!) : ""}）`;
+  };
+  const rows = skeletonRows(m.items);
+  return `
+  <div class="rb-cover">
+    <h2 class="rb-title">🧭 ${title}</h2>
+    <div class="rb-meta">${m.budget.daySum} 天 · ${m.stops.length} 站 · 总里程约 ${m.budget.km}km · 上海往返${state.tripStart ? ` · ${state.tripStart} 出发` : ""} · 生成于 ${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}</div>
+  </div>
+  <div class="rb-skel">
+    <div class="rb-skel-t">🗓 逐日速览</div>
+    ${rows.map(r => {
+      const lb = skelDayLabel(r.n, state.tripStart);
+      return `<div class="rb-sk-row">${lb.date ? `<span class="rb-sk-date">${lb.date}</span>` : ""}<span class="rb-sk-d">${lb.d}</span><span class="rb-sk-act">${r.act}</span><span class="rb-sk-stay">${r.stay === "🏠 回家" ? r.stay : "宿 " + r.stay}</span></div>`;
+    }).join("")}
+  </div>
+  ${m.items.map((it, i) => `
+    ${legLine(it.legIn, i === 0 ? "上海 → " + (it.legIn.gwName || it.d.name) : m.items[i - 1].d.name + " → " + it.d.name)}
+    <div class="rb-day"><span class="rb-dtag">${dayRange(it)}</span></div>
+    <div class="rb-stop">
+      <h4>${it.d.emoji} ${it.d.name} <span style="font-size:12px;color:var(--ink-soft);font-family:var(--sans)">（${it.d.chosenDays}天 · 方案「${it.plan.title}」${it.plan.days !== it.d.chosenDays ? "，按" + it.plan.days + "天版改编" : ""}）</span></h4>
+      <div class="rb-plan">${it.plan.route}</div>
+      <div class="rb-facts">
+        <span><b>🍜 别错过：</b>${it.d.food.slice(0, 4).join("、")}</span>
+        ${it.d.highlights.length ? `<span><b>✨ 特色：</b>${it.d.highlights.slice(0, 2).join("；")}</span>` : ""}
+        ${ROUTE_STAY.has(it.d.id) ? `<span><b>🧭 节奏：</b>路线型玩法，沿线多点换宿——按每晚落脚点分段订房，不必全程订一处</span>` : ""}
+        <span><b>🏨 住宿：</b>${it.d.hotel || "以酒店 App 实查为准"}</span>
+        <span><b>🚌 市内：</b>${it.d.local || "打车/公共交通"}</span>
+        <span><b>🌤 季节：</b>${it.d.seasonNote}</span>
+        <span class="rb-wx" data-wx="${it.d.id}"></span>
+      </div>
+    </div>
+    ${it.legOut ? legLine(it.legOut, it.d.name + (it.legOut.gwName ? " → " + it.legOut.gwName : "") + " → 上海（返程）") : ""}
+  `).join("")}
+  <div class="trip-stats rb-budget">
+    <span>💰 人均预算 <b>¥${m.budget.lo.toLocaleString()} ~ ${m.budget.hi.toLocaleString()}</b>（含大交通与住宿餐饮，不含购物）</span>
+  </div>
+  <div class="rb-note">※ 交通方式与时长为直线距离估算，出发前请以 12306 / 航旅 App 实际班次为准；房态与价格以酒店 App 实时为准。天气参考数据来自 <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>），经本站整理换算。</div>
+  <div class="rb-actions no-print">
+    <button class="big-btn blue" id="copyRbBtn">📋 复制路书文本</button>
+    <button class="big-btn ghost" id="printRbBtn">🖨 打印 / 存 PDF</button>
+  </div>`;
+}
+
+// 文本导出：天气行只读缓存（不发请求），与 design「实时天气」的静默降级口径一致
+export function currentRoadbookText(): string {
+  const m = roadbookModel(state.trip, byId);
+  return roadbookText(m, state.tripStart, id => {
+    const days = wxCacheGet(id);
+    return days ? wxLine(days) : null;
+  });
+}
+
+let rbWxGen = 0; // 防止用户改动行程后快速重开路书时，旧请求把天气写串到新渲染的节点上
+export function openRoadbook() {
+  if (!state.trip.length) { toast("行程还是空的"); return; }
+  $("rbBody").innerHTML = roadbookHTML();
+  $("rbOverlay").classList.add("show");
+  fillRoadbookWeather(++rbWxGen);
+}
+async function fillRoadbookWeather(gen: number) {
+  const stops = state.trip.map(t => byId(t.id)!);
+  await Promise.all(stops.map(async d => {
+    const days = await fetchWeather(d, byId);
+    if (!days || gen !== rbWxGen) return;
+    const el = document.querySelector(`[data-wx="${d.id}"]`);
+    if (el) el.innerHTML = `<b>⛅ 未来7天参考：</b>${wxLine(days)}`;
+  }));
+}
