@@ -134,6 +134,30 @@ inside the canvas. Create at 1024×512 or larger.
 
 **样例验收流程**：三张并排 + cc 做一张真实卡片嵌入演示 → 用户终审。判据（design「一致性判据」）：线条粗细、上色方式、饱和度一致，无「换画师」感。通过 → 风格锁冻结进 design，M44 铺量复用；不过 → codex 调锁重跑（最多两轮，两轮不齐回 cc 重新定锁再议）。
 
+## 水墨试版探针（皮肤方向评估用，非既定方向）
+
+> 2026-07-18 用户在 v2 水彩剪贴簿 / v3 纯马克笔之外考虑第三候选「水墨」，并提出皮肤可变构想。本节只画探针供终审对比：不铺量、不动已产出的水彩资产。
+
+水墨风格锁（试版期一字不改）：
+
+```
+Traditional Chinese ink wash painting (shuimo) style. Xuan rice-paper cream
+background (#faf3e3) with subtle fiber texture. Expressive charcoal-black
+brush strokes with natural dry-brush breaks and five-tone ink gradation;
+large deliberate blank space (liubai). Mostly monochrome, with at most two
+muted accents used sparingly: vermilion #e85d3d and pale indigo wash #7ba7c9.
+One small blank square vermilion seal-stamp shape in a corner, no characters
+inside it. Asymmetric poetic composition. No text, no watermark, no
+photorealism, no 3D render, no bright saturated colors, no thick uniform
+cartoon outlines.
+```
+
+探针三张（专挑对水墨最危险的题材，各出 2 版）：
+
+- `probe-ink-hangzhou-v{n}.png`（1536×1024）——主体 prompt 与 S1 完全同文（同题材直接与水彩版并排比）
+- `probe-ink-gacha-v{n}.png`（1024×1024）——主体 prompt 同 A1，末句 grassy mound 改为 blank space；**最险**：可爱物件在水墨语言下是否成立
+- `probe-ink-mascot-v{n}.png`（1024×1024）——主体 prompt 同 A2（IP 红线与三件套照旧），走写意萌物路线；黄帽/红背包允许淡彩点染（此题材可放宽双色限制）
+
 ## 初筛核对清单（codex 每张图过一遍）
 
 - [ ] 无任何文字/水印/签名
