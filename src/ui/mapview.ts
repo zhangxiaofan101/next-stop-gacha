@@ -17,11 +17,13 @@ export function renderMap() {
     ? `<div class="map-stat">👣 去过 ${visited.length} 个目的地 · 点亮 ${lit.length} 个省份 · ♥ 收藏 ${state.favs.length}</div>`
     : `<div class="map-empty">还没打卡过——去任意目的地详情页点『👣 打卡去过』，地图就会亮起来</div>`;
   const litSet = new Set(lit);
+  // M45：省份/装饰线颜色从内联属性搬进 CSS class（见 style.css .map-scroll .prov/.deco），
+  // 皮肤只需换 token 不用再动这段拼接逻辑；stroke-width 是结构值不算换肤维度，留在行内。
   const provPaths = CN_MAP.prov.map(p => {
     const on = litSet.has(p.n);
-    return `<path d="${p.d}" fill="${on ? "#dcf3dd" : "#f4f7fb"}" stroke="${on ? "#7fae8e" : "#b9c9dd"}" stroke-width="1"></path>`;
+    return `<path class="prov${on ? " on" : ""}" d="${p.d}" stroke-width="1"></path>`;
   }).join("");
-  const decoPath = `<path d="${CN_MAP.deco}" stroke="#b9c9dd" stroke-dasharray="3 3" fill="none"></path>`;
+  const decoPath = `<path class="deco" d="${CN_MAP.deco}"></path>`;
   const visitedIds = new Set(state.visited);
   const favIds = new Set(state.favs);
   const grayDots: string[] = [], hotDots: string[] = []; // 已打卡/收藏点后画，压在灰点上层
@@ -34,11 +36,11 @@ export function renderMap() {
     const hit = `<circle class="map-dot" cx="${x}" cy="${y}" r="7" fill="transparent" data-mapdot="${d.id}"></circle>`;
     let mark;
     if (isFav) {
-      mark = `<text x="${x}" y="${y}" font-size="13" text-anchor="middle" dominant-baseline="central" fill="#ff6b81" stroke="#fff" stroke-width="0.5" paint-order="stroke" pointer-events="none">♥</text>`;
+      mark = `<text x="${x}" y="${y}" font-size="13" text-anchor="middle" dominant-baseline="central" style="fill:var(--map-heart);stroke:var(--paper)" stroke-width="0.5" paint-order="stroke" pointer-events="none">♥</text>`;
     } else if (isVisited) {
-      mark = `<circle cx="${x}" cy="${y}" r="3.5" fill="#2e7d43" stroke="#fff" stroke-width="1" pointer-events="none"></circle>`;
+      mark = `<circle cx="${x}" cy="${y}" r="3.5" style="fill:var(--map-dot-visited);stroke:var(--paper)" stroke-width="1" pointer-events="none"></circle>`;
     } else {
-      mark = `<circle cx="${x}" cy="${y}" r="2.2" fill="#b9c6d6" pointer-events="none"></circle>`;
+      mark = `<circle cx="${x}" cy="${y}" r="2.2" style="fill:var(--map-dot-idle)" pointer-events="none"></circle>`;
     }
     (isFav || isVisited ? hotDots : grayDots).push(`<g>${hit}${mark}</g>`);
   });
@@ -46,8 +48,8 @@ export function renderMap() {
     <h2 style="font-family:var(--round); margin:0 0 4px">🗺 我的足迹地图</h2>
     ${statHTML}
     <div class="map-legend">
-      <span><span class="lg-dot" style="background:#b9c6d6"></span>灰点 = 没去过</span>
-      <span><span class="lg-dot" style="background:#2e7d43"></span>绿点 = 去过</span>
+      <span><span class="lg-dot" style="background:var(--map-dot-idle)"></span>灰点 = 没去过</span>
+      <span><span class="lg-dot" style="background:var(--map-dot-visited)"></span>绿点 = 去过</span>
       <span>♥ = 收藏</span>
     </div>
     <div class="map-scroll">

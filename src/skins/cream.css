@@ -1,0 +1,155 @@
+/* 奶油皮肤（默认，M45）——现行浅色卡通视觉原样收编为第一套皮肤 token 集。
+   选择器同时挂裸 :root（无 data-theme / 未来皮肤缺省时兜底）与 :root[data-theme="cream"]
+   （显式选中奶油时），两者取值完全一致——这是「默认皮肤首屏直出不闪烁」成立的关键：
+   哪怕 head 内联脚本还没跑完，裸 :root 已经是奶油这套值，不会有一帧空白/错色。
+   本文件 = 旧 style.css 的整块 :root（变量名、值、顺序不变）+ 从各视图 CSS 字面量原样
+   等值收编上来的新 token（新增部分只挪值、不改值——挪一个不变一个是本模块的正确性红线）。 */
+:root, :root[data-theme="cream"] {
+  --sky: #eaf4fe;
+  --sky-deep: #d8ecfd;
+  /* 1a 精致插画感：通透暖光天空（上→下：天蓝→浅白蓝→近地平线暖米） */
+  --sky-top: #bfe6f7;
+  --sky-mid: #eaf6fb;
+  --sky-bot: #fff2df;
+  /* 三层山丘（远→近，越近越深压最底） */
+  --hill-1: #c4e9c4;
+  --hill-2: #9bd992;
+  --hill-3: #6dc47f;
+  /* 备用强调色（珊瑚橘 / 青绿 / 琥珀），与既有语义色并存 */
+  --a1: #ff8f6b;
+  --a1b: #ffab8c;
+  --a2: #43c1c1;
+  --a3: #f6b93b;
+  --paper: #ffffff;
+  --ink: #37485a;
+  --ink-soft: #6b7086;
+  --blue: #58b7f0;
+  --blue-deep: #2e93d4;
+  --orange: #ff9c3f;
+  --orange-deep: #f07f1a;
+  --green: #7bc86c;
+  --pink: #f79ec4;
+  --yellow: #ffd95c;
+  --purple: #b39deb;
+  --red: #ef6461;
+  --spring: #7bc86c;
+  --summer: #58b7f0;
+  --autumn: #ff9c3f;
+  --winter: #9dbbef;
+  --round: "Yuanti SC", "STYuanti-SC", "YouYuan", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, sans-serif;
+
+  /* ---- 色板：M45 从各视图 CSS 字面量原样等值收编（挪一个不变一个） ---- */
+  --on-color: #fff; /* 徽章/按钮/胶囊等饱和色底上的前景白（文字/图标），与 --paper 语义不同故独立成 token */
+  --panel-warm-bg: #fff8e6; /* 暖色虚线提示面板底色（行程小结/分享统计/导入条等） */
+  --panel-warm-border: #ecc94b;
+  --info-blue-bg: #eef6ff; /* 信息蓝三件套：详情 chip / 路书 leg 提示条 */
+  --info-blue-border: #bcd8f0;
+  --info-blue-text: #33608a;
+  --food-chip-bg: #fff0e3; /* 美食 chip 暖色变体 */
+  --food-chip-border: #f5cba0;
+  --food-chip-text: #a05a1c;
+  --note-green-bg: #f4fbf0; /* 当地交通提示条（绿） */
+  --note-green-border: #a8d89c;
+  --note-green-text: #3d6b34;
+  --note-hotel-bg: #fef7ec; /* 住宿提示条（暖棕） */
+  --note-hotel-border: #f0cf96;
+  --note-hotel-text: #7d5b1e;
+  --panel-cool-bg: #f6faff; /* 行程方案卡 / 行程单站点行的浅蓝底 */
+  --panel-cool-border: #cfe3f5;
+  --field-bg: #f3f9ff; /* 搜索框 / dock chip 等输入类浅蓝底 */
+  --chip-hover-bg: #fff6da; /* chip 悬浮态 */
+  --dock-box-bg: #fff6de; /* 底部悬浮 dock 容器底色 */
+  --dock-chip-hover-bg: #ffe3e2; /* dock chip 悬浮态（划掉提示） */
+  --dot-off-bg: #eef2f8; /* 季节点未命中态底色 */
+  --season-default-bg: #dfe7f2; /* 季节点默认（未套用具体季节色）底色 */
+  --badge-alt-bg: #e9e2f9; /* 高海拔徽章 */
+  --badge-alt-text: #5c4a8f;
+  --badge-visited-bg: #dcf3dd; /* 「✓ 去过」徽章 */
+  --badge-visited-text: #2e7d43;
+  --tag-bg: #e3f2fe; /* 卡片玩法小标签 */
+  --tag-text: #3f6e8c;
+  --table-border: #d8e2ef; /* 对比表格 */
+  --table-rowh-bg: #f2f8ff;
+  --table-cityh-bg: #fef8e8;
+  --rb-skel-bg: #f8fbff; /* 路书逐日速览骨架底色 */
+  --rb-day-num-text: #3d7ab8; /* 路书速览「D3」序号色 */
+  --divider-console: #d7e6f5; /* 筛选台底部虚线分割 */
+  --divider-cover: #cfe0f0; /* 路书封面底部虚线分割 */
+  --divider-leg: #b9cfe4; /* 行程单交通段虚线 */
+  --divider-skrow: #dfecf8; /* 路书速览行分隔线 */
+
+  /* ---- 文字色 ---- */
+  --text-mid: #4a5169; /* 卡片/详情一句话简介 */
+  --text-body: #414965; /* 详情列表 / 路书正文级文字 */
+  --text-subtle: #55627f; /* 行程方案路线 / 路书事实行 */
+  --text-faint: #97a3b8; /* 路书免责小字 */
+  --text-footer: #8fa3bb; /* 页脚 */
+  --season-off-text: #98a4b8; /* 季节点未命中态文字 */
+  --placeholder-text: #9aa7bd; /* 搜索框占位符 */
+
+  /* ---- 描边（手绘粗描边的固定粗细族，1.5/2/2.5/3px 四档） ---- */
+  --bw-thin: 1.5px;
+  --bw-md: 2px;
+  --bw-thick: 2.5px;
+  --bw-xthick: 3px;
+
+  /* ---- 圆角 ---- */
+  --radius-qr: 8px;
+  --radius-icon-btn: 9px;
+  --radius-field: 10px;
+  --radius-control: 12px;
+  --radius-panel-sm: 14px;
+  --radius-panel: 16px;
+  --radius-window: 18px;
+  --radius-card: 20px;
+  --radius-panel-lg: 22px;
+  --radius-sheet: 24px;
+  --radius-machine: 26px;
+  --radius-pill: 999px;
+
+  /* ---- 投影（rgb 三元组 token，配 rgba(var(--x-rgb), alpha) 消费，alpha 字面量原地保留） ---- */
+  --shadow-ink-rgb: 51, 54, 73; /* 硬投影主色（全站描边阴影的绝大多数用它） */
+  --ink-rgb: 55, 72, 90; /* --ink 本身的 rgb 分量，用于较柔的大面积投影 */
+  --glow-sun-rgb: 255, 214, 110; /* 太阳光晕 */
+  --shine-rgb: 255, 255, 255; /* 高光/玻璃感白色描边投影 */
+  --blue-rgb: 88, 183, 240; /* --blue 分量，筛选面板/详情纸张投影 */
+  --blue-deep-rgb: 46, 147, 212; /* --blue-deep 分量，选中 chip 投影 */
+  --orange-rgb: 255, 156, 63; /* --orange 分量，扭蛋机投影 */
+  --orange-deep-rgb: 240, 127, 26; /* --orange-deep 分量，扭蛋按钮/扭蛋机投影 */
+  --purple-rgb: 179, 157, 235; /* --purple 分量，对比表投影 */
+  --overlay-tint-rgb: 120, 160, 205; /* 弹层背景蒙版 */
+
+  /* ---- 渐变（整段渐变收编为一个 token，内部可再引用其它 token） ---- */
+  --grad-sun: radial-gradient(circle at 38% 34%, #fff2c4 30%, var(--yellow) 78%);
+  --grad-console: linear-gradient(180deg, var(--paper), #f8fcff);
+  --grad-paper: linear-gradient(180deg, var(--paper), #f7fbff);
+  --grad-machine: linear-gradient(180deg, var(--paper), #fff8ee);
+  --grad-window: linear-gradient(#fef9ee, var(--paper));
+  --grad-fab: linear-gradient(180deg, var(--yellow), var(--orange));
+  --grad-knob: radial-gradient(circle at 35% 35%, var(--yellow), var(--orange));
+  --grad-btn-primary: linear-gradient(180deg, #ffb35c, var(--orange));
+  --grad-btn-blue: linear-gradient(180deg, #8cd0f7, var(--blue));
+  --grad-btn-green: linear-gradient(180deg, #9bdb8d, var(--spring));
+
+  /* ---- 区域九色（M45 从 logic/constants.ts REGION_COLOR 收编，键名与语义分工不变） ---- */
+  --region-jzh: #cde9ff;
+  --region-huadong: #cdeec9;
+  --region-huabei: #ffe6b8;
+  --region-dongbei: #dce6ff;
+  --region-huazhong: #ffdcc9;
+  --region-huanan: #ffd6e4;
+  --region-xinan: #d2f0e0;
+  --region-xibei: #f3e2c3;
+  --region-gangao: #e6dcff;
+  --region-fallback: #cde9ff; /* 未知/缺失区域兜底色，值与江浙沪相同纯属巧合 */
+
+  /* ---- 地图色（足迹地图 SVG：省界填色/描边、打卡点、图例） ---- */
+  --map-prov: #f4f7fb; /* 未点亮省份填色 */
+  --map-prov-lit: #dcf3dd; /* 点亮省份填色 */
+  --map-stroke: #b9c9dd; /* 未点亮省界 + 装饰线描边 */
+  --map-stroke-lit: #7fae8e; /* 点亮省界描边 */
+  --map-dot-idle: #b9c6d6; /* 未打卡点 */
+  --map-dot-visited: #2e7d43; /* 已打卡点 */
+  --map-heart: #ff6b81; /* 收藏点心形标记 */
+}

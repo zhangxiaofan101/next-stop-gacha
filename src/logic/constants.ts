@@ -2,9 +2,12 @@
 import type { GroupKey, Place } from "./types";
 
 export const REGIONS = ["江浙沪", "华东", "华北", "东北", "华中", "华南", "西南", "西北", "港澳"];
+// M45：值改为 var(--region-<slug>) 字符串，颜色本体挪去 src/skins/cream.css（皮肤 token 化）；
+// 键名与导出形状不变，slug 映射：江浙沪→jzh 华东→huadong 华北→huabei 东北→dongbei
+// 华中→huazhong 华南→huanan 西南→xinan 西北→xibei 港澳→gangao。
 export const REGION_COLOR: Record<string, string> = {
-  "江浙沪": "#cde9ff", "华东": "#cdeec9", "华北": "#ffe6b8", "东北": "#dce6ff",
-  "华中": "#ffdcc9", "华南": "#ffd6e4", "西南": "#d2f0e0", "西北": "#f3e2c3", "港澳": "#e6dcff",
+  "江浙沪": "var(--region-jzh)", "华东": "var(--region-huadong)", "华北": "var(--region-huabei)", "东北": "var(--region-dongbei)",
+  "华中": "var(--region-huazhong)", "华南": "var(--region-huanan)", "西南": "var(--region-xinan)", "西北": "var(--region-xibei)", "港澳": "var(--region-gangao)",
 };
 export const SEASONS = ["春", "夏", "秋", "冬"];
 export const DAY_BUCKETS: { key: string; label: string; test: (d: number[]) => boolean }[] = [

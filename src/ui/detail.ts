@@ -10,7 +10,7 @@ import { $ } from "./dom";
 function detailHTML(d: Destination): string {
   const sec = (title: string, inner: string) => inner ? `<div class="dt-sec"><h3>${title}</h3>${inner}</div>` : "";
   const chips = (arr: string[], cls = "") => arr.length ? `<div class="dt-chips">${arr.map(x => `<span class="dt-chip ${cls}">${x}</span>`).join("")}</div>` : "";
-  const rs = REGION_COLOR[d.region] || "#cde9ff";
+  const rs = REGION_COLOR[d.region] || "var(--region-fallback)";
   const isRoute = !!d.stops;
   const inTrip = state.trip.some(t => t.id === d.id);
   const tripBtn = isRoute

@@ -10,6 +10,7 @@ import { getLastPick, openGacha, roll } from "./gacha";
 import { applyRelax, render } from "./render";
 import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
 import { forgetSync, generateShareCode, importJSON, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
+import { selectSkin } from "./skin";
 import { toast } from "./toast";
 import { autoOrder, insertOnWay, openTrip, renderTrip } from "./trip";
 
@@ -43,6 +44,8 @@ export function wireEvents() {
     if (vis) { e.stopPropagation(); toggleVisited(vis.dataset.visited!); if (vis.closest("#detailBody")) openDetail(vis.dataset.visited!); return; }
     const mapDot = t.closest<HTMLElement>("[data-mapdot]");
     if (mapDot) { e.stopPropagation(); openDetail(mapDot.dataset.mapdot!); return; }
+    const skin = t.closest<HTMLElement>("[data-skin]");
+    if (skin) { selectSkin(skin.dataset.skin!); return; }
     const card = t.closest<HTMLElement>(".card");
     if (card && !t.closest(".act")) openDetail(card.dataset.id!);
   });

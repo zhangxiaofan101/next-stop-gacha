@@ -1,12 +1,23 @@
 /* 彩带 */
 import { $ } from "./dom";
 
+// M45：彩带六色不再硬编码，改在起飞那一刻读当前皮肤的 token 计算值——换肤后彩带跟着换色；
+// 兜底值＝奶油皮肤原色（token 读取异常/皮肤没定义该 token 时不至于变成透明碎屑）。
+const CONFETTI_TOKENS: [string, string][] = [
+  ["--orange", "#ff9c3f"], ["--blue", "#58b7f0"], ["--green", "#7bc86c"],
+  ["--pink", "#f79ec4"], ["--yellow", "#ffd95c"], ["--purple", "#b39deb"],
+];
+function confettiColors(): string[] {
+  const cs = getComputedStyle(document.documentElement);
+  return CONFETTI_TOKENS.map(([name, fallback]) => cs.getPropertyValue(name).trim() || fallback);
+}
+
 export function confetti() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const cv = $<HTMLCanvasElement>("confettiCanvas");
   const ctx = cv.getContext("2d")!;
   cv.width = innerWidth; cv.height = innerHeight; cv.style.display = "block";
-  const colors = ["#ff9c3f", "#58b7f0", "#7bc86c", "#f79ec4", "#ffd95c", "#b39deb"];
+  const colors = confettiColors();
   const ps = Array.from({ length: 120 }, () => ({
     x: innerWidth / 2 + (Math.random() - 0.5) * 260,
     y: innerHeight * 0.3,

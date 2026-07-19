@@ -40,3 +40,14 @@ export function setSyncCode(code: string) {
 export function clearSyncCode() {
   try { localStorage.removeItem(SYNC_LS_KEY); } catch (e) {}
 }
+
+// M45：皮肤选择（原始值，某皮肤 id 或 "random"）。store 只管读写原始字符串，不判断合法性/
+// 兜默认——缺失或读取异常一律返回 null，"选哪个是合法的/默认是谁"交给 skins/registry.ts
+// 的 resolveSkinId 决定（同 SYNC_LS_KEY：store 保持哑，判断逻辑不下沉到持久化层）。
+const SKIN_LS_KEY = "nextstop_skin_v1";
+export function getSkinChoice(): string | null {
+  try { return localStorage.getItem(SKIN_LS_KEY); } catch (e) { return null; }
+}
+export function setSkinChoice(choice: string) {
+  try { localStorage.setItem(SKIN_LS_KEY, choice); } catch (e) {}
+}

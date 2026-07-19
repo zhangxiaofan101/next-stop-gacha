@@ -7,6 +7,7 @@ import { $ } from "./dom";
 import { openMap } from "./mapview";
 import { render } from "./render";
 import { openShare } from "./share";
+import { openSkin } from "./skin";
 
 export function buildConsole() {
   const el = $("console");
@@ -46,6 +47,7 @@ export function buildConsole() {
       <button class="btn" id="visitedToggle">👣 隐藏去过的</button>
       <button class="btn" id="mapBtn">🗺 足迹地图</button>
       <button class="btn" id="shareBtn">📤 分享/备份</button>
+      <button class="btn" id="skinBtn">🎨 皮肤</button>
       <button class="btn" id="resetConsoleBtn">清空筛选</button>
       <div class="hit" id="hitCount"></div>
     </div>
@@ -83,6 +85,7 @@ export function buildConsole() {
   });
   $("mapBtn").addEventListener("click", openMap);
   $("shareBtn").addEventListener("click", openShare);
+  $("skinBtn").addEventListener("click", openSkin);
   // F40：module 化后顶层函数不再落到 window，inline onclick="resetFilters()" 会报
   // ReferenceError——两处清空按钮改走 addEventListener，与本函数其余按钮一致
   $("resetConsoleBtn").addEventListener("click", resetFilters);

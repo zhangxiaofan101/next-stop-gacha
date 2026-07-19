@@ -8,7 +8,7 @@ export const seasonsHTML = (d: Destination) => `<span class="seasons">${SEASONS.
   `<span class="s-dot s${s} ${d.seasons.includes(s) ? "" : "off"}">${s}</span>`).join("")}</span>`;
 
 export function cardHTML(d: Destination, i: number): string {
-  const rs = REGION_COLOR[d.region] || "#cde9ff";
+  const rs = REGION_COLOR[d.region] || "var(--region-fallback)";
   const isRoute = !!d.stops;
   const routeLine = isRoute ? d.stops!.map(s => byId(s.id)?.name || s.id).join(" → ") : "";
   const tripBtn = isRoute
