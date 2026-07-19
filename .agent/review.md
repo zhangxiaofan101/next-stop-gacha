@@ -18,6 +18,24 @@
 
 ## Active findings
 
-> Review baseline: 9c0a97e，Codex/GPT reviewer，2026-07-19。确认范围 `ab1f288..9c0a97e`；对照 goal/design/state/code 复核 F54–F57 响应。F55–F57 的代码修复与回归测试均成立，已关闭；F54 按用户拍板走 reviewer 提议的第二条退出路径，design 已把声明消费端验真及字体管线明确移入 M46，并在 M46 写入可执行验收，因此不再作为 active finding。当前无 active finding；M47 `[R2 · S2]` 跨家族 review gate 通过。M45 当前模块边界内的实现通过本轮复核，但其 `[R2 · S3]` gate 按拍板保持开放，须等 M46 的双皮肤、字体、assetDir 与装饰开关真实消费验收后才能最终关闭。
+> Review baseline: 533a431，Codex/GPT reviewer，2026-07-20。审阅范围 `9c0a97e..533a431`；按用户指定聚焦 M45 遗留 gate、M46 与 M52，M44/M53–M56 内容轨道及审阅期间新落的 0759070 不在本轮范围。对照 goal/design/state/code 后，M52 的形态 token 化、奶油等价性、`--shadow-card` 的 `initial` + use-site fallback、SVG 图标/印章/`feTurbulence` 边线及 token 双文件漂移钉子均通过；M52 `[R2 · S2]` gate 可关闭。M45/M46 仍有 F58–F60，尤其 state 的 M46 条目所称“assetDir/字体声明均被真实消费、双皮肤全链路可切换”与代码及生产行为不符，因此 M46 gate 与依赖它首次验真的 M45 遗留 gate 均不能关闭。
 >
-> 独立证据：沙箱外 `bun run build` 通过（TypeScript + 决策/UI Vitest 10 文件 111/111 + workerd Worker/DO 45/45 + Vite，共 156 条），`bun run test:build-assets` 1/1，`git diff --check` 通过；沙箱内首次失败仅为 Wrangler 日志目录与本地监听端口 EPERM，非产品失败。F55 三处字面量已改走 token/语义文案，新增审计覆盖 21 个视图文件且当前独立 `rg` 只剩 cream token 本体与三类有理由 allowlist。F56 的 registry、apply 与弹层高亮共用 `normalizeSkinChoice`；额外 happy-dom 实调确认脏值高亮 cream、random 高亮 random，真实浏览器确认 cream→random 即时切换及刷新后 random 高亮保持，控制台零 error。F57 的按钮/面板 id 关联、初始 false 与点击 true→false 均由真实 click DOM 测试覆盖。生产 HTML 已引用本轮 `index-CVlZUrUZ.js` / `index-BlQ8xKGF.css`，线上与本地 SHA-256 分别同为 `43d4ab9d…675c` / `5d93f7ae…7734`。
+> 独立证据：沙箱外 `bun run build` 通过（TypeScript + 前端 Vitest 11 文件 129/129 + workerd Worker/DO 45/45 + Vite，共 174 条），`bun run test:build-assets` 1/1，`git diff --check` 通过；沙箱内首次失败仍仅为 Wrangler 日志/监听端口 EPERM。生产地址桌面 1280px 与移动端 390×844 实测无横向溢出，奶油/山水的 15px 正文、13px chip、23px 卡片标题及移动端 34px logo 均无明显过小/挤压；山水字体实际加载，题头 2:1、扭蛋与空态 1:1 图片均完整显示。奶油卡片的生产 computed shadow 为地区色 `rgb(205, 233, 255) 6px 7px 0`，确认 M52 引入的回归已由 `initial` + use-site fallback 真正修复；印章、抖动边线和宣纸效果在桌面/移动端均可见。M44 共享目的地图铺量按本轮边界未纳入缺图判定。
+
+### F58 — [P1] M46 没有完成皮肤声明契约的首次验真，M45 遗留 gate 仍然开放
+
+design 要求字体对、`assetDir` 与装饰开关都由当前皮肤声明驱动渲染；当前只有 `decorations` 被 `applySkinVisuals()` 读取。`src/skins/illustrations.ts:10,23-33` 仍直接用 `skinId` 拼 `illustrations/<skinId>/...`，从未读取 `SKINS[].assetDir`；动态题头/详情/扭蛋路径也继续把 `currentSkinId()` 传给同一函数。`fonts` 同样不参与运行时选择，只由 CSS token 决定，registry 测试只是把声明字符串与 `ink.css` 文本互相比对。现有测试又用 `illustSrc("ink", ...)` 断言结果含 `/ink/`，因 `id === assetDir` 而自证成立；即使把声明的 `assetDir` 改成别名目录也不会红。
+
+应让运行路径先解析当前 `SkinDeclaration`，所有静态/动态图片 URL 都使用其 `assetDir`，并增加一个 `id !== assetDir` 的夹具/探针证明声明确实驱动 URL。字体要么同样由声明参与加载/选择，要么先修改 design/registry，明确 CSS 是唯一运行时真相并移除“字段被消费”的错误声明；不能继续把仅做字符串 drift-pin 的元数据记作消费端验真。完成前，state 的 M46 验收结论及由其关闭 M45 gate 的条件都不成立。
+
+### F59 — [P1] 缺图回退会永久删除插画槽位，双皮肤切换无法恢复
+
+奶油皮肤没有 `public/illustrations/cream/` 资产，但 `applySkinVisuals("cream")` 会给 mascot/gacha/empty 等静态槽位写入必然 404 的 URL；`src/skins/illustrations.ts:45-63` 随后把图片或整个 `[data-illust-frame]` 从 DOM 移除，emoji 分支也用不带 `data-illust` 的 `<span>` 永久替换。之后切回山水时，`applySkinVisuals()` 已查询不到原槽位，无法恢复。生产实测从山水首帧开始时 mascot 为已加载的 640×640 图片；山水→奶油后容器消失，再切回山水仍不存在。若先在奶油打开扭蛋或空态，同一不可逆路径也会让它们在后续山水模式继续缺失。当前 happy-dom 测试只在完整 DOM 上连续写 `src`，没有派发 `error`，因此没覆盖真实生命周期。
+
+回退应保留可恢复的槽位和 `data-illust` 元数据（例如隐藏原 img 或在容器内切换 fallback），皮肤变化时清理 `fallbackTried` 并恢复图片；也可让无资产皮肤的声明显式表达 fallback，而不是先请求不存在的目录。补一条“山水加载成功 → 奶油 error/fallback → 山水恢复”的 DOM/浏览器回归，至少覆盖 mascot、gacha、empty。该问题直接违反 M46 的即时双向切换与静态插画同步验收。
+
+### F60 — [P2] 插画构建脚本只打印违规，不会守住画幅和体积契约
+
+`tools/build_illustrations.py:38` 声称按母版实际比例校验，但 `encode()` 在未读取源图尺寸的情况下直接强制 resize；错误比例母版会被拉伸而不是拒绝。最低质量仍超预算时只返回最后产物，调用方打印“超限!”后继续，编码失败、未知命名也只打印/跳过，`main()` 最终仍以 0 退出。当前山水源图与生产图逐张检查均符合 1:1/2:1 且现有画面显示完整，但这只是当前素材恰好正确，不能证明 M46 所称的可复用插画接入管线能防止下一批畸变或超限产物进入发布。
+
+在编码前读取并核对源图比例（允许明确的容差或裁切策略），累计命名、编码、比例及体积违规并非零退出；为错误比例与质量下限后仍超预算各加一条临时目录测试。这样 `bun run test:build-assets`/部署门禁才能真正钉住画布与预算契约，而不是只验证当前 happy path。
