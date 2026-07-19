@@ -6,7 +6,7 @@
 
 **线上**：`lab.medspiral.com/next-stop-gacha/`——Vite+TS 工程化版，267 城 + 53 线全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；后端短链分享（KV）+ 同步码云同步（Durable Object）已闭环并过跨家族 review；主题皮肤机制落地，奶油/山水双肤可切（山水已过 M52 形态精修并生产复验），DOM 结构与 token 体系处冻结态（再动结构须用户拍板）。四期代码侧（M37/M38/M40/M41/M42 管线）与五期代码轨道（M47→M45→M50→M46→M52）全部落地，明细见 ✅ 与 git 历史。 [cc]
 
-**在飞**：①codex gate review 一轮已审毕（baseline 533a431）：**M52 gate 关闭；M45/M46 gate 因 F58–F60 保持开放**——下一步 cc 修复响应（🔜 1）；②M44 目的地共享集分批长跑——batch 1 与江浙沪辨识度返工 11 张已终审转档，batch 2（17 张过初筛）与 batch 3（12 张，江浙沪 42 城区域闭环）待用户挑版，batch 2 回看保留的 12 张 v1 待单独终审（🔜 2）；③A8 山水工艺件批待 codex 开画，M57 接入随后（🔜 8）；④内容侧 M53–M56 已立项（🔜 4–7），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [cc]
+**在飞**：①codex gate review 一轮已审毕（baseline 533a431）：**M52 gate 关闭；M45/M46 gate 因 F58–F60 保持开放**——下一步 cc 修复响应（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环），挑版欠账清零；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件批待 codex 开画，M57 接入随后（🔜 8）；④内容侧 M53–M56 已立项（🔜 4–7），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [cc]
 
 **近期顺序**：F58–F60 修复 + codex 复核关 M45/M46 双闸 → 用户终审山水整体效果 + 默认皮肤拍板（🟡）→ 前端小批 M53/M54/M55/M51 ∥ 内容批 M48/M49/M56 随时可插。 [cc]
 
@@ -94,6 +94,7 @@
    - **江浙沪同质化返工 R1 已完成，等待用户挑版**（2026-07-20）：用户指出多张滥用“湖水 + 小船 + 塔/亭 + 远山”，工单已新增城市辨识度 prompt 硬闸、同区域母题分配、picked 区域回看例外与两项 QA（遮名认城 / 三项构图重合即返工）。复查用户点名的 5 张 picked：保留 `gouqi-island` / `putuoshan`，返工 `yangzhou` / `shaoxing` / `wuzhen-xitang`；复查 batch 2 后另返工 `nanxijiang` / `xiandu` / `qiandaohu` / `tonglu` / `zhenjiang` / `huaian` / `gaoyou` / `nanxun`。11 张最终候选初筛通过，QA=`raw/dest/qa/qa-m44-jzh-redraw-r1.png`；`xiandu-v2` 因安全区、`zhenjiang-v2` 因地标形制错误已淘汰，最终分别为 v3。旧 picked 未动，未启动 batch 3。 [codex]
    - **江浙沪返工 R1 已终审转档**（2026-07-20）：用户确认 11 张新版全部通过；q90 WebP 已入 `picked/dest/`——替换 `yangzhou` / `shaoxing` / `wuzhen-xitang`，新增 `nanxijiang` / `xiandu` / `qiandaohu` / `tonglu` / `zhenjiang` / `huaian` / `gaoyou` / `nanxun`。本次授权只覆盖新版 11 张；batch 2 回看保留的其余 12 张 v1 仍待单独终审。未启动 batch 3。 [codex]
    - **Batch 3 已完成生成与江浙沪区域闭环，等待用户挑版**（2026-07-20）：开批扫描确认 `data-a.json` 前 30 城均已有 picked/raw 且全部跳过，江浙沪只余第 31–42 条 12 个未生成 cityid，故本批按区域收口画 12 城、不跨区凑 20。初筛三张 v1 因主体进入上方 1/6 裁切带淘汰并定向补 v2（`zhouzhuang-jinxi` / `taohuadao-zhujiajian` / `shipu-xiangshan`），最终 12/12 通过。QA=`raw/dest/qa/qa-m44-b3.png`；42 城闭环总览=`raw/dest/qa/qa-m44-jzh-closure.png`，现状 18 picked + 24 raw、42/42 覆盖。独占母题复查未见继续套用“湖水 + 小船 + 塔/亭 + 远山”。未转本批候选入 picked，未启动其他地区。 [codex]
+   - **挑版欠账清零 + 转档收尾**（2026-07-20）：用户在 codex 会话顺手完成全部待审（batch 2 剩余/回看 12 张 v1/batch 3），通过版由 codex 移入 `picked/dest/`——现 **44 城母版，江浙沪 42 城全闭环**。cc 收尾：核对 44 张母版均 1536×1024、24 张新母版入 git；cc 本地跑 M42 管线核出 44 张 dest 产物全部 640×427、≤40KB 预算内（最大恰 40KB），`bun run verify` 当时全绿（133+45+1，workerd 需沙箱外跑——EPERM 同 codex review 所记非产品问题）；**产物入库让位在途的 F58–F60 修复会话**（其正在改造 build_illustrations.py，产物随其重生成一并 commit 上线）。卡顶个图/详情头图为 M46 既有链路预期自动出现，代码零改动。**batch 4（华东）codex 同时段在批生成中**（raw 已见 16 城候选、QA/notes 未收口）——按规程停批后交用户挑版。**废弃清理**（用户指示）：raw/dest 58 张已 pick 城候选版本图 + 已收官批 QA 网格 5 张（notes.md 与三张 B 锁基准原图保留、在批华东候选不动）；raw/ink 37 张 A6 候选 + QA 网格/预览 html 9 件（style-ref-mock.png、qa-a6-notes.md、references/ 保留）；m39 质感样稿 v2/v3 补归档 git 历史后连同 v1 清出工作区（此前被 .gitignore 拦、「v3 已归档」口径从未成真——本次修正，ignore 规则保留） [cc]
 3. 【前端】M51 — 共享集皮肤适配滤镜 [R1 · S1] → sonnet · medium｜2026-07-20 用户提出（换肤按皮肤调目的地图色调/饱和度，零重画），cc 确认可行入 design；前置 M46 已落地，几十行小改；排 review 关闸后与 M53/M54 同批 [cc]
 4. 【前端】M53 — 定向扭蛋：对比池抽签 [R1 · S2] → sonnet · medium｜2026-07-20 用户内容反馈①（对比池抽=用户提议，附对比上限 4→6）；动 gacha/compare/dock/actions 视图层，排 review 关闸后（与在审文件同批，审期不动）；spec 见 design M53 [cc]
 5. 【前端】M54 — 行程站数上限 6→10 [R1 · S1] → sonnet · low｜反馈②；constants 一点改+两处 toast+全链路复验，可与 M53 同会话顺手做；spec 见 design M54 [cc]
@@ -110,7 +111,7 @@
 ## ⏭ P2
 
 - 【前端】顺游半径西部放宽（150→按区域 200km） [R1 · S1] ｜ 2026-07-17 用户认可候补；gating：真实使用中觉得西部（拉萨类）彩蛋太冷清再动，动时注意东部不放宽 [cc]
-- 【画面+前端】M39 — 皮肤：手帐（水彩剪贴簿）[R2 · S2] ｜ gating：M45 落地 + 水彩资产用户终审（三地样张/扭蛋机/空态/九区共 28 张已生成初筛完毕待审，审过 cc 转 picked/）；施工图=质感样稿 v2（git 历史/本地 m39-sample-v2.html） [cc]
+- 【画面+前端】M39 — 皮肤：手帐（水彩剪贴簿）[R2 · S2] ｜ gating：M45 落地 + 水彩资产用户终审（三地样张/扭蛋机/空态/九区共 28 张已生成初筛完毕待审，审过 cc 转 picked/）；施工图=质感样稿 v2（git 历史 m39-sample-v2.html，本地副本已清理） [cc]
 - 【画面+前端】皮肤：青花（青花瓷）/ 画报（丝网印刷复古）[R2 · S2] ｜ gating：山水皮肤落地验证机制后按用户兴致排；spec 见 design 皮肤库表 [cc]
 - 【内容】M11 — 海外版数据 [R2 · S2] ｜ 理由：goal 里的长期方向，用户未启动；2026-07-20 用户拍板执行侧划转 claude，开工前需 scoping 拍板（海外区域枚举/出发地假设/签证难度维度等） [cc]
 - 【内容】M22·其他出发城市 ｜ 北京批落地验证 per-origin 管线后逐城扩（2026-07-19 用户口径：北京先行、其余往后排）；spec 同 M22 [cc]
