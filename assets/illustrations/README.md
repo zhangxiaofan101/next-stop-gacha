@@ -10,6 +10,8 @@
 | `porcelain` | 青花 | 青花瓷 |
 | `poster` | 画报 | 丝网印刷复古 |
 
+**例外目录 `dest/`**（不是皮肤）：目的地插画共享集——全皮肤共用、嵌白框接入（风格隔离舱），流转规则与皮肤目录相同（raw/dest/ 候选 → picked/dest/ 母版），工单见 illustration-brief「M44 目的地插画分批铺量」。
+
 ```
 assets/illustrations/
 ├── raw/<皮肤id>/        ← codex 写这里：该皮肤全部文生图候选，PNG ≥1024px，按工单命名（gitignore，只留本地）
