@@ -143,7 +143,7 @@ inside the canvas. Create at 1024×512 or larger.
 
 **画风候选比稿（待用户拍板）**：codex 按候选 B 锁重画杭州/敦煌/三亚三张（1536×1024，产出 `raw/dest/`，命名 `dest-<cityid>-sketch-v{n}.png`）；cc 做四皮肤纸底 A/B 并排预览；用户拍板后胜者冻结为共享集锁（若 B 胜，design「已冻结风格锁」与 picked/dest/ 基准三张随之替换）。
 
-- 候选 A=现行绘本水彩锁（picked/dest/ 三张即样例）
+- 候选 A=现行绘本水彩锁（样例=`raw/dest/` 杭州v2/敦煌v2/三亚v1；原 picked/dest/ 转档已回滚删除，比稿胜者出炉前 picked/dest/ 保持为空）
 - 候选 B=**墨线淡彩旅行速写**（三素皮肤的重心点），锁文本：
 
 ```

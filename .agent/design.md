@@ -121,16 +121,21 @@
 - **装饰位画布契约（跨皮肤统一）**：布局槽位的生成画布长宽比全皮肤一致——方图位 1:1（吉祥物/扭蛋机主视觉/空态）、九区题头位 2:1 且**按原生比展示、不做浅裁**（拍板：槽位迁就画、不裁画——各图构图纵横不一，浅裁必伤主体）；布局按位留框，换肤只换图源、零重排。同位资产间的和谐靠**逐资产 focal 微调**：接入时每张可配 scale/object-position（小主体适度放大之类），参数属皮肤接入配置（M42），不回头改资产。页面装饰件（柳桥/竹枝/远山类）**不属于槽位**——自由浮动的背景点缀，逐件定位、不参与布局流、画幅比不拘，随皮肤 decorations 开关整套启停。横幅主体构图安全区=垂直中央约 2/3 维持进初筛清单（放大微调与未来槽位变化都要裁边，安全区是缓冲）
 - **风格锁**：每皮肤一段固定风格前缀，锁文本与逐资产 prompt 见工单（工单=work order，消费后归档，不是本文件的一部分）；经用户终审冻结的锁晋升到下方「已冻结风格锁」，自此一字不改
 - **一致性判据**：同批样张并排肉眼无「换画师」感——线条、上色、饱和度一致；风格锁经用户终审后冻结，铺量批次抽样与基准并排复核
-- **已冻结风格锁 · 目的地共享集（水彩，三样张终审通过）**——基准三张=`picked/dest/`（杭州/敦煌/三亚），铺量工单见 illustration-brief M44：
+- 目的地共享集的锁**尚未冻结**——画风 A/B 比稿中（候选与流程见 illustration-brief「M44·画风候选比稿」），胜者终审后才晋升本节
+- **已冻结风格锁 · 山水皮肤（水墨淡彩，A6 批 16 张母版全部终审通过）**——`picked/ink/` 齐备
+  方图 3（mascot/gacha/empty）+ 题头 9（九区）+ 装饰 3（柳桥/竹枝/远山）+ style-ref-mock 风格
+  锚点，M46 落地时执行晋升归档（原批次记录见 illustration-brief.md「A6 山水皮肤固定资产批」）：
 
   ```
-  Children's picture-book style hand-drawn illustration. Colored pencil with soft
-  watercolor wash. Warm light pastel palette: sky blue #bfe6f7, cream #fff2df,
-  coral #ff8f6b, teal #43c1c1, amber #f6b93b; all outlines in soft navy ink
-  #37485a (never pure black). Wobbly, uneven hand-drawn outlines of varying
-  thickness. Subtle paper grain texture. Generous negative space. Flat, naive
-  perspective with childlike charm. No text, no watermark, no photorealism,
-  no 3D render, no gradient shading, no dark or neon colors.
+  Traditional Chinese ink wash painting (shuimo) style with restrained light
+  color washes (dancai). Xuan rice-paper cream background (#faf3e3) with subtle
+  fiber texture. Expressive charcoal-black brush strokes with natural dry-brush
+  breaks and five-tone ink gradation; large deliberate blank space (liubai).
+  Ink dominates every composition; only sparing muted washes are allowed: pale
+  indigo #7ba7c9, soft tea-green, warm ochre sand, and small vermilion #e85d3d
+  accents. Asymmetric poetic composition. No text, no watermark, no
+  photorealism, no 3D render, no bright saturated colors, no thick uniform
+  cartoon outlines.
   ```
 
 ## 后端（边缘 API）
