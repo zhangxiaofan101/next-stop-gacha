@@ -1,4 +1,5 @@
 @import "./skins/cream.css";
+@import "./skins/ink.css";
 
   * { box-sizing: border-box; }
   body {
@@ -194,6 +195,7 @@
 
   .empty { display: none; text-align: center; padding: 70px 20px; color: var(--ink-soft); }
   .empty .big { font-size: 46px; }
+  .empty .big .illust { width: 180px; height: 180px; object-fit: contain; margin: 0 auto; } /* 空态插画替 emoji 时给个明确「大图标」尺寸，不然 <img> 按原始分辨率铺满屏 */
 
   /* ---- 底部悬浮 dock & 扭蛋按钮 ---- */
   .fab {
@@ -450,6 +452,79 @@
     background: var(--ink); color: var(--on-color); border-radius: var(--radius-pill); padding: 8px 20px; font-size: 13px;
     display: none; animation: pop .25s ease;
   }
+
+  /* ---- M46 插画接入（皮肤无关，管线随山水首落地——见 design M42/「插画层」）。缺图优雅回退
+     由 src/skins/illustrations.ts 统一处理（<img> 走 wireIllustFallbacks，background-image 天生
+     静默失败）；本节只管布局/画布契约，不管哪张图存在——奶油皮肤下这里的每一张图都 404，视觉上
+     与改造前逐像素一致。 ---- */
+  .illust { display: block; }
+  .illust-fallback { display: inline-block; line-height: 1; }
+
+  .mascot-decor {
+    display: inline-flex; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
+    border: var(--bw-md) solid var(--ink); box-shadow: 2px 2px 0 rgba(var(--shadow-ink-rgb), .18);
+  }
+  .mascot-decor .illust { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+
+  /* 自由浮动装饰件（柳桥/竹枝/远山）：不参与布局流，画幅不拘，见 design「装饰位画布契约」 */
+  .deco-willow, .deco-bamboo, .deco-hill { position: fixed; z-index: 0; pointer-events: none; object-fit: cover; }
+  .deco-willow { top: 4px; left: 0; width: 220px; height: 110px; object-position: 8% 45%; opacity: .92; }
+  .deco-bamboo { top: 0; right: 0; width: 190px; height: 130px; object-position: 92% 8%; opacity: .9; }
+  .deco-hill { left: 0; right: 0; bottom: 0; width: 100%; height: 140px; object-position: 15% 55%; opacity: .5; }
+
+  .g-illust { display: flex; justify-content: center; margin-bottom: 8px; }
+  .g-illust .illust { width: 92px; height: 92px; object-fit: contain; }
+
+  /* 卡片顶部目的地照片（M44 共享集，皮肤无关）：card 本身已有描边，贴边铺满不再叠白框 */
+  .c-photo { aspect-ratio: 3 / 2; overflow: hidden; }
+  .c-photo .illust { width: 100%; height: 100%; object-fit: cover; }
+
+  /* 详情页头图：九区题头首选用途（design M46）——2:1 画布契约，object-fit:cover 在比例吻合的
+     题头图上等价于 contain（不裁切）；目的地个图比例是 3:2，落进 2:1 框会有温和裁切，属于个图
+     升级展示时的合理取舍（不是「题头位」本身被裁，题头位契约只约束题头图自己） */
+  .dt-banner { aspect-ratio: 2 / 1; overflow: hidden; border-radius: var(--radius-panel); margin-bottom: 14px; border: var(--bw-thick) solid var(--ink); }
+  .dt-banner .illust { width: 100%; height: 100%; object-fit: cover; }
+
+  /* 扭蛋票券氛围带：该目的地所属大区的题头图垫底（design M46），卡片本身（含卡顶个图）叠在下面。
+     只在声明了资产的皮肤下露出——奶油皮肤从不设这条规则，不会平白多出一圈从未被填过色的留白
+     （即使加了也只是留白，量虽小也算视觉回归，故随 [data-theme] 显式声明，而非放进通用规则再
+     指望背景图 404 时「反正也看不出来」）。顶部留一条足够高的实条带（非四周窄边），题头图本身
+     负空间多，边缘窄条经常正好落在空白宣纸上、读不出氛围，只有给够高度才看得出该区的题头画。 */
+  #gachaTicket { background-image: var(--ticket-ambience, none); background-size: cover; background-position: center; border-radius: var(--radius-card); }
+  [data-theme="ink"] #gachaTicket.show { padding: 90px 0 0; }
+
+  @media (max-width: 680px) {
+    .mascot-decor { display: none; } /* 手机头部寸土寸金，纯装饰的吉祥物让位（同 M50 纪律：低频/纯氛围入口不占首屏行） */
+    .deco-willow, .deco-bamboo { width: 120px; height: 66px; }
+    .deco-hill { height: 90px; }
+  }
+
+  /* ---- M46 山水皮肤装饰块（style.css 是「装饰块」的家，见 design 部件清单表；ink.css 只放
+     token，选择器/伪元素这类结构性装饰逻辑放这里）---- */
+  [data-theme="ink"] .sky, [data-theme="ink"] .hills { display: none; } /* 云朵山丘是奶油卡通专属氛围，水墨换成留白 + 自由装饰件 */
+
+  /* 朱红印章：页头副标题尾缀一枚小方印，纯 CSS 自绘，不占插画资产预算 */
+  [data-theme="ink"] .subtitle::after {
+    content: "印"; display: inline-block; margin-left: 8px; width: 18px; height: 18px; line-height: 18px;
+    text-align: center; background: var(--red); color: var(--on-color); font-size: 11px; border-radius: 2px;
+    transform: rotate(-8deg); vertical-align: middle; opacity: .88;
+  }
+
+  /* 抖动分隔线：不规则长度的虚线段模拟笔触，替代规整的 CSS dashed（token 驱动，无需新增视觉字面量）。
+     .console-foot 原本是 border-top、.rb-cover 原本是 border-bottom，伪元素位置各自对应改用
+     absolute 覆盖同一条边，不改变盒模型（padding 不变，只是虚线画法从原生 border 换成背景条）。 */
+  [data-theme="ink"] .console-foot, [data-theme="ink"] .rb-cover { position: relative; }
+  [data-theme="ink"] .console-foot { border-top-color: transparent; }
+  [data-theme="ink"] .rb-cover { border-bottom-color: transparent; }
+  [data-theme="ink"] .console-foot::before, [data-theme="ink"] .rb-cover::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 2px;
+    background-image: repeating-linear-gradient(90deg,
+      var(--ink-soft) 0 7px, transparent 7px 11px,
+      var(--ink-soft) 11px 15px, transparent 15px 24px,
+      var(--ink-soft) 24px 27px, transparent 27px 34px);
+  }
+  [data-theme="ink"] .console-foot::before { top: -2px; }
+  [data-theme="ink"] .rb-cover::after { bottom: -2px; }
 
   @media (max-width: 680px) {
     h1.logo { font-size: 34px; }

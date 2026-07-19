@@ -1,7 +1,8 @@
-/* 卡片渲染（模板与旧版逐字一致） */
+/* 卡片渲染（模板与旧版逐字一致，M46 新增卡顶目的地照片槽位） */
 import { CROWD_CLASS, REGION_COLOR, SEASONS } from "../logic/constants";
 import { routeDaysText } from "../logic/roadbook";
 import type { Destination } from "../logic/types";
+import { destPhotoSrc } from "../skins/illustrations";
 import { byId, CUR_SEASON, state } from "../store";
 
 export const seasonsHTML = (d: Destination) => `<span class="seasons">${SEASONS.map(s =>
@@ -14,8 +15,15 @@ export function cardHTML(d: Destination, i: number): string {
   const tripBtn = isRoute
     ? `<button class="act trip" data-addroute="${d.id}">🎫 整条装入</button>`
     : `<button class="act trip ${state.trip.some(t => t.id === d.id) ? "on" : ""}" data-trip="${d.id}">🧳 行程</button>`;
+  // M46：目的地共享照片集（M44 分批铺量，皮肤无关）——线路卡不画个图（收录口径见 illustration-brief
+  // 「M44 目的地插画分批铺量」），城市卡缺图时整个槽位不占位（design「插画层」缺图优雅回退）。
+  const photo = isRoute ? "" : `
+    <div class="c-photo" data-illust-frame>
+      <img class="illust" src="${destPhotoSrc(d.id)}" alt="" loading="lazy" data-fallback="hide">
+    </div>`;
   return `
   <article class="card ${isRoute ? "route-card" : ""}" data-id="${d.id}" style="--rs:${rs}; --rc:${rs}; animation-delay:${Math.min(i * 25, 350)}ms">
+    ${photo}
     <div class="c-strip">
       <span class="c-route">${isRoute ? `🎫 联程线路 · ${d.province}` : `上海 ✈ ${d.province} · ${d.region}`}</span>
       <span class="c-badges">

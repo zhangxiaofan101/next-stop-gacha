@@ -2,10 +2,21 @@
 import { REGION_COLOR } from "../logic/constants";
 import { routeDaysText } from "../logic/roadbook";
 import type { Destination } from "../logic/types";
+import { currentSkinId, destPhotoSrc, illustSrc, regionSlot } from "../skins/illustrations";
 import { fetchWeather, wxInfo } from "../services/weather";
 import { byId, state } from "../store";
 import { seasonsHTML } from "./cards";
 import { $ } from "./dom";
+
+// M46：详情页头图——九区题头的首选用途（design M46）。线路卡直接用大区题头；城市卡优先目的地
+// 个图（M44 分批铺量），个图缺失时退到同一张大区题头兜底，两者都缺才整块不占位（缺图不硬占）。
+function headerBannerHTML(d: Destination, isRoute: boolean): string {
+  const regionSrc = illustSrc(currentSkinId(), regionSlot(d.region));
+  const img = isRoute
+    ? `<img class="illust" src="${regionSrc}" alt="" loading="lazy" data-fallback="hide">`
+    : `<img class="illust" src="${destPhotoSrc(d.id)}" alt="" loading="lazy" data-fallback-src="${regionSrc}" data-fallback="hide">`;
+  return `<div class="dt-banner" data-illust-frame>${img}</div>`;
+}
 
 function detailHTML(d: Destination): string {
   const sec = (title: string, inner: string) => inner ? `<div class="dt-sec"><h3>${title}</h3>${inner}</div>` : "";
@@ -20,6 +31,7 @@ function detailHTML(d: Destination): string {
   // 打卡去过：只有城市记录才有意义，线路卡按站点/城市算，不给这个按钮
   const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : "green"}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : "👣 打卡去过"}</button>`;
   return `
+    ${headerBannerHTML(d, isRoute)}
     <div class="dt-head">
       <span class="c-emoji dt-emoji" style="--rs:${rs};background:${rs}">${d.emoji}</span>
       <div>

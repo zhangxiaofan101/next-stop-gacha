@@ -3,6 +3,7 @@ import { DAY_BUCKETS } from "../logic/constants";
 import { filtered } from "../logic/filter";
 import { gachaPick } from "../logic/gacha";
 import type { Destination } from "../logic/types";
+import { currentSkinId, illustSrc, regionSlot } from "../skins/illustrations";
 import { CUR_SEASON, DATA, state } from "../store";
 import { cardHTML } from "./cards";
 import { $ } from "./dom";
@@ -39,7 +40,7 @@ export function openGacha() {
   $("gKnob").style.display = pool.length ? "" : "none";
   $("gDetailBtn").style.display = "none";
   $("gTripBtn").style.display = "none";
-  const t = $("gachaTicket"); t.className = ""; t.innerHTML = "";
+  const t = $("gachaTicket"); t.className = ""; t.innerHTML = ""; t.style.removeProperty("--ticket-ambience");
   $("gachaOverlay").classList.add("show");
 }
 
@@ -71,6 +72,10 @@ export function roll() {
       cityEl.classList.remove("spin");
       cityEl.textContent = pick.emoji + " " + pick.name;
       subEl.textContent = `${pick.province} · ${pick.region} · ${pick.crowd}`;
+      // M46：票券氛围带——用该目的地所属大区的题头图垫底（design M46：「扭蛋票券氛围垫底」）；
+      // background-image 天生「缺图不硬占」（加载失败不显示任何东西、不报错、不留占位），不需要
+      // 额外的 onerror 处理，奶油皮肤下这行只是设了一个 404 的 url() 从不产生可见差异。
+      ticketEl.style.setProperty("--ticket-ambience", `url(${illustSrc(currentSkinId(), regionSlot(pick.region))})`);
       ticketEl.innerHTML = cardHTML(pick, 0);
       ticketEl.className = "show";
       $("gDetailBtn").style.display = "";

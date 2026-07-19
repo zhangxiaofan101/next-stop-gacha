@@ -1,0 +1,161 @@
+/* 山水皮肤（M46）——水墨游记 token 集，挂 :root[data-theme="ink"]。与 cream.css 结构对齐：
+   同一套 token 名，只换值；新增 token 的皮肤只需在两个文件里各加一行，不改任何视图 CSS。
+   气质对照 assets/illustrations/picked/ink/style-ref-mock.webp：宣纸底（#faf3e3）+ 墨色骨架
+   （深色不用纯黑，暖炭黑）+ 朱红点睛（少量强调）+ 淡靛/茶绿/赭黄辅助——风格锁见
+   .agent/illustration-brief.md「A6 山水皮肤固定资产批」。
+   不改 cream.css 任何一行、任何一个值——两套皮肤零共享可变状态，只共享变量名契约。 */
+@font-face {
+  font-family: "Ink Title";
+  src: url("./fonts/ink/title.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ink Body";
+  src: url("./fonts/ink/body.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root[data-theme="ink"] {
+  --sky: #f5ecd8;
+  --sky-deep: #ecdfc2;
+  --sky-top: #f6efdd;
+  --sky-mid: #f9f2e2;
+  --sky-bot: #faf3e3;
+  --hill-1: #d7ddd0;
+  --hill-2: #b9c6c9;
+  --hill-3: #93a6ac;
+  --a1: #c1683f;
+  --a1b: #d39370;
+  --a2: #6f9a8d;
+  --a3: #c9975a;
+  --paper: #faf3e3;
+  --ink: #2b2621;
+  --ink-soft: #6b6152;
+  --blue: #6f93b0;
+  --blue-deep: #4d7391;
+  --orange: #b5652e;
+  --orange-deep: #954f22;
+  --green: #7c9b6e;
+  --pink: #b97a86;
+  --yellow: #d8b468;
+  --purple: #8b7a9e;
+  --red: #c1502f;
+  --spring: #8ba888;
+  --summer: #6f93b0;
+  --autumn: #c9975a;
+  --winter: #9badc2;
+  --round: "Ink Title", "STKaiti", "Kaiti SC", serif;
+  --sans: "Ink Body", "Kaiti SC", "STKaiti", "PingFang SC", sans-serif;
+
+  --on-color: #faf6ec;
+  --panel-warm-bg: #f8f0dd;
+  --panel-warm-border: #cf9f56;
+  --info-blue-bg: #eef3f7;
+  --info-blue-border: #c3d5e0;
+  --info-blue-text: #3e5d70;
+  --food-chip-bg: #f7ecd9;
+  --food-chip-border: #e0c68f;
+  --food-chip-text: #7a5626;
+  --note-green-bg: #eef3e9;
+  --note-green-border: #b9cfa9;
+  --note-green-text: #4c6440;
+  --note-hotel-bg: #f7f0e0;
+  --note-hotel-border: #ddc79a;
+  --note-hotel-text: #6b5324;
+  --panel-cool-bg: #f0f4f7;
+  --panel-cool-border: #cbdae2;
+  --field-bg: #f4efe2;
+  --chip-hover-bg: #f0e6d0;
+  --dock-box-bg: #f5ecd6;
+  --dock-chip-hover-bg: #f0d9cd;
+  --dot-off-bg: #ece6d8;
+  --season-default-bg: #e2ddd0;
+  --badge-alt-bg: #e6ddea;
+  --badge-alt-text: #5f4f6d;
+  --badge-visited-bg: #dfe9d7;
+  --badge-visited-text: #3f5f37;
+  --tag-bg: #e9eef2;
+  --tag-text: #46647a;
+  --table-border: #ddd2ba;
+  --table-rowh-bg: #f2ece0;
+  --table-cityh-bg: #f6ecd4;
+  --rb-skel-bg: #f5efe0;
+  --rb-day-num-text: #4d7391;
+  --divider-console: #d9cbb0;
+  --divider-cover: #d3c4a5;
+  --divider-leg: #c9bda3;
+  --divider-skrow: #ddd0b8;
+
+  --text-mid: #574f42;
+  --text-body: #4a4235;
+  --text-subtle: #665c4c;
+  --text-faint: #a49a86;
+  --text-footer: #a89b7f;
+  --season-off-text: #a89b84;
+  --placeholder-text: #a89b84;
+
+  /* 水墨线条比奶油卡通更克制——四档整体收细，呼应笔触而非硬边卡通描边 */
+  --bw-thin: 1px;
+  --bw-md: 1.25px;
+  --bw-thick: 1.5px;
+  --bw-xthick: 2px;
+
+  /* 圆角整体收窄——宣纸卡片/画卷感，而非奶油皮肤的圆润贴纸感；胶囊类保持全圆角不变 */
+  --radius-qr: 6px;
+  --radius-icon-btn: 8px;
+  --radius-field: 8px;
+  --radius-control: 8px;
+  --radius-panel-sm: 10px;
+  --radius-panel: 12px;
+  --radius-window: 14px;
+  --radius-card: 14px;
+  --radius-panel-lg: 16px;
+  --radius-sheet: 18px;
+  --radius-machine: 18px;
+  --radius-pill: 999px;
+
+  --shadow-ink-rgb: 43, 38, 33;
+  --ink-rgb: 43, 38, 33;
+  --glow-sun-rgb: 216, 180, 104;
+  --shine-rgb: 250, 243, 227;
+  --blue-rgb: 111, 147, 176;
+  --blue-deep-rgb: 77, 115, 145;
+  --orange-rgb: 181, 101, 46;
+  --orange-deep-rgb: 149, 79, 34;
+  --purple-rgb: 139, 122, 158;
+  --overlay-tint-rgb: 60, 54, 46;
+
+  --grad-sun: radial-gradient(circle at 38% 34%, #ecdba0 30%, var(--yellow) 78%);
+  --grad-console: linear-gradient(180deg, var(--paper), #f4ecd8);
+  --grad-paper: linear-gradient(180deg, var(--paper), #f6efdf);
+  --grad-machine: linear-gradient(180deg, var(--paper), #f2e8d2);
+  --grad-window: linear-gradient(#f6efdf, var(--paper));
+  --grad-fab: linear-gradient(180deg, var(--yellow), var(--orange));
+  --grad-knob: radial-gradient(circle at 35% 35%, var(--yellow), var(--orange));
+  --grad-btn-primary: linear-gradient(180deg, #c1683f, var(--orange));
+  --grad-btn-blue: linear-gradient(180deg, #8aa9c0, var(--blue));
+  --grad-btn-green: linear-gradient(180deg, #a0b98f, var(--spring));
+
+  --region-jzh: #e4edf3;
+  --region-huadong: #e7ede2;
+  --region-huabei: #f3e9d5;
+  --region-dongbei: #e6e9ef;
+  --region-huazhong: #f5e6de;
+  --region-huanan: #eaeed9;
+  --region-xinan: #e6ede5;
+  --region-xibei: #f0e6d2;
+  --region-gangao: #ebe6ee;
+  --region-fallback: #e4edf3;
+
+  --map-prov: #f2ede0;
+  --map-prov-lit: #dbe6d5;
+  --map-stroke: #b8ab95;
+  --map-stroke-lit: #6f8f6a;
+  --map-dot-idle: #c2b8a5;
+  --map-dot-visited: #5c7d52;
+  --map-heart: #c1502f;
+}

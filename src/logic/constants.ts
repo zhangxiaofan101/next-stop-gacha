@@ -9,6 +9,11 @@ export const REGION_COLOR: Record<string, string> = {
   "江浙沪": "var(--region-jzh)", "华东": "var(--region-huadong)", "华北": "var(--region-huabei)", "东北": "var(--region-dongbei)",
   "华中": "var(--region-huazhong)", "华南": "var(--region-huanan)", "西南": "var(--region-xinan)", "西北": "var(--region-xibei)", "港澳": "var(--region-gangao)",
 };
+// M46：九区题头插画的文件名 slug，从 REGION_COLOR 的 var(--region-<slug>) 里正则抠出来，
+// 不另开一份映射——两处字面写重复的 slug 会有漂移风险，这里只有一个真相源。
+export const REGION_SLUG: Record<string, string> = Object.fromEntries(
+  Object.entries(REGION_COLOR).map(([region, token]) => [region, token.match(/--region-([\w-]+)\)/)![1]]),
+);
 export const SEASONS = ["春", "夏", "秋", "冬"];
 export const DAY_BUCKETS: { key: string; label: string; test: (d: number[]) => boolean }[] = [
   { key: "2", label: "2天", test: d => d.includes(2) },

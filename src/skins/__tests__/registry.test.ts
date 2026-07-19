@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { REGION_COLOR } from "../../logic/constants";
-import { DEFAULT_SKIN, normalizeSkinChoice, resolveSkinId, RANDOM_CHOICE, SKIN_IDS } from "../registry";
+import { DEFAULT_SKIN, normalizeSkinChoice, resolveSkinId, RANDOM_CHOICE, SKINS, SKIN_IDS } from "../registry";
 
 const ROOT = process.cwd();
 
@@ -11,6 +11,18 @@ describe("SKIN_IDS", () => {
   it("唯一且包含默认皮肤", () => {
     expect(new Set(SKIN_IDS).size).toBe(SKIN_IDS.length);
     expect(SKIN_IDS).toContain(DEFAULT_SKIN);
+  });
+});
+
+describe("M46：山水皮肤声明契约（首次落地真实 fonts/assetDir/decorations，非空占位）", () => {
+  it("ink 在册，assetDir 指向自己的资产目录，fonts 非空", () => {
+    const ink = SKINS.find(s => s.id === "ink");
+    expect(ink).toBeDefined();
+    expect(ink!.assetDir).toBe("ink");
+    expect(ink!.fonts).not.toBeNull();
+  });
+  it("默认皮肤本模块仍是 cream（默认给谁是用户终审拍板项，见 state.md）", () => {
+    expect(DEFAULT_SKIN).toBe("cream");
   });
 });
 

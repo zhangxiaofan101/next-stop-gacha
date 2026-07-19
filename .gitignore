@@ -11,3 +11,7 @@ assets/illustrations/raw/*
 
 # M39 throwaway 质感样稿（引用 raw/ 本地图，不合入主线）
 m39-sample*.html
+
+# M46 字体管线：源字体体积大、可从公开地址重新下载（见 fonts/README.md），只留本地不进 git
+fonts/source/*
+!fonts/source/.gitkeep

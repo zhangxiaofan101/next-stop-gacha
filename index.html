@@ -8,7 +8,7 @@
      避免默认皮肤首屏先渲染一帧再被 JS 换肤的闪烁。数组/默认值特意与 src/skins/registry.ts
      重复而非 import（内联脚本不能依赖构建），两处一致性由 src/skins/__tests__/registry.test.ts
      的漂移钉子测试保证。 -->
-<script>(function(){try{var S=["cream"],D="cream",c=localStorage.getItem("nextstop_skin_v1")||D,id=c==="random"?S[Math.floor(Math.random()*S.length)]:c;if(S.indexOf(id)<0)id=D;document.documentElement.dataset.theme=id;}catch(e){document.documentElement.dataset.theme="cream"}})()</script>
+<script>(function(){try{var S=["cream","ink"],D="cream",c=localStorage.getItem("nextstop_skin_v1")||D,id=c==="random"?S[Math.floor(Math.random()*S.length)]:c;if(S.indexOf(id)<0)id=D;document.documentElement.dataset.theme=id;}catch(e){document.documentElement.dataset.theme="cream"}})()</script>
 <title>下一站 · 去哪玩</title>
 </head>
 <body>
@@ -20,6 +20,15 @@
   <div class="cloud c3"></div>
 </div>
 <div class="hills"></div>
+<!-- M46：自由浮动装饰件（柳桥/竹枝/远山）——不属于任何布局槽位，随皮肤 decorations 声明整套
+     启停（见 src/skins/illustrations.ts applySkinVisuals）；奶油皮肤下 decorations 为空，三张
+     从不请求，view-source 不会多出网络请求。aria-hidden 因为纯氛围点缀、无信息量。 -->
+<img class="illust deco-willow" data-illust="decor-willow" data-deco="willow" data-illust-frame
+     data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
+<img class="illust deco-bamboo" data-illust="decor-bamboo" data-deco="bamboo" data-illust-frame
+     data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
+<img class="illust deco-hill" data-illust="decor-hill" data-deco="distantHill" data-illust-frame
+     data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
 
 <div class="wrap">
   <header>
@@ -30,6 +39,9 @@
         <button class="count-pill" id="footPill" style="display:none" title="打开足迹地图"></button>
         <button class="btn icon-btn" id="shareBtn" aria-label="分享与备份">📤</button>
       </span>
+      <span class="mascot-decor" data-illust-frame>
+        <img class="illust" data-illust="mascot" alt="" loading="lazy" data-fallback="hide">
+      </span>
     </div>
     <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。</p>
   </header>
@@ -39,7 +51,7 @@
   <main>
     <div class="grid" id="grid"></div>
     <div class="empty" id="empty">
-      <div class="big">🏝️</div>
+      <div class="big"><img class="illust" data-illust="empty" alt="" loading="lazy" data-fallback="🏝️"></div>
       <p>筛得太狠了，一个目的地都不剩……</p>
       <div id="relaxBox"></div>
       <button class="btn" id="emptyResetBtn">全部清空重来</button>
@@ -80,6 +92,9 @@
   <div class="gacha-box">
     <button class="sheet-close" data-close>✕</button>
     <div class="machine">
+      <div class="g-illust" data-illust-frame>
+        <img class="illust" data-illust="gacha" alt="" loading="lazy" data-fallback="hide">
+      </div>
       <div class="g-scope" id="gachaScope"></div>
       <div class="g-window">
         <div class="g-city" id="gCity">？？？</div>

@@ -2,6 +2,7 @@
 // 视图在 src/ui/（按视图切分的模板渲染模块），状态与持久化在 src/store.ts。
 import "./style.css";
 import type { Destination } from "./logic/types";
+import { applySkinVisuals, currentSkinId, wireIllustFallbacks } from "./skins/illustrations";
 import { CUR_SEASON, DATA, loadLS, setData, state } from "./store";
 import { buildConsole } from "./ui/console";
 import { $ } from "./ui/dom";
@@ -36,6 +37,10 @@ function boot() {
 }
 
 wireEvents();
+// M46：head 内联脚本已同步钉死 data-theme（防闪烁），这里只需按它把静态装饰位（吉祥物/扭蛋机/
+// 空态/自由装饰件）的图接上——不依赖 loadData()，越早跑越好，不用等城市数据回来。
+wireIllustFallbacks();
+applySkinVisuals(currentSkinId());
 addEventListener("hashchange", checkShareHash); // 页面开着时粘贴迁移链接也能触发导入条
 
 (async () => {
