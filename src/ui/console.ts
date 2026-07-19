@@ -18,17 +18,22 @@ export function buildConsole() {
       </div>
     </div>`;
   el.innerHTML =
+    `<div class="console-bar">
+      <input class="search" id="searchBox" type="search" placeholder="搜城市 / 美食 / 关键词，比如「牛肉火锅」「石窟」…">
+      <button class="btn" id="filterToggle">筛选<i id="filterBadge"></i></button>
+      <button class="btn" id="barResetBtn">清空</button>
+    </div>
+    <div class="console-body">` +
     group("地区", "region", REGIONS) +
     group("季节", "season", SEASONS) +
     group("天数", "days", DAY_BUCKETS, b => b.key) +
     group("冷热", "crowd", CROWDS) +
     group("花费", "cost", [{ label: "¥ 经济", v: "¥" }, { label: "¥¥ 适中", v: "¥¥" }, { label: "¥¥¥ 舍得花", v: "¥¥¥" }], c => c.v) +
-    group("抵达难度", "difficulty", CEIL_GROUPS.difficulty!) +
+    group("抵达", "difficulty", CEIL_GROUPS.difficulty!) +
     group("体力", "effort", EFFORTS) +
     group("同行", "companions", COMPANIONS) +
     group("玩法", "tags", TAGS) +
     `<div class="console-foot">
-      <input class="search" id="searchBox" type="search" placeholder="搜城市 / 美食 / 关键词，比如「牛肉火锅」「石窟」…">
       <select class="sort" id="sortSel">
         <option value="default">推荐顺序</option>
         <option value="season">当季优先</option>
@@ -43,6 +48,7 @@ export function buildConsole() {
       <button class="btn" id="shareBtn">📤 分享/备份</button>
       <button class="btn" id="resetConsoleBtn">清空筛选</button>
       <div class="hit" id="hitCount"></div>
+    </div>
     </div>`;
 
   el.querySelectorAll<HTMLElement>(".chips").forEach(box => {
@@ -80,6 +86,12 @@ export function buildConsole() {
   // F40：module 化后顶层函数不再落到 window，inline onclick="resetFilters()" 会报
   // ReferenceError——两处清空按钮改走 addEventListener，与本函数其余按钮一致
   $("resetConsoleBtn").addEventListener("click", resetFilters);
+  // M47：手机收纳——纯呈现折叠，只切 class，不碰 state/不 render，展开/收起不丢已选状态
+  $("filterToggle").addEventListener("click", e => {
+    const open = el.classList.toggle("open");
+    (e.currentTarget as HTMLElement).classList.toggle("on", open);
+  });
+  $("barResetBtn").addEventListener("click", resetFilters);
 }
 
 export function resetFilters() {
@@ -107,6 +119,19 @@ export function updateChipCounts() {
       btn.classList.toggle("zero", !on && n === 0);
     });
   });
+  updateFilterBadge();
+}
+
+// 手机收纳态入口按钮上的已选计数徽章：9 个分组维度 + 3 个开关，q 不计入（搜索框本身就在收纳条上可见）
+function updateFilterBadge() {
+  const badge = document.getElementById("filterBadge");
+  if (!badge) return;
+  const groupKeys: GroupKey[] = ["region", "season", "days", "crowd", "cost", "difficulty", "effort", "companions", "tags"];
+  let n = groupKeys.reduce((sum, k) => sum + (state[k].size > 0 ? 1 : 0), 0);
+  if (state.noAlt) n++;
+  if (state.onlyFav) n++;
+  if (state.hideVisited) n++;
+  badge.textContent = n > 0 ? String(n) : "";
 }
 
 export function syncChips() {
