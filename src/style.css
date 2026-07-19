@@ -42,16 +42,17 @@
   .wrap { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 20px 170px; }
 
   /* ---- 头部 ---- */
-  header { padding: 40px 0 6px; position: relative; }
+  header { padding: 40px 0 6px; }
   .title-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  /* M50 修订：全局入口挂靠语境、不集中占行——足迹胶囊本身可点开地图、旁挂 📤 备份图标钮；
-     🎨 皮肤为右上角 absolute 图标钮不参与布局流。图标钮触达 44px，aria-label 补全名 */
+  /* M50 修订：全局入口挂靠语境、不集中占行——足迹胶囊本身可点开地图，📤 备份 + 🎨 皮肤
+     为与胶囊等高的小图标钮同簇随行；视觉不超胶囊高度，触达经 ::after 外扩热区保 ≥44px */
   .icon-btn {
-    width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center;
-    justify-content: center; border-radius: var(--radius-pill); font-size: 17px;
+    width: 35px; height: 35px; padding: 0; display: inline-flex; align-items: center;
+    justify-content: center; border-radius: var(--radius-pill); font-size: 15px; position: relative;
   }
-  .corner-skin { position: absolute; top: 10px; right: 0; }
-  .foot-group { display: inline-flex; gap: 8px; align-items: center; } /* 胶囊+备份钮作为整体换行，不拆散 */
+  /* 外扩热区：absolute 基准是 padding box，-7px 扣掉 2px 边框后实际外扩 5px，触达 35+10=45px */
+  .icon-btn::after { content: ""; position: absolute; inset: -7px; border-radius: var(--radius-pill); }
+  .foot-group { display: inline-flex; gap: 10px; align-items: center; } /* 胶囊+工具钮作为整体换行，不拆散；10px 间距让相邻热区不互吞 */
   button.count-pill { color: var(--ink); cursor: pointer; }
   button.count-pill:hover { background: var(--chip-hover-bg); }
   button.count-pill:active { transform: translate(2px, 2px); box-shadow: none; }
