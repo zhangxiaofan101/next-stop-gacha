@@ -59,7 +59,7 @@ export function wireEvents() {
   $("tripGo").addEventListener("click", openTrip);
   $("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
   $("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
-  $("mapBtn").addEventListener("click", openMap);
+  $("footPill").addEventListener("click", openMap); // 足迹统计胶囊本身即地图入口（M50 修订）
   $("shareBtn").addEventListener("click", openShare);
   $("skinBtn").addEventListener("click", openSkin);
   $("fabGacha").addEventListener("click", openGacha);

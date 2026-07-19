@@ -42,13 +42,19 @@
   .wrap { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 20px 170px; }
 
   /* ---- 头部 ---- */
-  header { padding: 40px 0 6px; }
+  header { padding: 40px 0 6px; position: relative; }
   .title-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  /* M50：页头全局动作区（皮肤/备份/足迹）——恒定可见，不随筛选台收纳；与筛选台内部按钮
-     视觉同源（复用 .btn 全部 token 化样式），只加一层 flex 排布 */
-  .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .header-act { display: inline-flex; align-items: center; gap: 5px; }
+  /* M50 修订：全局入口挂靠语境、不集中占行——足迹胶囊本身可点开地图、旁挂 📤 备份图标钮；
+     🎨 皮肤为右上角 absolute 图标钮不参与布局流。图标钮触达 44px，aria-label 补全名 */
+  .icon-btn {
+    width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center;
+    justify-content: center; border-radius: var(--radius-pill); font-size: 17px;
+  }
+  .corner-skin { position: absolute; top: 10px; right: 0; }
+  .foot-group { display: inline-flex; gap: 8px; align-items: center; } /* 胶囊+备份钮作为整体换行，不拆散 */
+  button.count-pill { color: var(--ink); cursor: pointer; }
+  button.count-pill:hover { background: var(--chip-hover-bg); }
+  button.count-pill:active { transform: translate(2px, 2px); box-shadow: none; }
   h1.logo {
     margin: 0; font-family: var(--round); font-size: 46px; letter-spacing: 4px; color: var(--ink);
     text-shadow: 0 2px 0 rgba(var(--shine-rgb), .7), 3px 3px 0 var(--yellow);
@@ -71,8 +77,10 @@
   }
   /* M47：手机收纳条——搜索 + 筛选入口（带计数徽章）+ 清空；桌面端隐藏，收纳态见 680px 媒体查询 */
   .console-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  #filterToggle, #barResetBtn { display: none; }
-  #filterToggle { align-items: center; gap: 2px; }
+  #filterToggle { display: none; align-items: center; gap: 2px; }
+  /* 展开折角：收纳条「筛选」入口的可展开暗示，随开合翻转 */
+  .fcaret { display: inline-block; font-size: 10px; opacity: .55; margin-left: 3px; transition: transform .15s; }
+  #console.open .fcaret { transform: rotate(180deg); }
   #filterBadge {
     font-style: normal; display: inline-block; min-width: 14px; text-align: center;
     background: var(--blue); color: var(--on-color); border-radius: var(--radius-pill); padding: 1px 6px; font-size: 11px; margin-left: 4px;
@@ -442,12 +450,9 @@
 
   @media (max-width: 680px) {
     h1.logo { font-size: 34px; }
-    /* M50：手机端头部动作区收为圆形图标按钮，触达 ≥44px，标签文字隐藏（aria-label 补全名） */
-    .header-act { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: var(--radius-pill); font-size: 17px; }
-    .header-act .act-label { display: none; }
     /* M47：窄屏筛选台默认收纳成一行，点「筛选」就地展开，语义不变、只切呈现 */
     .console { padding: 12px 14px; }
-    #filterToggle, #barResetBtn { display: inline-flex; }
+    #filterToggle { display: inline-flex; }
     .console-bar .search { flex: 1 1 140px; min-width: 140px; }
     .console-body { display: none; }
     #console.open .console-body { display: flex; }

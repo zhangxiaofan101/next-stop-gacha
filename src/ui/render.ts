@@ -51,9 +51,11 @@ export function litVisitedProvinces(): string[] {
   return litProvinces(state.visited.map(byId).filter(Boolean) as Destination[], CN_MAP.prov);
 }
 export function updateFootprint() {
+  // M50 修订：胶囊即地图入口，常显——零打卡时给引导文案而非隐藏（隐藏会连地图入口一起丢）
   const pill = $("footPill");
   const n = state.visited.length;
-  if (!n) { pill.style.display = "none"; return; }
-  pill.textContent = `👣 去过 ${n} 个目的地 · 点亮 ${litVisitedProvinces().length} 个省份`;
+  pill.textContent = n
+    ? `👣 去过 ${n} 个目的地 · 点亮 ${litVisitedProvinces().length} 个省份`
+    : "👣 足迹地图 · 打卡第一站吧";
   pill.style.display = "";
 }

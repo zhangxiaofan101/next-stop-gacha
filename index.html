@@ -23,17 +23,14 @@
 
 <div class="wrap">
   <header>
-    <div class="header-top">
-      <div class="title-row">
-        <h1 class="logo"><span class="plane">✈️</span> 下一站，去哪玩</h1>
-        <span class="count-pill" id="countPill">…</span>
-        <span class="count-pill" id="footPill" style="display:none"></span>
-      </div>
-      <div class="header-actions" id="headerActions">
-        <button class="btn header-act" id="skinBtn" aria-label="切换皮肤"><span class="act-ic">🎨</span><span class="act-label">皮肤</span></button>
-        <button class="btn header-act" id="shareBtn" aria-label="分享与备份"><span class="act-ic">📤</span><span class="act-label">备份</span></button>
-        <button class="btn header-act" id="mapBtn" aria-label="足迹地图"><span class="act-ic">🗺</span><span class="act-label">足迹</span></button>
-      </div>
+    <button class="btn icon-btn corner-skin" id="skinBtn" aria-label="切换皮肤">🎨</button>
+    <div class="title-row">
+      <h1 class="logo"><span class="plane">✈️</span> 下一站，去哪玩</h1>
+      <span class="count-pill" id="countPill">…</span>
+      <span class="foot-group">
+        <button class="count-pill" id="footPill" style="display:none" title="打开足迹地图"></button>
+        <button class="btn icon-btn" id="shareBtn" aria-label="分享与备份">📤</button>
+      </span>
     </div>
     <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。</p>
   </header>

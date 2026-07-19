@@ -18,8 +18,7 @@ export function buildConsole() {
   el.innerHTML =
     `<div class="console-bar">
       <input class="search" id="searchBox" type="search" placeholder="搜城市 / 美食 / 关键词，比如「牛肉火锅」「石窟」…">
-      <button class="btn" id="filterToggle" aria-expanded="false" aria-controls="consoleBody">筛选<i id="filterBadge"></i></button>
-      <button class="btn" id="barResetBtn">清空</button>
+      <button class="btn" id="filterToggle" aria-expanded="false" aria-controls="consoleBody">筛选<i id="filterBadge"></i><span class="fcaret" aria-hidden="true">▾</span></button>
     </div>
     <div class="console-body" id="consoleBody">` +
     group("地区", "region", REGIONS) +
@@ -83,7 +82,7 @@ export function buildConsole() {
     render();
   });
   // F40：module 化后顶层函数不再落到 window，inline onclick="resetFilters()" 会报
-  // ReferenceError——两处清空按钮改走 addEventListener，与本函数其余按钮一致
+  // ReferenceError——清空按钮走 addEventListener，与本函数其余按钮一致
   $("resetConsoleBtn").addEventListener("click", resetFilters);
   // M47：手机收纳——纯呈现折叠，只切 class，不碰 state/不 render，展开/收起不丢已选状态；
   // aria-expanded 随切换同步（F57：disclosure 状态对读屏可见，桌面端按钮本身 display:none 不受影响）
@@ -93,7 +92,6 @@ export function buildConsole() {
     btn.classList.toggle("on", open);
     btn.setAttribute("aria-expanded", String(open));
   });
-  $("barResetBtn").addEventListener("click", resetFilters);
 }
 
 export function resetFilters() {
