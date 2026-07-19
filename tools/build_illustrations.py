@@ -13,7 +13,7 @@
 （picked/ 母版本身就是这么来的），本脚本的输出继续走这个模式，同 fonts/README.md 里字体管线的理由。
 
 命名规则（母版 → 槽位名，去掉皮肤前缀——目录本身已经承载皮肤信息，槽位名跨皮肤统一，运行时
-`illustSrc(skinId, slot)` 用同一套槽位名拼路径，见 src/skins/illustrations.ts）：
+`illustSrc(assetDir, slot)` 用同一套槽位名拼路径，见 src/skins/illustrations.ts）：
   ink-mascot.webp          → mascot.webp        （方图 1:1，吉祥物）
   ink-gacha.webp           → gacha.webp         （方图 1:1，扭蛋机）
   ink-empty.webp           → empty.webp         （方图 1:1，空态）
@@ -25,57 +25,105 @@
 画布契约（design「插画层」）：装饰位（方图/题头/装饰件）≤60KB，目的地卡位 ≤40KB；题头位按
 「原生比展示、不做浅裁」——本脚本对题头/装饰件一律等比缩放（不裁切），交给前端 CSS 用
 `aspect-ratio` 撑出与图片相同的比例，物理上不会发生裁切。
+
+**违规校验与退出码（F60 补齐，2026-07-20）**：此前本脚本对比例/预算/命名/编码违规只打印、不拦截，
+`main()` 恒零退出——`bun run test:build-assets`/部署门禁形同虚设。现在：
+  ① 编码前用 `webpinfo` 读源图真实宽高，与槽位期望比例比对，超出 2% 容差直接拒绝（不做拉伸变形，
+     旧版本"按母版实际比例校验"的说法此前是假的，resize 会无条件把任何比例的源图硬拉伸）；
+  ② 命名不合规、槽位未知、webpinfo/cwebp 失败、质量下限 q40 仍超预算，全部计入违规清单；
+  ③ 运行结束若违规清单非空，`sys.exit(1)`——只要有一项没扛住，退出码就不能是 0。
 """
-import glob, os, subprocess, sys
+import glob, os, re, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PICKED_DIR = os.path.join(ROOT, "assets", "illustrations", "picked")
-OUT_DIR = os.path.join(ROOT, "public", "illustrations")
+# 测试专用覆盖（tests/build-illustrations.test.mjs）：默认路径不变，测试用临时目录跑真实
+# cwebp/webpinfo 二进制而不碰 assets/picked 与 public/illustrations 真实资产。
+PICKED_DIR = os.environ.get("BUILD_ILLUST_PICKED_DIR") or os.path.join(ROOT, "assets", "illustrations", "picked")
+OUT_DIR = os.environ.get("BUILD_ILLUST_OUT_DIR") or os.path.join(ROOT, "public", "illustrations")
 
-BUDGET_DECOR = 60 * 1024   # 装饰位（吉祥物/扭蛋机/空态/题头/装饰件）
-BUDGET_DEST = 40 * 1024    # 目的地卡位
+BUDGET_DECOR = int(os.environ.get("BUILD_ILLUST_BUDGET_DECOR", 60 * 1024))   # 装饰位（吉祥物/扭蛋机/空态/题头/装饰件）
+BUDGET_DEST = int(os.environ.get("BUILD_ILLUST_BUDGET_DEST", 40 * 1024))     # 目的地卡位
 
-# 槽位类型 → (输出目标宽, 输出目标高, 体积预算)；宽高比必须与母版一致（脚本按母版实际比例校验）
+# 槽位类型 → (输出目标宽, 输出目标高, 体积预算)；宽高比必须与母版一致（编码前用 webpinfo 校验，
+# 容差见 RATIO_TOLERANCE，超出直接拒绝，不做拉伸）
 SQUARE = (640, 640, BUDGET_DECOR)
 BANNER = (960, 480, BUDGET_DECOR)  # 题头 / 装饰件母版均 1024x512（2:1）
 DEST = (640, 427, BUDGET_DEST)     # 目的地母版 1536x1024（3:2）
 
+RATIO_TOLERANCE = 0.02  # 母版实际宽高比与槽位期望比的容许偏差
 
-def classify(skin: str, basename: str):
-    """返回 (槽位输出文件名, 尺寸预算元组) 或 None（跳过，如 style-ref-mock）。"""
+
+def classify(skin: str, basename: str, violations: list):
+    """返回 (槽位输出文件名, 尺寸预算元组) 或 None（跳过，如 style-ref-mock 或违规命名/槽位）。"""
     name = basename[:-len(".webp")]
     if name == "style-ref-mock":
         return None
     prefix = f"{skin}-"
     if not name.startswith(prefix):
-        print(f"  !! {skin}/{basename} 命名不含皮肤前缀 `{prefix}`，跳过（检查工单命名规范）", file=sys.stderr)
+        msg = f"{skin}/{basename} 命名不含皮肤前缀 `{prefix}`"
+        print(f"  !! {msg}，跳过（检查工单命名规范）", file=sys.stderr)
+        violations.append(msg)
         return None
     slot = name[len(prefix):]
     if slot in ("mascot", "gacha", "empty"):
         return f"{slot}.webp", SQUARE
     if slot.startswith("region-") or slot.startswith("decor-"):
         return f"{slot}.webp", BANNER
-    print(f"  !! {skin}/{basename} 槽位名 `{slot}` 不属于已知类别，跳过", file=sys.stderr)
+    msg = f"{skin}/{basename} 槽位名 `{slot}` 不属于已知类别"
+    print(f"  !! {msg}，跳过", file=sys.stderr)
+    violations.append(msg)
     return None
 
 
-def encode(src: str, dst: str, target_w: int, target_h: int, budget: int) -> int:
+def source_size(path: str):
+    """用 webpinfo 读源图真实宽高（只读 RIFF header，不整图解码）。读不出返回 None。"""
+    r = subprocess.run(["webpinfo", path], capture_output=True, text=True)
+    if r.returncode != 0:
+        return None
+    w = re.search(r"Width:\s*(\d+)", r.stdout)
+    h = re.search(r"Height:\s*(\d+)", r.stdout)
+    if not w or not h:
+        return None
+    return int(w.group(1)), int(h.group(1))
+
+
+def encode(src: str, dst: str, target_w: int, target_h: int, budget: int, violations: list) -> int:
+    size = source_size(src)
+    if size is None:
+        msg = f"{src}: webpinfo 读取源图宽高失败"
+        print(f"  !! {msg}", file=sys.stderr)
+        violations.append(msg)
+        return -1
+    src_w, src_h = size
+    src_ratio, target_ratio = src_w / src_h, target_w / target_h
+    if abs(src_ratio - target_ratio) / target_ratio > RATIO_TOLERANCE:
+        msg = (f"{src}: 源图比例 {src_w}x{src_h}（{src_ratio:.3f}）与槽位期望比例 "
+               f"{target_w}x{target_h}（{target_ratio:.3f}）偏差超过 {RATIO_TOLERANCE:.0%} 容差")
+        print(f"  !! {msg}，拒绝（不做拉伸变形，检查母版是否画错画布/裁切走样）", file=sys.stderr)
+        violations.append(msg)
+        return -1
     os.makedirs(os.path.dirname(dst), exist_ok=True)
+    out_size = -1
     for q in (85, 78, 70, 60, 50, 40):
         r = subprocess.run(
             ["cwebp", "-q", str(q), "-resize", str(target_w), str(target_h), src, "-o", dst],
             capture_output=True, text=True,
         )
         if r.returncode != 0:
-            print(f"  !! cwebp 处理 {src} 失败：\n{r.stderr}", file=sys.stderr)
+            msg = f"{src}: cwebp 编码失败：{r.stderr.strip()}"
+            print(f"  !! {msg}", file=sys.stderr)
+            violations.append(msg)
             return -1
-        size = os.path.getsize(dst)
-        if size <= budget:
-            return size
-    return size  # 已到质量下限仍超预算，原样返回最后一次结果，由调用方报告
+        out_size = os.path.getsize(dst)
+        if out_size <= budget:
+            return out_size
+    msg = f"{src}: 质量下限 q40 仍超预算（{out_size / 1024:.1f}KB > {budget // 1024}KB）"
+    print(f"  !! {msg}", file=sys.stderr)
+    violations.append(msg)
+    return out_size  # 已到质量下限仍超预算，原样返回最后一次结果（已计入违规），调用方仍打印供人工核对
 
 
-def process_skin_dir(skin: str):
+def process_skin_dir(skin: str, violations: list):
     src_dir = os.path.join(PICKED_DIR, skin)
     files = sorted(glob.glob(os.path.join(src_dir, "*.webp")))
     if not files:
@@ -83,19 +131,19 @@ def process_skin_dir(skin: str):
     print(f"[{skin}]")
     for f in files:
         basename = os.path.basename(f)
-        result = classify(skin, basename)
+        result = classify(skin, basename, violations)
         if result is None:
             continue
         out_name, (tw, th, budget) = result
         out_path = os.path.join(OUT_DIR, skin, out_name)
-        size = encode(f, out_path, tw, th, budget)
+        size = encode(f, out_path, tw, th, budget, violations)
         if size < 0:
             continue
         status = "OK" if size <= budget else "超限!"
         print(f"  {status} {out_name}：{size / 1024:.1f}KB（{tw}x{th}，预算 {budget // 1024}KB）")
 
 
-def process_dest():
+def process_dest(violations: list):
     src_dir = os.path.join(PICKED_DIR, "dest")
     files = sorted(glob.glob(os.path.join(src_dir, "*.webp")))
     if not files:
@@ -108,11 +156,13 @@ def process_dest():
         # picked/dest/ 母版命名去掉的只是 -v{n} 版本号（见 illustration-brief.md），dest- 前缀留着；
         # 槽位名/运行时 URL 不带这个前缀（destPhotoSrc(id) 直接拼城市 id），这里要再剥一层。
         if not name.startswith("dest-"):
-            print(f"  !! {os.path.basename(f)} 命名不含 `dest-` 前缀，跳过（检查工单命名规范）", file=sys.stderr)
+            msg = f"{os.path.basename(f)} 命名不含 `dest-` 前缀"
+            print(f"  !! {msg}，跳过（检查工单命名规范）", file=sys.stderr)
+            violations.append(msg)
             continue
         cityid = name[len("dest-"):]
         out_path = os.path.join(OUT_DIR, "dest", f"{cityid}.webp")
-        size = encode(f, out_path, tw, th, budget)
+        size = encode(f, out_path, tw, th, budget, violations)
         if size < 0:
             continue
         status = "OK" if size <= budget else "超限!"
@@ -123,14 +173,20 @@ def main():
     if not os.path.isdir(PICKED_DIR):
         print("!! assets/illustrations/picked/ 不存在", file=sys.stderr)
         sys.exit(1)
+    violations: list = []
     skins = sorted(
         d for d in os.listdir(PICKED_DIR)
         if os.path.isdir(os.path.join(PICKED_DIR, d)) and d != "dest"
     )
     for skin in skins:
-        process_skin_dir(skin)
-    process_dest()
+        process_skin_dir(skin, violations)
+    process_dest(violations)
     print(f"完成，产物在 {os.path.relpath(OUT_DIR, ROOT)}/")
+    if violations:
+        print(f"\n!! 本次运行累计 {len(violations)} 项违规，非零退出：", file=sys.stderr)
+        for v in violations:
+            print(f"  - {v}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

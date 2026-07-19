@@ -5,7 +5,8 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  applySkinVisuals, currentSkinId, destPhotoSrc, illustSrc, regionSlot, wireIllustFallbacks,
+  applySkinVisuals, assetDirFor, currentSkinId, destPhotoSrc, illustSrc, regionSlot,
+  wireIllustFallbacks,
 } from "../illustrations";
 import { SKINS } from "../registry";
 
@@ -23,6 +24,24 @@ describe("illustSrc / destPhotoSrc / regionSlot", () => {
     expect(regionSlot("江浙沪")).toBe("region-jzh");
     expect(regionSlot("港澳")).toBe("region-gangao");
     expect(regionSlot("不存在的大区")).toBe("region-jzh");
+  });
+});
+
+describe("assetDirFor（F58 探针：id!==assetDir 时声明真驱动 URL，不是 id===assetDir 巧合自证）", () => {
+  it("真实 SKINS 里 ink/cream 当前 id===assetDir，仍按 assetDir 字段取值（非硬编码 id）", () => {
+    expect(assetDirFor("ink")).toBe("ink");
+    expect(assetDirFor("cream")).toBe("cream");
+  });
+  it("id!==assetDir 的自定义声明数组：解析结果跟着 assetDir 走，不是原样返回 skinId", () => {
+    const probeSkins = [
+      { id: "probe", label: "探针", fonts: null, assetDir: "totally-different-dir", decorations: {} },
+    ];
+    expect(assetDirFor("probe", probeSkins)).toBe("totally-different-dir");
+    expect(illustSrc(assetDirFor("probe", probeSkins), "mascot"))
+      .toMatch(/illustrations\/totally-different-dir\/mascot\.webp$/);
+  });
+  it("未注册的 skinId 兜底返回 skinId 本身", () => {
+    expect(assetDirFor("no-such-skin", [])).toBe("no-such-skin");
   });
 });
 
@@ -102,21 +121,26 @@ describe("wireIllustFallbacks（三级缺图回退，F 类回归钉子）", () =
     expect(document.querySelector("[data-illust-frame]")).not.toBeNull();
   });
 
-  it("fallback-src 也失败（第二次 error）→ 落到 data-fallback：hide 移除最近的 frame 容器", () => {
+  it("fallback-src 也失败（第二次 error）→ 落到 data-fallback：hide 最近的 frame 容器（F59：隐藏不删除，节点与 data-illust 元数据留在 DOM 里，供皮肤切回来时恢复）", () => {
     document.body.innerHTML = `<div data-illust-frame><img class="illust" data-fallback-src="/b.webp" data-fallback="hide" src="/a.webp"></div>`;
     const img = document.querySelector("img")!;
     img.dispatchEvent(new Event("error")); // 第一次：换到 /b.webp
     img.dispatchEvent(new Event("error")); // 第二次：fallback-src 已试过，落到 hide
-    expect(document.querySelector("[data-illust-frame]")).toBeNull();
+    const frame = document.querySelector<HTMLElement>("[data-illust-frame]");
+    expect(frame).not.toBeNull(); // 容器还在，只是隐藏——这是 F59 的核心断言
+    expect(frame!.hidden).toBe(true);
+    expect(img.hidden).toBe(true);
   });
 
-  it("没有 fallback-src、data-fallback 是 emoji → 就地换成等大 span，原样保留文案", () => {
+  it("没有 fallback-src、data-fallback 是 emoji → img 隐藏、同级插入等大 span 顶视觉，原样保留文案（F59：img 不摘除）", () => {
     document.body.innerHTML = `<div class="big"><img class="illust" data-fallback="🏝️"></div>`;
     const img = document.querySelector("img")!;
     img.dispatchEvent(new Event("error"));
-    expect(document.querySelector("img")).toBeNull();
+    expect(document.querySelector("img")).not.toBeNull(); // img 仍在 DOM，只是隐藏
+    expect(img.hidden).toBe(true);
     const span = document.querySelector(".illust-fallback")!;
     expect(span.textContent).toBe("🏝️");
+    expect(img.nextElementSibling).toBe(span); // 同级插入，不是替换
   });
 
   it("非 .illust 的 img 不受影响（委托只认 class）", () => {
@@ -125,5 +149,61 @@ describe("wireIllustFallbacks（三级缺图回退，F 类回归钉子）", () =
     img.dispatchEvent(new Event("error"));
     expect(document.querySelector("[data-illust-frame]")).not.toBeNull();
     expect(document.querySelector("img")).not.toBeNull();
+  });
+});
+
+describe("双皮肤来回切换不永久丢插画（F59 回归钉子：山水成功 → 奶油缺图回退 → 切回山水必须恢复）", () => {
+  // markup 照抄 index.html 里 mascot/gacha/empty 三处真实结构：mascot/gacha 有 [data-illust-frame]
+  // 外框，empty 是自框场景（无外框，回退直接隐藏 img 自身）。
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <span data-illust-frame><img class="illust" data-illust="mascot" data-fallback="hide"></span>
+      <div data-illust-frame><img class="illust" data-illust="gacha" data-fallback="hide"></div>
+      <img class="illust" data-illust="empty" data-fallback="🏝️">
+    `;
+    wireIllustFallbacks();
+  });
+
+  it("mascot/gacha/empty 三槽位：山水加载成功 → 切奶油 404 触发回退 → 切回山水后 src/可见性/回退残留全部恢复", () => {
+    // ① 山水下应用一轮：三张图都拿到 ink 的 src 且可见
+    applySkinVisuals("ink");
+    const mascot = document.querySelector<HTMLImageElement>('[data-illust="mascot"]')!;
+    const gacha = document.querySelector<HTMLImageElement>('[data-illust="gacha"]')!;
+    const empty = document.querySelector<HTMLImageElement>('[data-illust="empty"]')!;
+    expect(mascot.src).toMatch(/illustrations\/ink\/mascot\.webp$/);
+    expect(gacha.src).toMatch(/illustrations\/ink\/gacha\.webp$/);
+    expect(empty.src).toMatch(/illustrations\/ink\/empty\.webp$/);
+    expect(mascot.hidden).toBe(false);
+    expect(gacha.hidden).toBe(false);
+    expect(empty.hidden).toBe(false);
+
+    // ② 切奶油：assetDir 变成 cream，三张图请求 404（真实生产行为——cream 目前没有这三个槽位的
+    // 资产），此处手动 dispatch error 模拟浏览器的加载失败通知
+    applySkinVisuals("cream");
+    [mascot, gacha, empty].forEach(img => img.dispatchEvent(new Event("error")));
+    const mascotFrame = mascot.closest<HTMLElement>("[data-illust-frame]")!;
+    const gachaFrame = gacha.closest<HTMLElement>("[data-illust-frame]")!;
+    expect(mascotFrame.hidden).toBe(true);
+    expect(gachaFrame.hidden).toBe(true);
+    expect(mascot.hidden).toBe(true);
+    expect(gacha.hidden).toBe(true);
+    expect(empty.hidden).toBe(true); // 自框场景：没有外框，img 自己隐藏
+    const emptyFallback = document.querySelector(".illust-fallback")!;
+    expect(emptyFallback.textContent).toBe("🏝️");
+    // 三个节点必须还在 DOM 里、data-illust 元数据没丢——这才是 F59 要钉的东西
+    expect(document.querySelectorAll("[data-illust]").length).toBe(3);
+
+    // ③ 切回山水：这次资产真实存在，必须完全恢复——可见、src 对、回退残留清干净
+    applySkinVisuals("ink");
+    expect(mascot.hidden).toBe(false);
+    expect(gacha.hidden).toBe(false);
+    expect(empty.hidden).toBe(false);
+    expect(mascotFrame.hidden).toBe(false);
+    expect(gachaFrame.hidden).toBe(false);
+    expect(mascot.src).toMatch(/illustrations\/ink\/mascot\.webp$/);
+    expect(gacha.src).toMatch(/illustrations\/ink\/gacha\.webp$/);
+    expect(empty.src).toMatch(/illustrations\/ink\/empty\.webp$/);
+    expect(mascot.dataset.fallbackTried).toBeUndefined();
+    expect(document.querySelector(".illust-fallback")).toBeNull(); // 遗留的 emoji 兜底已清理
   });
 });

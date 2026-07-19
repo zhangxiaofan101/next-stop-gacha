@@ -3,7 +3,7 @@ import { DAY_BUCKETS } from "../logic/constants";
 import { filtered } from "../logic/filter";
 import { gachaPick } from "../logic/gacha";
 import type { Destination } from "../logic/types";
-import { currentSkinId, illustSrc, regionSlot } from "../skins/illustrations";
+import { assetDirFor, currentSkinId, illustSrc, regionSlot } from "../skins/illustrations";
 import { CUR_SEASON, DATA, state } from "../store";
 import { cardHTML } from "./cards";
 import { $ } from "./dom";
@@ -75,7 +75,7 @@ export function roll() {
       // M46：票券氛围带——用该目的地所属大区的题头图垫底（design M46：「扭蛋票券氛围垫底」）；
       // background-image 天生「缺图不硬占」（加载失败不显示任何东西、不报错、不留占位），不需要
       // 额外的 onerror 处理，奶油皮肤下这行只是设了一个 404 的 url() 从不产生可见差异。
-      ticketEl.style.setProperty("--ticket-ambience", `url(${illustSrc(currentSkinId(), regionSlot(pick.region))})`);
+      ticketEl.style.setProperty("--ticket-ambience", `url(${illustSrc(assetDirFor(currentSkinId()), regionSlot(pick.region))})`);
       ticketEl.innerHTML = cardHTML(pick, 0);
       ticketEl.className = "show";
       $("gDetailBtn").style.display = "";

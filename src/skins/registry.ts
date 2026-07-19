@@ -1,12 +1,18 @@
 // 皮肤声明与选择解析（M45 起框架，M46 首次接入真实字体+资产+装饰声明）。一皮肤 = token 集 +
-// 字体对 + 资产目录 + 装饰件开关位。fonts 字段记录该皮肤 --round/--sans 实际解析到的字体族名
-// （即 src/skins/<id>.css 里 @font-face 的 font-family），不是运行时拿来生成 <link>/FontFace
-// 的输入——CSS token（--round/--sans）本身就是字体懒加载/失败回退的完整机制（浏览器只在某个
+// 字体对 + 资产目录 + 装饰件开关位。
+//
+// fonts 字段（F58 纠偏，2026-07-20）：记录该皮肤 --round/--sans 实际解析到的字体族名（即
+// src/skins/<id>.css 里 @font-face 的 font-family），**不参与任何运行时选择**——CSS token
+// （--round/--sans）本身就是字体懒加载/失败回退的完整机制且是唯一真相源（浏览器只在某个
 // font-family 真的被用来画字时才取 @font-face 的 src，非当前皮肤下 --round/--sans 解析不到
-// "Ink Title"/"Ink Body"，浏览器天然不会发起这两个 woff2 请求），fonts 字段留作可核对的声明
-// 契约（drift-pin 测试见 src/skins/__tests__/registry.test.ts，锁 ink.css 里的 font-family 与
-// 这里字面一致，防止两处各写一份却悄悄分叉）。assetDir/decorations 见 illustrations.ts 的
-// applySkinVisuals——两个字段都被真实消费，不是摆设声明。
+// "Ink Title"/"Ink Body"，浏览器天然不会发起这两个 woff2 请求）。fonts 字段纯粹是可核对的静态
+// 声明，唯一用途是被 src/skins/__tests__/registry.test.ts 的 drift-pin 测试拿去和 ink.css 里的
+// 字面 font-family 互相核对，防止两处各写一份却悄悄分叉——「有 drift-pin 测试盯着」不等于「被
+// 运行时消费」，这是两件事，此前的注释把两者混为一谈。
+//
+// assetDir/decorations 不同：两者都在 illustrations.ts 里被 applySkinVisuals/assetDirFor 在渲染
+// 路径上真实读取消费——运行路径先解析当前 SkinDeclaration 拿到 assetDir 再拼图片 URL，不是只在
+// 测试里自证的摆设声明（见该文件顶部注释）。
 import { applySkinVisuals } from "./illustrations";
 import { setSkinChoice } from "../store";
 

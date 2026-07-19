@@ -2,7 +2,7 @@
 import { REGION_COLOR } from "../logic/constants";
 import { routeDaysText } from "../logic/roadbook";
 import type { Destination } from "../logic/types";
-import { currentSkinId, destPhotoSrc, illustSrc, regionSlot } from "../skins/illustrations";
+import { assetDirFor, currentSkinId, destPhotoSrc, illustSrc, regionSlot } from "../skins/illustrations";
 import { fetchWeather, wxInfo } from "../services/weather";
 import { byId, state } from "../store";
 import { seasonsHTML } from "./cards";
@@ -12,7 +12,7 @@ import { ICONS } from "./icons";
 // M46：详情页头图——九区题头的首选用途（design M46）。线路卡直接用大区题头；城市卡优先目的地
 // 个图（M44 分批铺量），个图缺失时退到同一张大区题头兜底，两者都缺才整块不占位（缺图不硬占）。
 function headerBannerHTML(d: Destination, isRoute: boolean): string {
-  const regionSrc = illustSrc(currentSkinId(), regionSlot(d.region));
+  const regionSrc = illustSrc(assetDirFor(currentSkinId()), regionSlot(d.region));
   const img = isRoute
     ? `<img class="illust" src="${regionSrc}" alt="" loading="lazy" data-fallback="hide">`
     : `<img class="illust" src="${destPhotoSrc(d.id)}" alt="" loading="lazy" data-fallback-src="${regionSrc}" data-fallback="hide">`;
