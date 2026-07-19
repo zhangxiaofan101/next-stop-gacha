@@ -301,6 +301,8 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 初筛：文末核对清单 + A6 三条加严照旧 + 成套清单「工艺件三项」（无缝自检/拉伸预演/逐字核对）。
 
+终审结果（2026-07-20 用户拍板）：`ink-texture-paper-v2` / `ink-frame-brush-v2` / `ink-divider-brush-v2` / `ink-seal-nextstop-v2` / `ink-seal-wheretoplay-v4` / `ink-placeholder-mist-v1`。A8 生成与挑版收官；按职责边界待 cc 转 q90 webp 入 `picked/ink/`，随后 M57 仍受 review 闸门约束。
+
 ## 初筛核对清单（codex 每张图过一遍）
 
 - [ ] 无任何文字/水印/签名

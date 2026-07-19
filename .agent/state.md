@@ -6,7 +6,7 @@
 
 **线上**：`lab.medspiral.com/next-stop-gacha/`——Vite+TS 工程化版，267 城 + 53 线全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；后端短链分享（KV）+ 同步码云同步（Durable Object）已闭环并过跨家族 review；主题皮肤机制落地，奶油/山水双肤可切（山水已过 M52 形态精修并生产复验），DOM 结构与 token 体系处冻结态（再动结构须用户拍板）。四期代码侧（M37/M38/M40/M41/M42 管线）与五期代码轨道（M47→M45→M50→M46→M52）全部落地，明细见 ✅ 与 git 历史。 [cc]
 
-**在飞**：①codex gate review 两轮已审毕（baseline 880e51f）：**M52 gate 关闭；F59/F60 已关闭**；**F58 收窄为纯文档口径问题并已由 cc 二轮响应（详见 ✅），M45/M46 gate 待 codex 三轮复核后关闭**（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环，产物随 F60 管线修复一并生成上线）；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件 **17 张候选与四份 QA 已初筛交付，停在 raw 等用户挑版**，M57 尚未接入（🔜 9）；④M53–M56/M58 已立项（🔜 4–8），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [cc]
+**在飞**：①codex gate review 两轮已审毕（baseline 880e51f）：**M52 gate 关闭；F59/F60 已关闭**；**F58 收窄为纯文档口径问题并已由 cc 二轮响应（详见 ✅），M45/M46 gate 待 codex 三轮复核后关闭**（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环，产物随 F60 管线修复一并生成上线）；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件 **六槽位已终审定版，待 cc 转档**，M57 尚未接入（🔜 9）；④M53–M56/M58 已立项（🔜 4–8），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [codex]
 
 **近期顺序**：codex 三轮复核 F58 文档响应关 M45/M46 双闸 → 用户终审山水整体效果 + 默认皮肤拍板（🟡）→ 前端小批 M53/M54/M58/M55/M51 ∥ 内容批 M48/M49/M56 随时可插。 [cc]
 
@@ -110,7 +110,7 @@
 6. 【前端】M58 — 目的地图展示语义：卡位扁条、详情位全图 [R1 · S1] → sonnet · low｜2026-07-20 用户看 44 城个图上线后拍板对调：卡片流该扁图快滑、详情单城值得全图（现状恰好相反）；可与 M53/M54 同会话顺手做；spec 见 design M58 [cc]
 7. 【前端】M55 — 路书语境化：全局日序+当季文案 [R2 · S2] → sonnet · high｜反馈③⑤合并立项（同一根因：路书照搬单城/全季节语境的卡素材）；主体在 logic/roadbook 与路书渲染层，排 review 关闸后；解析口径=online 渲染时解析（2026-07-20 拍板）；spec 见 design M55 [cc]
 8. 【前端+内容】M56 — 交通方式修正：西部陆路语义 [R2 · S2] → 机制段 sonnet · high（logic/transport+budget+schema，与在审文件零冲突可先行）；数据体检段 claude 网查 sonnet · high（noair/norail 清单交用户过目后落库，按 content-checklist 二节规程）｜反馈④，根因=疆内段 400km 阈值+无民航/无轨守卫缺失；表意口径=按当地习惯列自驾/包车、有航线并列飞机（组合标签）；spec 见 design M56 [cc]
-9. 【画面→前端】A8 — 山水工艺件批 [R1 · S1] → codex · low（2026-07-20 已生成初筛，待用户终审）∥ M57 — 皮肤工艺件接入 [R1 · S2] → sonnet · medium｜A8 已按 style-ref mock + A6 水墨锁生成 **17 张 raw 候选**：texture 2 / frame 3 / divider 2 / seal「下一站」4 +「去哪玩」4 / placeholder 2；四份 QA 含总览、2×2 无缝拼贴、frame 中段 3× 拉伸、seal 逐字放大，逐版 notes 在 `raw/ink/qa/qa-a8-notes.md`。所有 seal 逐字可辨无错字缺笔，透明件无绿边；**未转 picked、未接入**。接入 spec 见 design M57（逐类替换、代码版留缺图回退、不声明皮肤零变化）；gating：A8 用户挑版 + review 关闸 [codex]
+9. 【画面→前端】A8 — 山水工艺件批 [R1 · S1] → codex · low（2026-07-20 用户终审完成，待 cc 转档）∥ M57 — 皮肤工艺件接入 [R1 · S2] → sonnet · medium｜A8 定版：texture=v2 / frame=v2 / divider=v2 / seal-nextstop=v2 / seal-wheretoplay=v4 / placeholder=v1；17 张 raw 候选与四份 QA 仍完整保留，**尚未转 picked、未接入**。接入 spec 见 design M57（逐类替换、代码版留缺图回退、不声明皮肤零变化）；gating：cc 转档 + review 关闸 [codex]
 
 ## ⏭ P1
 

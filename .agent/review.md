@@ -18,12 +18,6 @@
 
 ## Active findings
 
-> Review baseline: 880e51f，Codex/GPT reviewer，2026-07-20。确认范围 `f55b1a0..880e51f`，实际代码响应集中于 30c2cb6；M44/A8 与控制面整理仍不作为本轮关闭依据。F59 的可逆回退、F60 的比例/预算/命名硬失败及其回归测试均成立，已关闭。F58 的 `assetDir` 运行时消费也已修复，但实现与 design 的字体声明契约仍相反，故缩窄后保留为唯一 active finding，并由 P1 降为 P2。M52 gate 维持通过；M45/M46 双 gate 仍须等 F58 的 design↔code 口径收束后关闭。
+> Review baseline: b47a8c8，Codex/GPT reviewer，2026-07-20。确认范围 `880e51f..b47a8c8`；其中 911e484（M58 控制面）与 1b1489d（M44 内容轨道）不作为本轮关闭依据，F58 的实际响应为 b47a8c8。`design.md` 的 standing mechanism 与部件表现已明确区分两条路径：`assetDir`/装饰开关由 `assetDirFor()`/`applySkinVisuals()` 在运行时消费；字体由 scoped CSS token（`--round`/`--sans`）及浏览器原生 `@font-face` 按需加载驱动，registry `fonts` 只作为测试读取的静态 drift-pin 元数据。该口径与代码、测试和 state 响应一致，F58 关闭。当前无 active finding；M45 `[R2 · S3]`、M46 `[R2 · S2]` 跨家族 gate 正式通过，M52 `[R2 · S2]` gate 维持通过。
 >
-> 独立证据：沙箱外 `bun run build` 通过（TypeScript + 前端 Vitest 133/133 + workerd Worker/DO 45/45 + Vite，共 178 条），`bun run test:build-assets` 5/5，`git diff --check` 通过；沙箱内首次失败仍仅为 Wrangler 日志/监听端口 EPERM。生产已加载与本地产物同名的 `index-CtqpeRp5.js` / `index-C-GBXldd.css`，控制台零 error。真实点击复验：山水 mascot 为已加载 640×640 → 切奶油后 img/frame 只隐藏、节点和 `data-illust` 仍在 → 切回山水后 frame/img 均恢复可见、src 回到 `/illustrations/ink/mascot.webp`、naturalWidth=640、无 fallback 残留；F59 关闭。生产首页前六张目的地图均完整加载为 640×427；新增管线测试又分别坐实错误比例拒绝且不产出、q40 仍超预算非零退出、合规 happy path、未知槽位非零退出，F60 关闭。
-
-### F58 — [P2] 字体声明的 design 契约仍与已经拍定的 CSS 唯一真相源相反
-
-`assetDirFor()` 及 `id !== assetDir` 探针已经让静态、详情题头和扭蛋路径真正读取 `SkinDeclaration.assetDir`，这一半修复成立。字体部分则选择了 reviewer 上轮给出的“CSS 是唯一运行时真相”路径：`src/skins/registry.ts:4-11` 明确 `fonts` 不参与任何运行时选择，只是供 drift-pin 核对 CSS 字面量；独立 `rg` 也确认生产代码没有读取 `.fonts`。
-
-但 `.agent/design.md:93` 仍写“字体对/资产目录/装饰开关由渲染路径按当前皮肤声明消费”，组件清单 `:114` 又把字体对列在 `registry.ts` 的皮肤声明里；这与代码注释及真实运行机制直接互斥。state 对 F58 的响应称“过度声明只在代码注释里、design/M46 未过度声明”，遗漏了上述 standing mechanism，因而还不能把声明契约记为收束。按已经实现的路线修改 design：明确字体的运行时选择由 scoped CSS token 驱动，registry `fonts` 只是与 CSS 互钉的静态元数据；或者删除冗余 `fonts` 字段并让测试直接钉 CSS。无需再改运行时代码，但 design 与 state 响应口径一致前，M45/M46 gate 保持开放。
+> 独立证据：`git diff --check 880e51f..b47a8c8` 通过；`rg` 确认生产代码没有读取 `.fonts`，仅测试用它核对 `@font-face` 与 `--round`/`--sans` 字面量，符合修订后的静态元数据契约。b47a8c8 只改 `design.md`/`state.md`，不含运行时或产物变化，故无需重跑生产部署；上一轮独立通过的 178 条测试、5 条资产管线测试、双皮肤往返与生产资产复验结论继续有效。
