@@ -6,7 +6,7 @@
 
 **线上**：`lab.medspiral.com/next-stop-gacha/`——Vite+TS 工程化版，267 城 + 53 线全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；后端短链分享（KV）+ 同步码云同步（Durable Object）已闭环并过跨家族 review；主题皮肤机制落地，奶油/山水双肤可切（山水已过 M52 形态精修并生产复验），DOM 结构与 token 体系处冻结态（再动结构须用户拍板）。四期代码侧（M37/M38/M40/M41/M42 管线）与五期代码轨道（M47→M45→M50→M46→M52）全部落地，明细见 ✅ 与 git 历史。 [cc]
 
-**在飞**：①codex gate review 一轮已审毕（baseline 533a431）：**M52 gate 关闭；M45/M46 gate 因 F58–F60 保持开放**——下一步 cc 修复响应（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环），挑版欠账清零；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件批待 codex 开画，M57 接入随后（🔜 8）；④内容侧 M53–M56 已立项（🔜 4–7），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [cc]
+**在飞**：①codex gate review 一轮已审毕（baseline 533a431）：**M52 gate 关闭；M45/M46 gate 因 F58–F60 保持开放**——下一步 cc 修复响应（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环），挑版欠账清零；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件 **17 张候选与四份 QA 已初筛交付，停在 raw 等用户挑版**，M57 尚未接入（🔜 8）；④内容侧 M53–M56 已立项（🔜 4–7），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [codex]
 
 **近期顺序**：F58–F60 修复 + codex 复核关 M45/M46 双闸 → 用户终审山水整体效果 + 默认皮肤拍板（🟡）→ 前端小批 M53/M54/M55/M51 ∥ 内容批 M48/M49/M56 随时可插。 [cc]
 
@@ -100,7 +100,7 @@
 5. 【前端】M54 — 行程站数上限 6→10 [R1 · S1] → sonnet · low｜反馈②；constants 一点改+两处 toast+全链路复验，可与 M53 同会话顺手做；spec 见 design M54 [cc]
 6. 【前端】M55 — 路书语境化：全局日序+当季文案 [R2 · S2] → sonnet · high｜反馈③⑤合并立项（同一根因：路书照搬单城/全季节语境的卡素材）；主体在 logic/roadbook 与路书渲染层，排 review 关闸后；解析口径=online 渲染时解析（2026-07-20 拍板）；spec 见 design M55 [cc]
 7. 【前端+内容】M56 — 交通方式修正：西部陆路语义 [R2 · S2] → 机制段 sonnet · high（logic/transport+budget+schema，与在审文件零冲突可先行）；数据体检段 claude 网查 sonnet · high（noair/norail 清单交用户过目后落库，按 content-checklist 二节规程）｜反馈④，根因=疆内段 400km 阈值+无民航/无轨守卫缺失；表意口径=按当地习惯列自驾/包车、有航线并列飞机（组合标签）；spec 见 design M56 [cc]
-8. 【画面→前端】A8 — 山水工艺件批 [R1 · S1] → codex（画不等接入）∥ M57 — 皮肤工艺件接入 [R1 · S2] → sonnet · medium｜2026-07-20 用户拍板「工艺件入画」：五类工艺件（texture/frame 9-slice/divider/seal×2/placeholder）转插画资产；画单与开批规矩=illustration-brief「皮肤资产成套清单」+ A8 批工单（seal 汉字保真退路=保留 M52 代码版）；接入 spec 见 design M57（逐类替换、代码版留缺图回退、不声明皮肤零变化）；gating：A8 用户挑版 + review 关闸 [cc]
+8. 【画面→前端】A8 — 山水工艺件批 [R1 · S1] → codex · low（2026-07-20 已生成初筛，待用户终审）∥ M57 — 皮肤工艺件接入 [R1 · S2] → sonnet · medium｜A8 已按 style-ref mock + A6 水墨锁生成 **17 张 raw 候选**：texture 2 / frame 3 / divider 2 / seal「下一站」4 +「去哪玩」4 / placeholder 2；四份 QA 含总览、2×2 无缝拼贴、frame 中段 3× 拉伸、seal 逐字放大，逐版 notes 在 `raw/ink/qa/qa-a8-notes.md`。所有 seal 逐字可辨无错字缺笔，透明件无绿边；**未转 picked、未接入**。接入 spec 见 design M57（逐类替换、代码版留缺图回退、不声明皮肤零变化）；gating：A8 用户挑版 + review 关闸 [codex]
 
 ## ⏭ P1
 
