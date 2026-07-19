@@ -8,6 +8,7 @@ import { fetchWeather, wxCacheGet, wxLine } from "../services/weather";
 import { byId, state } from "../store";
 import { copyText } from "./clipboard";
 import { $ } from "./dom";
+import { ICONS } from "./icons";
 import { toast } from "./toast";
 
 // M40：分享打开的路书是「别人的只读副本」，绝不能写进本机 state.trip（会悄悄覆盖访问者自己在编的行程）——
@@ -61,7 +62,7 @@ function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): s
   <div class="rb-note">※ 交通方式与时长为直线距离估算，出发前请以 12306 / 航旅 App 实际班次为准；房态与价格以酒店 App 实时为准。天气参考数据来自 <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>），经本站整理换算。</div>
   <div class="rb-actions no-print">
     <button class="big-btn blue" id="copyRbBtn">📋 复制路书文本</button>
-    <button class="big-btn ghost" id="printRbBtn">🖨 打印 / 存 PDF</button>
+    <button class="big-btn ghost" id="printRbBtn">${ICONS.printer} 打印 / 存 PDF</button>
     ${readonly ? "" : `<button class="big-btn ghost" id="shareRbBtn">🔗 生成分享短链</button>`}
   </div>`;
 }

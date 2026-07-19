@@ -144,6 +144,46 @@
   --region-gangao: #e6dcff;
   --region-fallback: #cde9ff; /* 未知/缺失区域兜底色，值与江浙沪相同纯属巧合 */
 
+  /* ---- 形态 token（M52）：投影/按压交互形态是皮肤语言，不只是颜色——奶油的「贴纸硬投影 +
+     按下位移」与水墨的「无投影 + 透明度反馈」是两套形态，整条进 token 才换得动。
+     以下值全部=改造前 style.css 里的字面量原样搬入（挪一个不变一个，同 M45 红线）。 ---- */
+  --shadow-logo: 0 2px 0 rgba(var(--shine-rgb), .7), 3px 3px 0 var(--yellow);
+  --shadow-pill: 3px 3px 0 rgba(var(--shadow-ink-rgb), .18);
+  --shadow-panel: 6px 7px 0 rgba(var(--blue-rgb), .35), 0 16px 30px -14px rgba(var(--ink-rgb), .4);
+  --shadow-chip: 2px 2px 0 rgba(var(--shadow-ink-rgb), .22);
+  --shadow-chip-on: 2px 2px 0 rgba(var(--blue-deep-rgb), .5);
+  --shadow-btn: 2px 2px 0 rgba(var(--shadow-ink-rgb), .22);
+  --shadow-act: 2px 2px 0 rgba(var(--shadow-ink-rgb), .18);
+  /* 卡片投影引用逐卡片的元素级变量 --rc（区域色）——自定义属性的 var() 在定义作用域（:root）
+     替换、元素继承的是已解析值，token 里写 var(--rc) 拿到的永远是兜底而不是各卡片的区域色。
+     cream 值=initial（guaranteed-invalid）让 box-shadow: var(--shadow-card, <奶油原字面形态>)
+     走 style.css 里 use-site 的 fallback，--rc 在那里才解析得到；ink 给实值把 fallback 整条顶掉。 */
+  --shadow-card: initial;
+  --shadow-card-hover: initial;
+  --shadow-fab: 4px 5px 0 rgba(var(--shadow-ink-rgb), .35), 0 14px 26px -10px rgba(var(--orange-deep-rgb), .5), inset 0 2px 0 rgba(var(--shine-rgb), .45);
+  --shadow-dock: 4px 5px 0 rgba(var(--shadow-ink-rgb), .25);
+  --shadow-go: 2px 2px 0 rgba(var(--shadow-ink-rgb), .25);
+  --shadow-close: 3px 3px 0 rgba(var(--shadow-ink-rgb), .3);
+  --shadow-sheet: 8px 10px 0 rgba(var(--blue-rgb), .35), 0 22px 44px -18px rgba(var(--ink-rgb), .5);
+  --shadow-machine: 8px 10px 0 rgba(var(--orange-rgb), .4), 0 22px 44px -18px rgba(var(--orange-deep-rgb), .42);
+  --shadow-knob: 3px 4px 0 rgba(var(--shadow-ink-rgb), .35);
+  --shadow-cmp: 8px 10px 0 rgba(var(--purple-rgb), .4);
+  --shadow-mini: 1.5px 1.5px 0 rgba(var(--shadow-ink-rgb), .2);
+  --shadow-bigbtn: 4px 5px 0 rgba(var(--shadow-ink-rgb), .3), 0 12px 22px -10px rgba(var(--ink-rgb), .38), inset 0 2px 0 rgba(var(--shine-rgb), .4);
+  --shadow-bigbtn-active: inset 0 2px 0 rgba(var(--shine-rgb), .4);
+  --shadow-bigbtn-ghost: 4px 5px 0 rgba(var(--shadow-ink-rgb), .22), 0 10px 20px -12px rgba(var(--ink-rgb), .3);
+  --shadow-share: 6px 8px 0 rgba(var(--shadow-ink-rgb), .25);
+  --press-shift: translate(2px, 2px);
+  --press-shift-sm: translate(1px, 1px);
+
+  /* ---- 选中态（M52）：chip/btn 的 .on 形态——奶油=饱和色填充+白字，水墨=朱红描边+浅底 ---- */
+  --chip-on-bg: var(--blue);
+  --chip-on-text: var(--on-color);
+  --chip-on-border: var(--ink);
+  --btn-on-bg: var(--pink);
+  --btn-on-text: var(--on-color);
+  --btn-on-border: var(--ink);
+
   /* ---- 地图色（足迹地图 SVG：省界填色/描边、打卡点、图例） ---- */
   --map-prov: #f4f7fb; /* 未点亮省份填色 */
   --map-prov-lit: #dcf3dd; /* 点亮省份填色 */

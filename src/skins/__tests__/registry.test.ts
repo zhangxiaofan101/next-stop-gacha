@@ -38,6 +38,17 @@ describe("index.html 防闪烁内联脚本与 registry 同步（漂移钉子）"
   });
 });
 
+describe("皮肤 token 双文件漂移钉子（M52：新 token 必须 cream.css/ink.css 同步各加一行）", () => {
+  const tokenNames = (rel: string) =>
+    new Set([...readFileSync(join(ROOT, rel), "utf8").matchAll(/^\s*(--[\w-]+)\s*:/gm)].map(m => m[1]));
+  it("cream.css 与 ink.css 定义的 token 名集合完全一致（漏一边=某皮肤下该值静默失效）", () => {
+    const cream = tokenNames("src/skins/cream.css");
+    const ink = tokenNames("src/skins/ink.css");
+    expect([...cream].filter(n => !ink.has(n)), "ink.css 缺这些 token").toEqual([]);
+    expect([...ink].filter(n => !cream.has(n)), "cream.css 缺这些 token").toEqual([]);
+  });
+});
+
 describe("cream.css 覆盖 REGION_COLOR 引用到的全部 region token", () => {
   const css = readFileSync(join(ROOT, "src/skins/cream.css"), "utf8");
   it("REGION_COLOR 每个值引用的 --region-<slug> 均在 cream.css 定义，--region-fallback 也定义", () => {

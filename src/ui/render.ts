@@ -8,6 +8,7 @@ import { cardHTML } from "./cards";
 import { syncChips, updateChipCounts } from "./console";
 import { renderDock } from "./dock";
 import { $ } from "./dom";
+import { ICONS } from "./icons";
 
 // 放宽候选缓存：render()（空网格）与 openGacha()（空蛋池）写入，data-relax 点击按下标执行
 let relaxCands: RelaxCandidate[] = [];
@@ -54,8 +55,8 @@ export function updateFootprint() {
   // M50 修订：胶囊即地图入口，常显——零打卡时给引导文案而非隐藏（隐藏会连地图入口一起丢）
   const pill = $("footPill");
   const n = state.visited.length;
-  pill.textContent = n
-    ? `👣 去过 ${n} 个目的地 · 点亮 ${litVisitedProvinces().length} 个省份`
-    : "👣 足迹地图 · 打卡第一站吧";
+  pill.innerHTML = n
+    ? `${ICONS.footprints} 去过 ${n} 个目的地 · 点亮 ${litVisitedProvinces().length} 个省份`
+    : `${ICONS.footprints} 足迹地图 · 打卡第一站吧`;
   pill.style.display = "";
 }

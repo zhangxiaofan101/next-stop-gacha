@@ -30,7 +30,7 @@ const FILES = [
   "src/cn-map.ts",
   "src/skins/registry.ts",
   ...["actions", "cards", "clipboard", "compare", "console", "detail", "dock", "dom",
-    "effects", "events", "gacha", "mapview", "render", "roadbook", "share", "skin", "toast", "trip"]
+    "effects", "events", "gacha", "icons", "mapview", "render", "roadbook", "share", "skin", "toast", "trip"]
     .map(f => `src/ui/${f}.ts`),
 ];
 

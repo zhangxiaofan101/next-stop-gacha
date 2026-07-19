@@ -134,22 +134,63 @@
   --grad-paper: linear-gradient(180deg, var(--paper), #f6efdf);
   --grad-machine: linear-gradient(180deg, var(--paper), #f2e8d2);
   --grad-window: linear-gradient(#f6efdf, var(--paper));
-  --grad-fab: linear-gradient(180deg, var(--yellow), var(--orange));
-  --grad-knob: radial-gradient(circle at 35% 35%, var(--yellow), var(--orange));
-  --grad-btn-primary: linear-gradient(180deg, #c1683f, var(--orange));
-  --grad-btn-blue: linear-gradient(180deg, #8aa9c0, var(--blue));
-  --grad-btn-green: linear-gradient(180deg, #a0b98f, var(--spring));
+  /* M52 丙：按钮扁平化——mock 的按钮是一枚枚扁平色印（朱红 CTA / 黛蓝 / 苔绿），无高光渐变。
+     token 类型仍是 background 可用值，扁平色照样成立；高光 inset 已随 --shadow-* token 退场。 */
+  --grad-fab: var(--red);
+  --grad-knob: var(--red);
+  --grad-btn-primary: var(--red);
+  --grad-btn-blue: var(--blue-deep);
+  --grad-btn-green: #5f7d54;
 
-  --region-jzh: #e4edf3;
-  --region-huadong: #e7ede2;
-  --region-huabei: #f3e9d5;
-  --region-dongbei: #e6e9ef;
-  --region-huazhong: #f5e6de;
-  --region-huanan: #eaeed9;
-  --region-xinan: #e6ede5;
-  --region-xibei: #f0e6d2;
-  --region-gangao: #ebe6ee;
-  --region-fallback: #e4edf3;
+  /* M52 丙：区域九色整体退场=全部宣纸色——mock 没有区域色概念，卡片是宣纸面+细墨框，
+     区域归属完全交给条带里的文字表达（「上海 ✈ 浙江 · 江浙沪」信息未丢，只是不再涂色块）。
+     卡片投影的区域着色（--rc）也已随 --shadow-card 的 ink 值一并失效（不引用 --rc）。 */
+  --region-jzh: #faf3e3;
+  --region-huadong: #faf3e3;
+  --region-huabei: #faf3e3;
+  --region-dongbei: #faf3e3;
+  --region-huazhong: #faf3e3;
+  --region-huanan: #faf3e3;
+  --region-xinan: #faf3e3;
+  --region-xibei: #faf3e3;
+  --region-gangao: #faf3e3;
+  --region-fallback: #faf3e3;
+
+  /* ---- 形态 token（M52）：mock 的语言是「细墨线 + 大留白 + 无投影」——贴纸硬偏移投影全部
+     退场；大面积悬浮件（卡片/弹层纸张/浮坞）只留极淡无偏移的墨色晕散当空间提示；按压反馈
+     不做位移（水墨没有「按下贴纸」），改由 style.css 装饰块里的透明度反馈承担。 ---- */
+  --shadow-logo: none;
+  --shadow-pill: none;
+  --shadow-panel: none;
+  --shadow-chip: none;
+  --shadow-chip-on: none;
+  --shadow-btn: none;
+  --shadow-act: none;
+  --shadow-card: 0 1px 4px rgba(var(--ink-rgb), .10);
+  --shadow-card-hover: 0 3px 10px rgba(var(--ink-rgb), .14);
+  --shadow-fab: 0 2px 8px rgba(var(--ink-rgb), .18);
+  --shadow-dock: 0 2px 10px rgba(var(--ink-rgb), .12);
+  --shadow-go: none;
+  --shadow-close: none;
+  --shadow-sheet: 0 4px 16px rgba(var(--ink-rgb), .15);
+  --shadow-machine: 0 4px 16px rgba(var(--ink-rgb), .15);
+  --shadow-knob: 0 2px 6px rgba(var(--ink-rgb), .18);
+  --shadow-cmp: 0 4px 16px rgba(var(--ink-rgb), .15);
+  --shadow-mini: none;
+  --shadow-bigbtn: 0 2px 8px rgba(var(--ink-rgb), .15);
+  --shadow-bigbtn-active: none;
+  --shadow-bigbtn-ghost: none;
+  --shadow-share: 0 4px 16px rgba(var(--ink-rgb), .15);
+  --press-shift: none;
+  --press-shift-sm: none;
+
+  /* ---- 选中态（M52）：mock 的选中 chip=朱红描边+暖纸浅底+墨字（对照 mock「江浙沪/夏」） ---- */
+  --chip-on-bg: #f6e8da;
+  --chip-on-text: var(--ink);
+  --chip-on-border: var(--red);
+  --btn-on-bg: #f6e8da;
+  --btn-on-text: var(--red);
+  --btn-on-border: var(--red);
 
   --map-prov: #f2ede0;
   --map-prov-lit: #dbe6d5;

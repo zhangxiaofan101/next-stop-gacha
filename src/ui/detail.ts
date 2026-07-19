@@ -7,6 +7,7 @@ import { fetchWeather, wxInfo } from "../services/weather";
 import { byId, state } from "../store";
 import { seasonsHTML } from "./cards";
 import { $ } from "./dom";
+import { ICONS } from "./icons";
 
 // M46：详情页头图——九区题头的首选用途（design M46）。线路卡直接用大区题头；城市卡优先目的地
 // 个图（M44 分批铺量），个图缺失时退到同一张大区题头兜底，两者都缺才整块不占位（缺图不硬占）。
@@ -26,10 +27,10 @@ function detailHTML(d: Destination): string {
   const inTrip = state.trip.some(t => t.id === d.id);
   const tripBtn = isRoute
     ? `<button class="big-btn" data-addroute="${d.id}">🎫 整条装入行程单</button>`
-    : `<button class="big-btn ${inTrip ? "ghost" : ""}" data-trip="${d.id}">${inTrip ? "已在行程 ✓（点击移除）" : "🧳 加入行程"}</button>`;
+    : `<button class="big-btn ${inTrip ? "ghost" : ""}" data-trip="${d.id}">${inTrip ? "已在行程 ✓（点击移除）" : `${ICONS.suitcase} 加入行程`}</button>`;
   const isVisited = state.visited.includes(d.id);
   // 打卡去过：只有城市记录才有意义，线路卡按站点/城市算，不给这个按钮
-  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : "green"}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : "👣 打卡去过"}</button>`;
+  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : "green"}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : `${ICONS.footprints} 打卡去过`}</button>`;
   return `
     ${headerBannerHTML(d, isRoute)}
     <div class="dt-head">
@@ -66,7 +67,7 @@ function detailHTML(d: Destination): string {
       </div>`).join(""))}
     <div class="dt-actrow">
       ${tripBtn}
-      <button class="big-btn blue" data-cmp="${d.id}">⚖️ 加入对比</button>
+      <button class="big-btn blue" data-cmp="${d.id}">${ICONS.scale} 加入对比</button>
       ${visitBtn}
     </div>`;
 }

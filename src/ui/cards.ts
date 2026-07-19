@@ -4,6 +4,7 @@ import { routeDaysText } from "../logic/roadbook";
 import type { Destination } from "../logic/types";
 import { destPhotoSrc } from "../skins/illustrations";
 import { byId, CUR_SEASON, state } from "../store";
+import { ICONS } from "./icons";
 
 export const seasonsHTML = (d: Destination) => `<span class="seasons">${SEASONS.map(s =>
   `<span class="s-dot s${s} ${d.seasons.includes(s) ? "" : "off"}">${s}</span>`).join("")}</span>`;
@@ -14,7 +15,7 @@ export function cardHTML(d: Destination, i: number): string {
   const routeLine = isRoute ? d.stops!.map(s => byId(s.id)?.name || s.id).join(" → ") : "";
   const tripBtn = isRoute
     ? `<button class="act trip" data-addroute="${d.id}">🎫 整条装入</button>`
-    : `<button class="act trip ${state.trip.some(t => t.id === d.id) ? "on" : ""}" data-trip="${d.id}">🧳 行程</button>`;
+    : `<button class="act trip ${state.trip.some(t => t.id === d.id) ? "on" : ""}" data-trip="${d.id}">${ICONS.suitcase} 行程</button>`;
   // M46：目的地共享照片集（M44 分批铺量，皮肤无关）——线路卡不画个图（收录口径见 illustration-brief
   // 「M44 目的地插画分批铺量」），城市卡缺图时整个槽位不占位（design「插画层」缺图优雅回退）。
   const photo = isRoute ? "" : `
@@ -50,7 +51,7 @@ export function cardHTML(d: Destination, i: number): string {
       <div class="c-tags">${d.tags.map(t => `<span class="mini-tag">${t}</span>`).join("")}</div>
       <div class="c-actions">
         <button class="act fav ${state.favs.includes(d.id) ? "on" : ""}" data-fav="${d.id}">♥ 收藏</button>
-        <button class="act cmp ${state.cmp.includes(d.id) ? "on" : ""}" data-cmp="${d.id}">⚖️ 对比</button>
+        <button class="act cmp ${state.cmp.includes(d.id) ? "on" : ""}" data-cmp="${d.id}">${ICONS.scale} 对比</button>
         ${tripBtn}
       </div>
     </div>

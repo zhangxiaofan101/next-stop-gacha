@@ -13,6 +13,20 @@
 </head>
 <body>
 
+<!-- M52 戊：全站共享 SVG 滤镜一枚 defs（CSS filter:url(#…) 引用）——inkWobble=低频小位移，
+     让直线边框有手描墨线的缓慢起伏；sealRough=高频细碎位移，做印章/朱印按钮的刀刻糙边。
+     只被 [data-theme="ink"] 规则引用，奶油皮肤零消费。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="inkWobble" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7"/>
+    <feDisplacementMap in="SourceGraphic" scale="2.4"/>
+  </filter>
+  <filter id="sealRough" x="-8%" y="-8%" width="116%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="3"/>
+    <feDisplacementMap in="SourceGraphic" scale="1.7"/>
+  </filter>
+</svg>
+
 <div class="sky">
   <div class="sun"></div>
   <div class="cloud c1"></div>
@@ -37,13 +51,14 @@
       <span class="count-pill" id="countPill">…</span>
       <span class="foot-group">
         <button class="count-pill" id="footPill" style="display:none" title="打开足迹地图"></button>
-        <button class="btn icon-btn" id="shareBtn" aria-label="分享与备份">📤</button>
+        <!-- 静态按钮的线形图标与 src/ui/icons.ts 同款内联（模块脚本注入会闪一帧空按钮），改图形时两处同步 -->
+        <button class="btn icon-btn" id="shareBtn" aria-label="分享与备份"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 14.5v3.7A1.8 1.8 0 0 0 6.3 20h11.4a1.8 1.8 0 0 0 1.8-1.8v-3.7"/><path d="M12 4.5V15"/><path d="m8 8.3 4-3.8 4 3.8"/></svg></button>
       </span>
       <span class="mascot-decor" data-illust-frame>
         <img class="illust" data-illust="mascot" alt="" loading="lazy" data-fallback="hide">
       </span>
     </div>
-    <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。</p>
+    <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。<svg class="ink-seal" viewBox="0 0 34 34" aria-hidden="true"><g filter="url(#sealRough)"><rect x="1.5" y="1.5" width="31" height="31" rx="3" fill="var(--red)"/><text x="17" y="14.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">下一</text><text x="17" y="27.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">站</text></g></svg></p>
   </header>
 
   <section class="console" id="console"></section>
@@ -59,22 +74,23 @@
   </main>
 
   <footer>
-    行程与酒店信息为参考建议 · 出发前请以实际车次 / 航班 / 酒店 App 为准 🌏
-    <div class="footer-tools"><button class="btn" id="skinBtn">🎨 换皮肤</button></div>
+    行程与酒店信息为参考建议 · 出发前请以实际车次 / 航班 / 酒店 App 为准 🌏<svg class="ink-seal" viewBox="0 0 34 34" aria-hidden="true"><g filter="url(#sealRough)"><rect x="1.5" y="1.5" width="31" height="31" rx="3" fill="var(--red)"/><text x="17" y="14.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">去哪</text><text x="17" y="27.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">玩</text></g></svg>
+    <div class="footer-tools"><button class="btn" id="skinBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a8 8 0 1 0 .1 16c1.3 0 1.9-.8 1.9-1.7 0-.9-.7-1.3-.7-2.1 0-1 .8-1.7 1.8-1.7h1.6a4 4 0 0 0 4-4C20.7 6.7 16.8 4 12 4Z"/><circle cx="8.2" cy="10.2" r=".9"/><circle cx="12" cy="7.9" r=".9"/><circle cx="15.8" cy="10.2" r=".9"/></svg> 换皮肤</button></div>
   </footer>
 </div>
 
-<button class="fab no-print" id="fabGacha">🎰 扭一个</button>
+<!-- 🎰 包 span：奶油原样；山水下 emoji 隐藏、按钮走朱红印章形态（M52 丁B/戊-3） -->
+<button class="fab no-print" id="fabGacha"><span class="fab-emoji">🎰</span> 扭一个</button>
 
 <div class="dock no-print" id="dock">
   <div class="dock-box" id="cmpBox" style="display:none">
-    <span class="dock-label">⚖️ 对比</span>
+    <span class="dock-label"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5v15"/><path d="M8.5 20h7"/><path d="M5 7.5h14"/><path d="M6.5 7.5 4 13a2.9 2.9 0 0 0 5.4 0L6.9 7.5"/><path d="M17.5 7.5 15 13a2.9 2.9 0 0 0 5.4 0l-2.5-5.5"/></svg> 对比</span>
     <div class="dock-items" id="cmpItems"></div>
     <button class="dock-go cmp" id="cmpGo">比一比</button>
     <button class="dock-x" id="cmpClear" title="清空对比" aria-label="清空对比">✕</button>
   </div>
   <div class="dock-box" id="tripBox" style="display:none">
-    <span class="dock-label">🧳 行程</span>
+    <span class="dock-label"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="8" width="15" height="11.5" rx="2.2"/><path d="M9.3 8V6.3A1.8 1.8 0 0 1 11.1 4.5h1.8a1.8 1.8 0 0 1 1.8 1.8V8"/><path d="M9.3 11.5v4.5M14.7 11.5v4.5"/></svg> 行程</span>
     <div class="dock-items" id="tripItems"></div>
     <button class="dock-go trip" id="tripGo">排行程</button>
     <button class="dock-x" id="tripClear" title="清空行程" aria-label="清空行程">✕</button>

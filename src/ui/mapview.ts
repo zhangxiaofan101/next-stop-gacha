@@ -4,6 +4,7 @@ import { CN_MAP } from "../cn-map";
 import { projectPoint } from "../logic/map";
 import { byId, DATA, state } from "../store";
 import { $ } from "./dom";
+import { ICONS } from "./icons";
 import { litVisitedProvinces } from "./render";
 
 export function openMap() {
@@ -14,8 +15,8 @@ export function renderMap() {
   const visited = state.visited.map(byId).filter(Boolean); // state.visited 只存城市 id
   const lit = litVisitedProvinces(); // F11：与填色/足迹胶囊同一口径
   const statHTML = visited.length
-    ? `<div class="map-stat">👣 去过 ${visited.length} 个目的地 · 点亮 ${lit.length} 个省份 · ♥ 收藏 ${state.favs.length}</div>`
-    : `<div class="map-empty">还没打卡过——去任意目的地详情页点『👣 打卡去过』，地图就会亮起来</div>`;
+    ? `<div class="map-stat">${ICONS.footprints} 去过 ${visited.length} 个目的地 · 点亮 ${lit.length} 个省份 · ♥ 收藏 ${state.favs.length}</div>`
+    : `<div class="map-empty">还没打卡过——去任意目的地详情页点『${ICONS.footprints} 打卡去过』，地图就会亮起来</div>`;
   const litSet = new Set(lit);
   // M45：省份/装饰线颜色从内联属性搬进 CSS class（见 style.css .map-scroll .prov/.deco），
   // 皮肤只需换 token 不用再动这段拼接逻辑；stroke-width 是结构值不算换肤维度，留在行内。

@@ -5,6 +5,7 @@ import { tripBudget } from "../logic/budget";
 import { fmtH } from "../logic/transport";
 import { byId, DATA, saveLS, state } from "../store";
 import { $ } from "./dom";
+import { ICONS } from "./icons";
 import { render } from "./render";
 import { toast } from "./toast";
 
@@ -18,7 +19,7 @@ export function renderTrip() {
   const listEl = $("stopList");
   const stops = tripStops(state.trip, byId);
   if (!stops.length) {
-    listEl.innerHTML = `<p style="color:var(--ink-soft);text-align:center;padding:20px 0">行程还是空的，去卡片上点「🧳 行程」加几站吧</p>`;
+    listEl.innerHTML = `<p style="color:var(--ink-soft);text-align:center;padding:20px 0">行程还是空的，去卡片上点「${ICONS.suitcase} 行程」加几站吧</p>`;
     $("tripStats").innerHTML = "";
     $("tripSugg").innerHTML = "";
     return;
