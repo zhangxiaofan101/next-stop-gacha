@@ -18,7 +18,7 @@ export function buildConsole() {
   el.innerHTML =
     `<div class="console-bar">
       <input class="search" id="searchBox" type="search" placeholder="搜城市 / 美食 / 关键词，比如「牛肉火锅」「石窟」…">
-      <button class="btn" id="filterToggle" aria-expanded="false" aria-controls="consoleBody">筛选<i id="filterBadge"></i><span class="fcaret" aria-hidden="true">▾</span></button>
+      <button class="btn" id="filterToggle" aria-expanded="false" aria-controls="consoleBody">筛选<i id="filterBadge"></i><span class="fcaret" aria-hidden="true">▼</span></button>
     </div>
     <div class="console-body" id="consoleBody">` +
     group("地区", "region", REGIONS) +

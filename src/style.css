@@ -52,7 +52,8 @@
   }
   /* 外扩热区：absolute 基准是 padding box，-7px 扣掉 2px 边框后实际外扩 5px，触达 35+10=45px */
   .icon-btn::after { content: ""; position: absolute; inset: -7px; border-radius: var(--radius-pill); }
-  .foot-group { display: inline-flex; gap: 10px; align-items: center; } /* 胶囊+工具钮作为整体换行，不拆散；10px 间距让相邻热区不互吞 */
+  .foot-group { display: inline-flex; gap: 10px; align-items: center; } /* 胶囊+备份钮作为整体换行，不拆散 */
+  #footPill { white-space: nowrap; } /* 统计文案宁可整体换行也不在胶囊内折成两行 */
   button.count-pill { color: var(--ink); cursor: pointer; }
   button.count-pill:hover { background: var(--chip-hover-bg); }
   button.count-pill:active { transform: translate(2px, 2px); box-shadow: none; }
@@ -79,8 +80,8 @@
   /* M47：手机收纳条——搜索 + 筛选入口（带计数徽章）+ 清空；桌面端隐藏，收纳态见 680px 媒体查询 */
   .console-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   #filterToggle { display: none; align-items: center; gap: 2px; }
-  /* 展开折角：收纳条「筛选」入口的可展开暗示，随开合翻转 */
-  .fcaret { display: inline-block; font-size: 10px; opacity: .55; margin-left: 3px; transition: transform .15s; }
+  /* 展开折角：收纳条「筛选」入口的可展开暗示，随开合翻转；尺寸/浓度足以一眼看到 */
+  .fcaret { display: inline-block; font-size: 12px; opacity: .8; margin-left: 4px; transition: transform .15s; }
   #console.open .fcaret { transform: rotate(180deg); }
   #filterBadge {
     font-style: normal; display: inline-block; min-width: 14px; text-align: center;
@@ -426,6 +427,7 @@
   .rb-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
   footer { margin-top: 64px; text-align: center; font-size: 12px; color: var(--text-footer); position: relative; z-index: 1; }
+  .footer-tools { margin-top: 12px; } /* M50：皮肤=站点级外观设置，归页脚 meta 区（设一次即忘的低频控件） */
 
   /* M26 分享/备份 */
   .share-sheet { position: relative; width: min(430px, 92vw); margin: 8vh auto 0; background: var(--paper); border: var(--bw-xthick) solid var(--ink); border-radius: var(--radius-panel-lg); padding: 22px 22px 18px; box-shadow: 6px 8px 0 rgba(var(--shadow-ink-rgb), .25); }
