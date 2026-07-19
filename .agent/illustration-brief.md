@@ -136,32 +136,52 @@ inside the canvas. Create at 1024×512 or larger.
 
 ## A6 山水皮肤固定资产批（M46 消费；2026-07-19 皮肤化拍板后首个皮肤资产批）
 
-> 方向参照=用户已认可的水墨整页 mock（codex 自产）。生成时以该 mock 为 image reference 喂给每张；下述风格锁批内一字不改。产出进 **`assets/illustrations/raw/ink/`**（按皮肤分目录，QA 总览进 `raw/ink/qa/`；结构见 assets/illustrations/README.md），等用户挑版，挑版后 cc 转 `picked/ink/` 接入。
+> 方向参照=用户已认可的水墨整页 mock（codex 自产）。**开批第一步：把该 mock 原图存为 `raw/ink/style-ref-mock.png`**，后续每张生成都以它为 image reference（挑版时 cc 转 webp 入 `picked/ink/` 永久锚定）；下述风格锁批内一字不改。产出进 **`assets/illustrations/raw/ink/`**（QA 总览进 `raw/ink/qa/`；结构见 assets/illustrations/README.md），等用户挑版，挑版后 cc 转 `picked/ink/` 接入。
 
-水墨风格锁（每条 prompt 固定前缀）：
+水墨风格锁（每条 prompt 固定前缀；口径=**水墨淡彩**，与 mock 校准——mock 实际是墨骨+克制淡彩，非严格双色）：
 
 ```
-Traditional Chinese ink wash painting (shuimo) style. Xuan rice-paper cream
-background (#faf3e3) with subtle fiber texture. Expressive charcoal-black
-brush strokes with natural dry-brush breaks and five-tone ink gradation;
-large deliberate blank space (liubai). Mostly monochrome, with at most two
-muted accents used sparingly: vermilion #e85d3d and pale indigo wash #7ba7c9.
-Asymmetric poetic composition. No text, no watermark, no photorealism,
-no 3D render, no bright saturated colors, no thick uniform cartoon outlines.
+Traditional Chinese ink wash painting (shuimo) style with restrained light
+color washes (dancai). Xuan rice-paper cream background (#faf3e3) with subtle
+fiber texture. Expressive charcoal-black brush strokes with natural dry-brush
+breaks and five-tone ink gradation; large deliberate blank space (liubai).
+Ink dominates every composition; only sparing muted washes are allowed: pale
+indigo #7ba7c9, soft tea-green, warm ochre sand, and small vermilion #e85d3d
+accents. Asymmetric poetic composition. No text, no watermark, no
+photorealism, no 3D render, no bright saturated colors, no thick uniform
+cartoon outlines.
 ```
 
 资产清单（文件名 `ink-` 前缀）：
 
-- `ink-mascot-v{n}.png`（1024×1024，2~4 版）——咔啦水墨版：写意萌物笔法；身份三件套不变（黄渔夫帽/红背包/纸地图，允许淡彩点染，此题材放宽双色限制）；IP 红线照旧（无头顶柑橘/叼草/温泉毛巾）；mock 中「圆形墨圈内的咔啦」构图可出一版
+- `ink-mascot-v{n}.png`（1024×1024，2~4 版）——咔啦水墨版：写意萌物笔法；**角色参照=咔啦水彩通过版（`raw/journal/mascot-capybara-v4.png`），mock 只作风格参照不作角色参照**——mock 里那只形象偏猪，必须画回水豚（方吻、小圆耳贴头、憨圆身形）；身份三件套不变（黄渔夫帽/红背包/纸地图，淡彩点染）；IP 红线照旧（无头顶柑橘/叼草/温泉毛巾）；「圆形墨圈内」构图可出一版
 - `ink-gacha-v{n}.png`（1024×1024，2 版）——扭蛋机水墨版：主体 prompt 同 A1（非对称山形红线照旧），末句 grassy mound 改为留白
 - `ink-empty-v{n}.png`（1024×1024，2 版）——空态：引用 `ink-mascot` 通过版，场景同 A3
 - `ink-region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png`（1024×512，各 2 版）——九区题头：主体同 A4 各区描述 + A4 公共 prompt（底色改宣纸 #faf3e3），水墨笔法重出
 - `ink-decor-{willow|bamboo|hill}-v{n}.png`（横幅或方形，各 2 版）——页面装饰件：柳桥小景 / 竹枝 / 淡墨远山；透明底优先，杂边明显则宣纸底
 - 印章、朱红点缀、抖动分隔线由 cc 侧 CSS/SVG 自绘，不占本批
 
-初筛照用下方核对清单，另加两条：①墨色为主、朱红/靛蓝点缀不超量（大面积彩色即不合格）；②与 mock 并排看笔触留白气质一致，无「换画师」感。
+初筛照用下方核对清单，另加三条：①**墨为骨、淡彩为饰**（靛蓝/茶绿/赭黄/朱红点缀），第一眼仍读作水墨而非水彩；②与 `style-ref-mock` 并排看笔触/留白/色量一致，无「换画师」感；③吉祥物必须是水豚咔啦，不得跟着 mock 跑成猪/熊脸。
 
 标题字不出图像资产：山水皮肤标题用毛笔字体（Ma Shan Zheng 档，可商用开源），保持文字可选中可访问。
+
+## A7 青花皮肤资产批（P2 预置——锁文本已按用户认可的青花整页 mock 锚定，开批时直接用）
+
+> 方向参照=用户已认可的青花瓷整页 mock（codex 自产）。开批第一步：把 mock 原图存为 `raw/porcelain/style-ref-mock.png`，后续每张以它为 image reference。
+
+青花风格锁（每条 prompt 固定前缀）：
+
+```
+Blue-and-white porcelain (qinghua) underglaze painting style. Soft
+porcelain-white background (#f7f5ef) with a faint glaze sheen. ALL linework,
+shading and washes in cobalt blue ONLY (#2b4d9e family) — strict one-color
+cobalt monochrome with tonal gradation like underglaze painting; fine, even,
+delicate outlines with dense detailed shading (finer and denser than ink-wash
+brushwork). Ornate qinghua scroll-cloud-floral motifs may frame the corners.
+No other colors, no text, no watermark, no photorealism, no 3D render.
+```
+
+资产清单同 A6 结构（`qh-` 前缀，产出进 `raw/porcelain/`）：mascot（**角色参照=咔啦通过版**，通体钴蓝但保持水豚特征与三件套形状——mock 中的熊形象不作角色参照）/ gacha / empty / region ×9 / decor（缠枝莲角饰/云纹/青花浪纹）。朱红元素（抽一个/印章/热门徽章）是 UI chrome，由 cc 侧 CSS 承担，**资产内不得出现红色**。
 
 ## 初筛核对清单（codex 每张图过一遍）
 

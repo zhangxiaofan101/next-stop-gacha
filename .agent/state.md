@@ -61,7 +61,7 @@
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。代码轨道 M47→M45→M46 串行（结构→机制→皮肤）；A6 资产批可与 M47/M45 并行开画。四期 🔜 原第 1–3 条（M43 样张/M42 装饰批均已生成初筛完毕、M39 样稿三版）随皮肤化拍板改挂：水彩资产与样稿 v2 转手帐皮肤（P2）素材/施工图，生成与 QA 明细见 git 历史本节原文。 [cc]
 
 1. M45 — 主题皮肤机制 [R2 · S3] → sonnet · xhigh + cc 复核 ｜ 前置 M47 已落地（收纳后的筛选台一并 token 化，避免二次过手）；过闸线=奶油皮肤逐视图截图与改造前无差异；**落地即冻结点**（DOM 结构+token 体系冻结，皮肤/资产/bug 修三线自此自由并行）；落地后跨家族 review gate（S3 惯例，可与 A6 开画并行跑） [cc]
-2. A6 — 山水皮肤固定资产批 [R1 · S2] → codex（文生图轨道）｜ 可即刻开画（不依赖代码冻结）；风格锁+资产清单见 illustration-brief「A6 山水皮肤资产批」，方向参照=用户已认可的水墨整页 mock；产出进 `raw/ink/` 等用户挑版。2026-07-19 资产目录已按皮肤重构：水彩 36 件（含 qa/discarded）归位 `raw/journal/`、`picked/{journal,ink}/` 骨架入 git、样稿 v2 引用已同步改指，结构与皮肤 id 表见 assets/illustrations/README.md [cc]
+2. A6 — 山水皮肤固定资产批 [R1 · S2] → codex（文生图轨道）｜ 可即刻开画（不依赖代码冻结）；风格锁+资产清单见 illustration-brief「A6 山水皮肤资产批」，方向参照=用户已认可的水墨整页 mock；产出进 `raw/ink/` 等用户挑版。2026-07-19 资产目录已按皮肤重构：水彩 36 件（含 qa/discarded）归位 `raw/journal/`、`picked/{journal,ink}/` 骨架入 git、样稿 v2 引用已同步改指，结构与皮肤 id 表见 assets/illustrations/README.md。2026-07-19 用户出示 codex 水墨/青花两张整页 mock 并认可：cc 比对后把水墨锁从「严格双色」校准为「水墨淡彩」（mock 实际含茶绿/赭黄淡彩），青花锁文本预置为工单 A7（P2 开批直接用）；两张 mock 由 codex 存为 `raw/<ink|porcelain>/style-ref-mock.png` 作批内 image reference；**吉祥物警示已入工单**——两张 mock 里的角色分别跑成猪/熊，A6/A7 明确 mock 只锚风格、角色参照=水彩咔啦通过版 [cc]
 3. M46 — 皮肤：山水 [R2 · S2] → sonnet · high + 用户终审 ｜ 前置 M45；chrome（token/字体）先行可与 A6 挑版并行，资产接入等挑版完成；M42 管线随本模块首次落地（山水资产=第一批过管线资产），后续皮肤复用 [cc]
 
 ## ⏭ P1
