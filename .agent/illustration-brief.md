@@ -134,11 +134,11 @@ inside the canvas. Create at 1024×512 or larger.
 
 **样例验收流程**：三张并排 + cc 做一张真实卡片嵌入演示 → 用户终审。判据（design「一致性判据」）：线条粗细、上色方式、饱和度一致，无「换画师」感。通过 → 风格锁冻结进 design，M44 铺量复用；不过 → codex 调锁重跑（最多两轮，两轮不齐回 cc 重新定锁再议）。
 
-## 水墨试版探针（皮肤方向评估用，非既定方向）
+## A6 山水皮肤固定资产批（M46 消费；2026-07-19 皮肤化拍板后首个皮肤资产批）
 
-> 2026-07-18 用户在 v2 水彩剪贴簿 / v3 纯马克笔之外考虑第三候选「水墨」，并提出皮肤可变构想。本节只画探针供终审对比：不铺量、不动已产出的水彩资产。
+> 方向参照=用户已认可的水墨整页 mock（codex 自产）。生成时以该 mock 为 image reference 喂给每张；下述风格锁批内一字不改。产出进 `raw/` 等用户挑版，挑版后 cc 转 picked/ 接入。
 
-水墨风格锁（试版期一字不改）：
+水墨风格锁（每条 prompt 固定前缀）：
 
 ```
 Traditional Chinese ink wash painting (shuimo) style. Xuan rice-paper cream
@@ -146,17 +146,22 @@ background (#faf3e3) with subtle fiber texture. Expressive charcoal-black
 brush strokes with natural dry-brush breaks and five-tone ink gradation;
 large deliberate blank space (liubai). Mostly monochrome, with at most two
 muted accents used sparingly: vermilion #e85d3d and pale indigo wash #7ba7c9.
-One small blank square vermilion seal-stamp shape in a corner, no characters
-inside it. Asymmetric poetic composition. No text, no watermark, no
-photorealism, no 3D render, no bright saturated colors, no thick uniform
-cartoon outlines.
+Asymmetric poetic composition. No text, no watermark, no photorealism,
+no 3D render, no bright saturated colors, no thick uniform cartoon outlines.
 ```
 
-探针三张（专挑对水墨最危险的题材，各出 2 版）：
+资产清单（文件名 `ink-` 前缀）：
 
-- `probe-ink-hangzhou-v{n}.png`（1536×1024）——主体 prompt 与 S1 完全同文（同题材直接与水彩版并排比）
-- `probe-ink-gacha-v{n}.png`（1024×1024）——主体 prompt 同 A1，末句 grassy mound 改为 blank space；**最险**：可爱物件在水墨语言下是否成立
-- `probe-ink-mascot-v{n}.png`（1024×1024）——主体 prompt 同 A2（IP 红线与三件套照旧），走写意萌物路线；黄帽/红背包允许淡彩点染（此题材可放宽双色限制）
+- `ink-mascot-v{n}.png`（1024×1024，2~4 版）——咔啦水墨版：写意萌物笔法；身份三件套不变（黄渔夫帽/红背包/纸地图，允许淡彩点染，此题材放宽双色限制）；IP 红线照旧（无头顶柑橘/叼草/温泉毛巾）；mock 中「圆形墨圈内的咔啦」构图可出一版
+- `ink-gacha-v{n}.png`（1024×1024，2 版）——扭蛋机水墨版：主体 prompt 同 A1（非对称山形红线照旧），末句 grassy mound 改为留白
+- `ink-empty-v{n}.png`（1024×1024，2 版）——空态：引用 `ink-mascot` 通过版，场景同 A3
+- `ink-region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png`（1024×512，各 2 版）——九区题头：主体同 A4 各区描述 + A4 公共 prompt（底色改宣纸 #faf3e3），水墨笔法重出
+- `ink-decor-{willow|bamboo|hill}-v{n}.png`（横幅或方形，各 2 版）——页面装饰件：柳桥小景 / 竹枝 / 淡墨远山；透明底优先，杂边明显则宣纸底
+- 印章、朱红点缀、抖动分隔线由 cc 侧 CSS/SVG 自绘，不占本批
+
+初筛照用下方核对清单，另加两条：①墨色为主、朱红/靛蓝点缀不超量（大面积彩色即不合格）；②与 mock 并排看笔触留白气质一致，无「换画师」感。
+
+标题字不出图像资产：山水皮肤标题用毛笔字体（Ma Shan Zheng 档，可商用开源），保持文字可选中可访问。
 
 ## 初筛核对清单（codex 每张图过一遍）
 
