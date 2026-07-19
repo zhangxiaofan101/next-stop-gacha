@@ -139,7 +139,24 @@ inside the canvas. Create at 1024×512 or larger.
 > **这是本工单的完整约束，开工前通读；每批开工时重读「每批流程」。**
 > 目的地插画**不属于任何皮肤**——全皮肤共用一套，接入时嵌白框（风格隔离舱，见 design「主题皮肤系统·成本模型」）。产出进 **`raw/dest/`**（QA 进 `raw/dest/qa/`），不进任何 `raw/<皮肤id>/`。
 
-**前置（batch 0，一次性）**：~~用户终审 M43 三样张~~ **已完成（2026-07-20）**：终审=杭州v2、敦煌v2、三亚v1，cc 已转 q90 webp 入 `picked/dest/`（基准三张），原件已挪入 `raw/dest/`（raw/journal/ 自此只放手帐皮肤件），水彩风格锁已冻结晋升 design「已冻结风格锁」。batch 1 可开。
+**前置（batch 0，一次性）**：~~用户终审 M43 三样张~~ 2026-07-20 完成（杭州v2/敦煌v2/三亚v1 → `picked/dest/`）。**同日用户复议共享集画风（batch 1 挂起）**：四个心头好皮肤（水墨/水彩/青花/doodle）三素一甜，现行绘本水彩锁只服务甜端——启动候选比稿，拍板前不开 batch 1。
+
+**画风候选比稿（待用户拍板）**：codex 按候选 B 锁重画杭州/敦煌/三亚三张（1536×1024，产出 `raw/dest/`，命名 `dest-<cityid>-sketch-v{n}.png`）；cc 做四皮肤纸底 A/B 并排预览；用户拍板后胜者冻结为共享集锁（若 B 胜，design「已冻结风格锁」与 picked/dest/ 基准三张随之替换）。
+
+- 候选 A=现行绘本水彩锁（picked/dest/ 三张即样例）
+- 候选 B=**墨线淡彩旅行速写**（三素皮肤的重心点），锁文本：
+
+```
+Travel journal ink-and-wash sketch. Expressive dark sepia-ink linework with
+lively, slightly wobbly strokes on warm off-white paper (#faf6ec) with subtle
+grain; loose sketchbook feel — the drawing fades out before reaching the
+paper's edge. Muted transparent watercolor washes applied loosely, sometimes
+slightly outside the lines: dusty blue, tea green, warm ochre, soft brick red;
+low saturation, no candy pastels. Generous white paper left showing. A page
+from a seasoned traveler's sketchbook. No text, no watermark, no
+photorealism, no 3D render, no bright saturated colors, no thick uniform
+cartoon outlines.
+```
 
 **恒定规则（每张都适用）**：
 
