@@ -136,7 +136,7 @@ inside the canvas. Create at 1024×512 or larger.
 
 ## A6 山水皮肤固定资产批（M46 消费；2026-07-19 皮肤化拍板后首个皮肤资产批）
 
-> 方向参照=用户已认可的水墨整页 mock（codex 自产）。生成时以该 mock 为 image reference 喂给每张；下述风格锁批内一字不改。产出进 `raw/` 等用户挑版，挑版后 cc 转 picked/ 接入。
+> 方向参照=用户已认可的水墨整页 mock（codex 自产）。生成时以该 mock 为 image reference 喂给每张；下述风格锁批内一字不改。产出进 **`assets/illustrations/raw/ink/`**（按皮肤分目录，QA 总览进 `raw/ink/qa/`；结构见 assets/illustrations/README.md），等用户挑版，挑版后 cc 转 `picked/ink/` 接入。
 
 水墨风格锁（每条 prompt 固定前缀）：
 
@@ -176,4 +176,4 @@ no 3D render, no bright saturated colors, no thick uniform cartoon outlines.
 ## 交付规范
 
 - 文件名：`gacha-machine-v{n}.png` / `mascot-capybara-v{n}.png` / `empty-state-v{n}.png` / `region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png` / `dest-{hangzhou|dunhuang|sanya}-v{n}.png`
-- 原图 PNG ≥1024px 放 `assets/illustrations/raw/`（不进 git）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
+- 原图 PNG ≥1024px 放 `assets/illustrations/raw/<皮肤id>/`（不进 git；水彩批=`raw/journal/`，山水批=`raw/ink/`）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/<皮肤id>/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
