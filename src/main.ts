@@ -43,7 +43,7 @@ addEventListener("hashchange", checkShareHash); // 页面开着时粘贴迁移�
     setData(await loadData());
   } catch (e) {
     document.body.insertAdjacentHTML("afterbegin",
-      `<div style="padding:16px;text-align:center;color:#ef6461">数据加载失败，请刷新重试</div>`);
+      `<div style="padding:16px;text-align:center;color:var(--red)">数据加载失败，请刷新重试</div>`);
     throw e;
   }
   boot();

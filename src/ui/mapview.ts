@@ -48,8 +48,8 @@ export function renderMap() {
     <h2 style="font-family:var(--round); margin:0 0 4px">🗺 我的足迹地图</h2>
     ${statHTML}
     <div class="map-legend">
-      <span><span class="lg-dot" style="background:var(--map-dot-idle)"></span>灰点 = 没去过</span>
-      <span><span class="lg-dot" style="background:var(--map-dot-visited)"></span>绿点 = 去过</span>
+      <span><span class="lg-dot" style="background:var(--map-dot-idle)"></span>= 没去过</span>
+      <span><span class="lg-dot" style="background:var(--map-dot-visited)"></span>= 去过</span>
       <span>♥ = 收藏</span>
     </div>
     <div class="map-scroll">

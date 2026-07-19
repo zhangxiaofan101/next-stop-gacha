@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { REGION_COLOR } from "../../logic/constants";
-import { DEFAULT_SKIN, resolveSkinId, RANDOM_CHOICE, SKIN_IDS } from "../registry";
+import { DEFAULT_SKIN, normalizeSkinChoice, resolveSkinId, RANDOM_CHOICE, SKIN_IDS } from "../registry";
 
 const ROOT = process.cwd();
 
@@ -51,5 +51,29 @@ describe("resolveSkinId", () => {
   });
   it("random 落在 SKIN_IDS 内", () => {
     expect(SKIN_IDS).toContain(resolveSkinId(RANDOM_CHOICE));
+  });
+});
+
+describe("normalizeSkinChoice（F56：脏 localStorage 与高亮/生效一致性的共用回退）", () => {
+  it("合法 id 与 random 原样通过", () => {
+    expect(normalizeSkinChoice(DEFAULT_SKIN)).toBe(DEFAULT_SKIN);
+    expect(normalizeSkinChoice(RANDOM_CHOICE)).toBe(RANDOM_CHOICE);
+  });
+  it("脏值/null（含 localStorage 不可用时 store 返回的 null）回退默认皮肤", () => {
+    expect(normalizeSkinChoice("garbage-value")).toBe(DEFAULT_SKIN);
+    expect(normalizeSkinChoice("")).toBe(DEFAULT_SKIN);
+    expect(normalizeSkinChoice(null)).toBe(DEFAULT_SKIN);
+  });
+});
+
+describe("storage key 漂移钉子（F56：首帧内联脚本与 store.ts 各写一份 key，必须同步）", () => {
+  it("index.html 内联脚本读的 localStorage key 与 store.ts 的 SKIN_LS_KEY 一致", () => {
+    const html = readFileSync(join(ROOT, "index.html"), "utf8");
+    const store = readFileSync(join(ROOT, "src/store.ts"), "utf8");
+    const htmlKey = html.match(/localStorage\.getItem\("([^"]+)"\)/);
+    const storeKey = store.match(/SKIN_LS_KEY = "([^"]+)"/);
+    expect(htmlKey).not.toBeNull();
+    expect(storeKey).not.toBeNull();
+    expect(htmlKey![1]).toBe(storeKey![1]);
   });
 });

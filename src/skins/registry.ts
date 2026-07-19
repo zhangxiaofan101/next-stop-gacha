@@ -20,15 +20,24 @@ export const SKIN_IDS = SKINS.map(s => s.id);
 export const DEFAULT_SKIN = "cream";
 export const RANDOM_CHOICE = "random";
 
-// choice 是用户选择的原始值（某皮肤 id 或 "random"）；resolve 出真正要落到 data-theme 上的皮肤 id。
-// 未知 choice（脏数据/皮肤下架）一律回退默认皮肤，不抛错。
-export function resolveSkinId(choice: string): string {
-  if (choice === RANDOM_CHOICE) return SKIN_IDS[Math.floor(Math.random() * SKIN_IDS.length)];
-  return SKIN_IDS.includes(choice) ? choice : DEFAULT_SKIN;
+// 归一化原始 choice（localStorage 可能存着脏数据/已下架皮肤）：合法皮肤 id 或 "random" 原样
+// 通过，其余（含 null）一律回退默认皮肤。首帧内联脚本、resolveSkinId、选择器高亮三处共用这一条
+// 回退语义——实际生效皮肤与弹层高亮不可能分叉（F56）。
+export function normalizeSkinChoice(raw: string | null): string {
+  if (raw === RANDOM_CHOICE) return raw;
+  return raw !== null && SKIN_IDS.includes(raw) ? raw : DEFAULT_SKIN;
 }
 
-// 持久化 choice（原始值，含 "random"）+ 立即切换 data-theme（同步生效，无需刷新页面）。
+// choice 是用户选择的原始值（某皮肤 id 或 "random"）；resolve 出真正要落到 data-theme 上的皮肤 id。
+export function resolveSkinId(choice: string): string {
+  const c = normalizeSkinChoice(choice);
+  if (c === RANDOM_CHOICE) return SKIN_IDS[Math.floor(Math.random() * SKIN_IDS.length)];
+  return c;
+}
+
+// 持久化 choice（归一化后落盘，脏值不进 localStorage）+ 立即切换 data-theme（同步生效，无需刷新页面）。
 export function applySkinChoice(choice: string) {
-  setSkinChoice(choice);
-  document.documentElement.dataset.theme = resolveSkinId(choice);
+  const c = normalizeSkinChoice(choice);
+  setSkinChoice(c);
+  document.documentElement.dataset.theme = resolveSkinId(c);
 }

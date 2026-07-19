@@ -1,5 +1,5 @@
 /* 皮肤选择器（M45：目前只有奶油一套，机制先行——选项随 SKINS 增长自动多出来，不用改本文件） */
-import { applySkinChoice, RANDOM_CHOICE, SKINS } from "../skins/registry";
+import { applySkinChoice, normalizeSkinChoice, RANDOM_CHOICE, SKINS } from "../skins/registry";
 import { getSkinChoice } from "../store";
 import { $ } from "./dom";
 import { toast } from "./toast";
@@ -12,7 +12,8 @@ export function openSkin() {
 }
 
 function renderSkin() {
-  const current = getSkinChoice() || SKINS[0].id;
+  // 归一化后再算高亮：localStorage 里的脏值实际生效的是默认皮肤，高亮必须指同一个（F56）
+  const current = normalizeSkinChoice(getSkinChoice());
   $("skinBody").innerHTML = `
     <h2 style="font-family:var(--round); margin:0 0 4px">🎨 选皮肤</h2>
     <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px">点一下立即切换，不用刷新；「随机」每次进站重新抽一套，弹层不关方便对比着看。</p>
