@@ -165,6 +165,15 @@ cartoon outlines.
 
 标题字不出图像资产：山水皮肤标题用毛笔字体（Ma Shan Zheng 档，可商用开源），保持文字可选中可访问。
 
+### A6 挑版结果（2026-07-20 用户终审）与补画轮
+
+通过 13 张 + style-ref 已由 cc 转 q90 webp 入 `picked/ink/`（命名去 -v 后缀）：mascot=v1、gacha=v1、empty=v2；region：华北v2 / 华东v1 / 江浙沪v1 / 华中v2 / 华南v1 / 西南v1 / 西北v2；decor：柳桥v1 / 竹枝v2 / 远山v1。
+
+**补画 ×2**（风格锁与初筛加严三条照旧，仍以 `style-ref-mock` 为 image reference，产出进 `raw/ink/`，v 号接续）：
+
+- `ink-region-dongbei-v3+`——以 **v1 为构图基准**重画：视野放宽（更远景），弱化/缩小屋舍，突出雪岭山体与林海层次——山与林是主角，房子只作点景
+- `ink-region-gangao-v3+`——以 **v1 为构图基准**精简：街景附属细节做减法，保留天际线与海港意象，留白量向已通过的七张题头看齐（与 `picked/ink/` 并排自检）
+
 ## A7 青花皮肤资产批（P2 预置——锁文本已按用户认可的青花整页 mock 锚定，开批时直接用）
 
 > 方向参照=用户已认可的青花瓷整页 mock（codex 自产）。开批第一步：把 mock 原图存为 `raw/porcelain/style-ref-mock.png`，后续每张以它为 image reference。
@@ -192,6 +201,7 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 - [ ] 底色干净（奶油底均匀 / 透明底无杂边），主体居中完整不出血
 - [ ] 与基准图并排看，笔触密度接近
 - [ ] 吉祥物类资产：无头顶柑橘/叼草/温泉毛巾等既有水豚 IP 标志元素；辨识三件套（黄渔夫帽/红背包/纸地图）齐全
+- [ ] 横幅资产（题头/装饰）：主体集中在垂直中央约 2/3——接入位可能比生成画布更浅，上下各 1/6 须经得起裁切（构图安全区，2026-07-20 起全皮肤生效）
 
 ## 交付规范
 
