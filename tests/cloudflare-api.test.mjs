@@ -242,6 +242,25 @@ test("PUT rejects when the merged result would exceed the size cap, without pers
   expect(got.favs).toEqual(["hangzhou"]); // 拒绝的合并结果没有落盘，原值不变
 });
 
+// F52 regression：create()（handleSyncCreate）只量 {favs,visited}，merge() 一度把 updatedAt 也算了
+// 进去——同样内容 POST 建档能过，随后 PUT 却因为多出的时间戳字节数被判超标。构造一个卡在「量
+// {favs,visited} 时刚好低于上限，但加上 updatedAt 就会越界」这个临界点上的 payload，直接证伪。
+test("F52 regression: a payload just under the canonical size cap succeeds on create AND on an identical PUT", async () => {
+  const overhead = new TextEncoder().encode(JSON.stringify({ favs: [""], visited: [] })).length;
+  const padLen = 8180 - overhead;
+  const payload = { favs: ["x".repeat(padLen)], visited: [] };
+  const rawLen = new TextEncoder().encode(JSON.stringify(payload)).length;
+  expect(rawLen).toBeLessThan(8192);
+  expect(rawLen + 40).toBeGreaterThan(8192); // 确认真的卡在临界点：加上 updatedAt 的量级会越界
+
+  const createRes = await handleRequest(post("/api/sync", payload), env);
+  expect(createRes.status).toBe(200);
+  const { code } = await createRes.json();
+
+  const putRes = await handleRequest(put(`/api/sync/${code}`, payload), env); // 同样内容，并集后大小不变
+  expect(putRes.status).toBe(200); // 旧 bug 会在这里错误地返回 413
+});
+
 // TTL：SyncCodeStore 没有 KV 那种 expirationTtl，靠 alarm 自己实现「闲置过期」——直接触发这个
 // 实例的 alarm（模拟到期），验证之后 read()/merge() 都会认为这个码不存在了。
 test("sync code expires via its Durable Object alarm (idle TTL), matching the POST-only/no-revival contract", async () => {

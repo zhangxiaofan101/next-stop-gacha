@@ -50,19 +50,20 @@ python3 tools/build.py
 ## 本地开发 / 构建
 
 ```bash
-bun install         # 安装依赖（Vite + TypeScript，无运行时框架）
-bun run dev         # 本地开发服务器
-bun run build       # 先跑 verify 门禁（tsc + 决策层单测），再产出 dist/
-bun run verify      # 单独跑门禁：tsc --noEmit + vitest run
-bun run test:unit   # 决策层 Vitest 单测（src/logic/__tests__/，73 条）
-bun test tests/     # Cloudflare Worker 请求级测试（node:test）
+bun install              # 安装依赖（Vite + TypeScript，无运行时框架）
+bun run dev              # 本地开发服务器
+bun run build            # 先跑 verify 门禁（tsc + 决策层单测 + Worker/DO 请求级测试），再产出 dist/
+bun run verify           # 单独跑门禁：tsc --noEmit + vitest run（决策层）+ vitest run --config vitest.workers.config.ts（Worker/DO）
+bun run test:unit        # 决策层 Vitest 单测（src/logic/__tests__/，73 条）
+bun run test             # Cloudflare Worker/Durable Object 请求级测试——跑在真实本地 workerd 沙箱里（@cloudflare/vitest-pool-workers）
+bun run test:build-assets  # 校验 vite 构建产物的资产路径能被 Worker 路由命中（需要真实文件系统/子进程，不进 verify 门禁）
 ```
 
 代码分层（M38 起）：`src/logic/` 决策层纯函数模块（filter / gacha / itinerary / transport / budget / roadbook / share / map / qr / persist，无 DOM 依赖，Vitest 覆盖）· `src/ui/` 按视图切分的模板渲染模块（筛选台/卡片/详情/对比/扭蛋/行程/路书/地图/分享 + 事件接线）· `src/store.ts`（应用状态与 localStorage）· `src/services/weather.ts`(天气 I/O) · `src/main.ts`（启动编排）· `src/style.css` + `src/cn-map.ts`（足迹地图 SVG 数据）；`index.html` 是 Vite 入口，只保留静态 body 标记。
 
 ## 部署
 
-正式入口 `https://lab.medspiral.com/next-stop-gacha/`，内容只在本仓库维护。`wrangler.jsonc` 在 Cloudflare 构建时跑 `python3 tools/build.py && bun install && bun run build`（先重跑数据校验闸门并从 `data/` 重新生成 chunk，再过 `tsc` + 决策层单测门禁，最后 Vite 构建产出多文件 `dist/`——数据非法、类型错误或不变式单测失败都会让部署直接失败），最后由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀并交给静态资源服务——该 Worker 逻辑与资产文件数量无关，天然支持多文件产物，并按路径分层设置缓存（hash 命名资产 immutable 长缓存，HTML/manifest 短缓存重验证）。
+正式入口 `https://lab.medspiral.com/next-stop-gacha/`，内容只在本仓库维护。`wrangler.jsonc` 在 Cloudflare 构建时跑 `python3 tools/build.py && bun install && bun run build`（先重跑数据校验闸门并从 `data/` 重新生成 chunk，再过 `tsc` + 决策层单测 + Worker/Durable Object 请求级测试门禁，最后 Vite 构建产出多文件 `dist/`——数据非法、类型错误、不变式单测失败或 Worker/DO 测试失败都会让部署直接失败），最后由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀，`/api/*` 路由到短链分享（存 KV）与同步码/限流（存 Durable Object——两台设备并发同步需要真原子读写，KV 给不了），其余交给静态资源服务——该 Worker 逻辑与资产文件数量无关，天然支持多文件产物，并按路径分层设置缓存（hash 命名资产 immutable 长缓存，HTML/manifest 短缓存重验证）。
 
 仓库配置只负责声明构建和目标 Route；首次上线还需要在 Cloudflare Workers 中连接本仓库并执行一次生产部署。不要给这个 Worker 绑定整个 `lab.medspiral.com` Custom Domain，以免接管 Lab 首页。
 

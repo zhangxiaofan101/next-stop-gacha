@@ -58,8 +58,11 @@ export class SyncCodeStore extends DurableObject {
   // POST-only，PUT 不能凭空生造/复活。已存在时做服务器端并集合并：读现值、取并集、整份写回，全程
   // 没有 await 外部 I/O，input gate 保证这整段对同一实例的其它并发调用是原子的——两个设备真的同时
   // PUT 同一个码，也不会有「后写的整体覆盖前写的独占新增项」，因为它们的 get→put 根本不会交错执行。
-  // maxBytes 由调用方传入（client 提交的单份 payload 在 handler 里已经查过一次，但合并后可能超标，
-  // 这里判断超标就直接不落盘、返回 tooLarge，不写「一半」也不悄悄截断）。
+  // maxBytes 由调用方传入，口径必须和 create()/handleSyncCreate 的「只量 {favs,visited}，不算
+  // updatedAt」一致（F52，2026-07-19 codex 复核：之前 merge 把 updatedAt 也计进上限，同一份内容
+  // POST 建档能过、随后 PUT 却因为多出的时间戳字节数超标——create/merge 必须共用同一套量口径，
+  // 不然会出现「码建得出来，却永远合并不进新记录」的死角）。超标就直接不落盘、返回 tooLarge，
+  // 不写「一半」也不悄悄截断。
   async merge(favs, visited, maxBytes) {
     if (!(await this.ctx.storage.get("provisioned"))) return null;
     const [curFavs, curVisited] = await Promise.all([
@@ -68,11 +71,12 @@ export class SyncCodeStore extends DurableObject {
     ]);
     const mergedFavs = [...new Set([...(curFavs || []), ...favs])];
     const mergedVisited = [...new Set([...(curVisited || []), ...visited])];
+    if (maxBytes) {
+      const payloadOnly = JSON.stringify({ favs: mergedFavs, visited: mergedVisited });
+      if (new TextEncoder().encode(payloadOnly).length > maxBytes) return { tooLarge: true };
+    }
     const updatedAt = new Date().toISOString();
     const merged = { favs: mergedFavs, visited: mergedVisited, updatedAt };
-    if (maxBytes && new TextEncoder().encode(JSON.stringify(merged)).length > maxBytes) {
-      return { tooLarge: true };
-    }
     await this.ctx.storage.put(merged);
     await this.ctx.storage.setAlarm(Date.now() + SYNC_TTL_MS);
     return merged;
