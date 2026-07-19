@@ -44,6 +44,11 @@
   /* ---- 头部 ---- */
   header { padding: 40px 0 6px; }
   .title-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  /* M50：页头全局动作区（皮肤/备份/足迹）——恒定可见，不随筛选台收纳；与筛选台内部按钮
+     视觉同源（复用 .btn 全部 token 化样式），只加一层 flex 排布 */
+  .header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .header-act { display: inline-flex; align-items: center; gap: 5px; }
   h1.logo {
     margin: 0; font-family: var(--round); font-size: 46px; letter-spacing: 4px; color: var(--ink);
     text-shadow: 0 2px 0 rgba(var(--shine-rgb), .7), 3px 3px 0 var(--yellow);
@@ -79,7 +84,7 @@
   .flabel {
     flex: 0 0 46px; font-family: var(--round); font-size: 13px; color: var(--ink-soft); padding-top: 4px;
   }
-  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chips, .chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
   .chip {
     font-family: var(--sans); font-size: 13px; color: var(--ink); background: var(--paper);
     border: var(--bw-md) solid var(--ink); border-radius: var(--radius-pill); padding: 3px 13px; cursor: pointer; user-select: none;
@@ -437,6 +442,9 @@
 
   @media (max-width: 680px) {
     h1.logo { font-size: 34px; }
+    /* M50：手机端头部动作区收为圆形图标按钮，触达 ≥44px，标签文字隐藏（aria-label 补全名） */
+    .header-act { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: var(--radius-pill); font-size: 17px; }
+    .header-act .act-label { display: none; }
     /* M47：窄屏筛选台默认收纳成一行，点「筛选」就地展开，语义不变、只切呈现 */
     .console { padding: 12px 14px; }
     #filterToggle, #barResetBtn { display: inline-flex; }

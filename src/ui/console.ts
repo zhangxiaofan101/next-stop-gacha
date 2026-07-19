@@ -4,10 +4,7 @@ import { countWith, simulateChipClick } from "../logic/filter";
 import type { GroupKey } from "../logic/types";
 import { DATA, state } from "../store";
 import { $ } from "./dom";
-import { openMap } from "./mapview";
 import { render } from "./render";
-import { openShare } from "./share";
-import { openSkin } from "./skin";
 
 export function buildConsole() {
   const el = $("console");
@@ -34,7 +31,15 @@ export function buildConsole() {
     group("体力", "effort", EFFORTS) +
     group("同行", "companions", COMPANIONS) +
     group("玩法", "tags", TAGS) +
-    `<div class="console-foot">
+    `<div class="fgroup">
+      <div class="flabel">偏好</div>
+      <div class="chip-row">
+        <button class="chip" id="altToggle">⛰️ 避开高海拔</button>
+        <button class="chip" id="favToggle">♥ 只看收藏</button>
+        <button class="chip" id="visitedToggle">👣 隐藏去过的</button>
+      </div>
+    </div>
+    <div class="console-foot">
       <select class="sort" id="sortSel">
         <option value="default">推荐顺序</option>
         <option value="season">当季优先</option>
@@ -42,12 +47,6 @@ export function buildConsole() {
         <option value="hot">热门优先</option>
         <option value="short">天数短 → 长</option>
       </select>
-      <button class="btn" id="altToggle">⛰️ 避开高海拔</button>
-      <button class="btn" id="favToggle">♥ 只看收藏</button>
-      <button class="btn" id="visitedToggle">👣 隐藏去过的</button>
-      <button class="btn" id="mapBtn">🗺 足迹地图</button>
-      <button class="btn" id="shareBtn">📤 分享/备份</button>
-      <button class="btn" id="skinBtn">🎨 皮肤</button>
       <button class="btn" id="resetConsoleBtn">清空筛选</button>
       <div class="hit" id="hitCount"></div>
     </div>
@@ -83,9 +82,6 @@ export function buildConsole() {
     (e.target as HTMLElement).classList.toggle("on", state.hideVisited);
     render();
   });
-  $("mapBtn").addEventListener("click", openMap);
-  $("shareBtn").addEventListener("click", openShare);
-  $("skinBtn").addEventListener("click", openSkin);
   // F40：module 化后顶层函数不再落到 window，inline onclick="resetFilters()" 会报
   // ReferenceError——两处清空按钮改走 addEventListener，与本函数其余按钮一致
   $("resetConsoleBtn").addEventListener("click", resetFilters);
@@ -104,9 +100,6 @@ export function resetFilters() {
   (["region", "season", "days", "crowd", "cost", "difficulty", "effort", "companions", "tags"] as GroupKey[]).forEach(k => state[k].clear());
   state.q = ""; state.onlyFav = false; state.noAlt = false; state.hideVisited = false;
   $<HTMLInputElement>("searchBox").value = "";
-  $("favToggle").classList.remove("on");
-  $("altToggle").classList.remove("on");
-  $("visitedToggle").classList.remove("on");
   document.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"));
   render();
 }

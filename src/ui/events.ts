@@ -7,10 +7,11 @@ import { resetFilters } from "./console";
 import { openDetail } from "./detail";
 import { $ } from "./dom";
 import { getLastPick, openGacha, roll } from "./gacha";
+import { openMap } from "./mapview";
 import { applyRelax, render } from "./render";
 import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
-import { forgetSync, generateShareCode, importJSON, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
-import { selectSkin } from "./skin";
+import { forgetSync, generateShareCode, importJSON, openShare, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
+import { openSkin, selectSkin } from "./skin";
 import { toast } from "./toast";
 import { autoOrder, insertOnWay, openTrip, renderTrip } from "./trip";
 
@@ -58,6 +59,9 @@ export function wireEvents() {
   $("tripGo").addEventListener("click", openTrip);
   $("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
   $("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
+  $("mapBtn").addEventListener("click", openMap);
+  $("shareBtn").addEventListener("click", openShare);
+  $("skinBtn").addEventListener("click", openSkin);
   $("fabGacha").addEventListener("click", openGacha);
   $("gKnob").addEventListener("click", roll);
   $("empty").addEventListener("click", e => {
