@@ -6,9 +6,9 @@
 
 **线上**：`lab.medspiral.com/next-stop-gacha/`——Vite+TS 工程化版，267 城 + 53 线全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；后端短链分享（KV）+ 同步码云同步（Durable Object）已闭环并过跨家族 review；主题皮肤机制落地，奶油/山水双肤可切（山水已过 M52 形态精修并生产复验），DOM 结构与 token 体系处冻结态（再动结构须用户拍板）。四期代码侧（M37/M38/M40/M41/M42 管线）与五期代码轨道（M47→M45→M50→M46→M52）全部落地，明细见 ✅ 与 git 历史。 [cc]
 
-**在飞**：①codex gate review 两轮已审毕（baseline 880e51f）：**M52 gate 关闭；F59/F60 已关闭**；**F58 收窄为纯文档口径问题并已由 cc 二轮响应（详见 ✅），M45/M46 gate 待 codex 三轮复核后关闭**（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环，产物随 F60 管线修复一并生成上线）；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件 **六槽位已转档入 `picked/ink/`**，M57 接入待排（🔜 9）；④M53–M56/M58 已立项（🔜 4–8），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [codex]
+**在飞**：①review 全关：codex 三轮复核完毕（baseline b47a8c8，review.md 零 active finding），**M45/M46/M52 三个跨家族 gate 全部正式通过**；仅余两条 [interrupt] 线上小修待做（🔜 1）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环，产物随 F60 管线修复一并生成上线）；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 2）；③A8 山水工艺件 **六槽位已转档入 `picked/ink/`**，M57 接入待排（🔜 9）；④M53–M56/M58 已立项（🔜 4–8），M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [codex]
 
-**近期顺序**：codex 三轮复核 F58 文档响应关 M45/M46 双闸 → 用户终审山水整体效果 + 默认皮肤拍板（🟡）→ 前端小批 M53/M54/M58/M55/M51 ∥ 内容批 M48/M49/M56 随时可插。 [cc]
+**近期顺序**：[interrupt] 两条线上小修 → 前端小批 M53/M54/M58/M55/M51（review 关闸已解锁）+ M57（A8 已转档、gating 双满足）∥ 内容批 M48/M49/M56 随时可插；用户侧：M44 华东 batch 挑版、山水终审 + 默认皮肤拍板（🟡）。 [cc]
 
 ## ✅ Implemented
 
@@ -95,8 +95,8 @@
 
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。代码轨道 M47→M45→M50→M46 串行（结构→机制→分区→皮肤，M50 插排见 2026-07-19 动作分区拍板）；A6 资产批可与 M47/M45/M50 并行开画。四期 🔜 原第 1–3 条（M43 样张/M42 装饰批均已生成初筛完毕、M39 样稿三版）随皮肤化拍板改挂：水彩资产与样稿 v2 转手帐皮肤（P2）素材/施工图，生成与 QA 明细见 git 历史本节原文。 [cc]
 
-1. 【review→前端】F58 二轮（design.md 文档口径收窄）已入库，F59/F60 已过 codex 复核关闭（详见 ✅「M45/M46·review 响应」两条），**待 codex 三轮复核 F58 关 M45/M46 双 gate**；复核通过前同批文件不开新活（M53/M54/M55/M57 压后） [cc]
-   - **[interrupt] 两条线上新伤，修复应并入三轮复核范围**（2026-07-20 用户报「扭出来的图显示不全」+ cc 生产浏览器实证）：①**票券卡图 lazy 永不加载**——`gacha.ts` 票券 `innerHTML=cardHTML()` 里的 `<img loading="lazy">` 在 Chrome 生产实测恒 `complete:false`（元素在视口内、同 URL fetch 200、网格同图秒载；把 loading 翻 eager 当场载出 640×427——票券容器自 display:none 切入时懒加载观察失效），修法=票券渲染路径改 eager（一行）；②**F59 修复残留一个可见回归**——回退改 `hidden=true` 保槽位方向正确，但样式表 `.illust { display:block }` 打穿 `hidden` 属性的 UA display:none，奶油皮肤下扭蛋机器位实测 `hidden=true` 仍占 92×92 布局盒、顶部露破图框（生产截图+计算样式双证），修法=补 `.illust[hidden] { display: none }` 一行守卫 + happy-dom 断言 hidden 槽位零布局盒。两处均在 F58/F59 同批文件面，宜同一会话修完再喊三轮复核一起看 [cc]
+1. 【前端】[interrupt] 两条线上小修 [R1 · S2] → sonnet · medium｜gate 背景已收敛：codex 三轮复核关 F58，**M45/M46/M52 三 gate 全过**（review.md baseline b47a8c8 零 active finding）——本修复不再挂复核批，独立速修、修完随下一轮 review 顺带确认；「同批文件不开新活」禁令随 gate 关闭解除，可与 M53/M54/M58 同会话连做；根因与修法见 sub-item [cc]
+   - **[interrupt] 两条线上新伤，修复应并入三轮复核范围**（2026-07-20 用户报「扭出来的图显示不全」+ cc 生产浏览器实证）：①**票券卡图 lazy 永不加载**——`gacha.ts` 票券 `innerHTML=cardHTML()` 里的 `<img loading="lazy">` 在 Chrome 生产实测恒 `complete:false`（元素在视口内、同 URL fetch 200、网格同图秒载；把 loading 翻 eager 当场载出 640×427——票券容器自 display:none 切入时懒加载观察失效），修法=票券渲染路径改 eager（一行）；②**F59 修复残留一个可见回归**——回退改 `hidden=true` 保槽位方向正确，但样式表 `.illust { display:block }` 打穿 `hidden` 属性的 UA display:none，奶油皮肤下扭蛋机器位实测 `hidden=true` 仍占 92×92 布局盒、顶部露破图框（生产截图+计算样式双证），修法=补 `.illust[hidden] { display: none }` 一行守卫 + happy-dom 断言 hidden 槽位零布局盒。（原「并入三轮复核」口径已随 gate 全关作废，改独立速修） [cc]
 2. 【画面】M44·分批铺量 — 目的地插画共享集 [R1 · S2] → codex 长期分批（2026-07-20 用户点名启动，从 P2 提前；与皮肤/代码轨道零文件冲突）｜完整约束=illustration-brief「M44 目的地插画分批铺量」：每城 1 版（✗ 带意见补 1 版）、开批去重硬闸、城市辨识度硬闸、区域回看闸、batch 1=10 城此后 20 城/批、每批停下等用户挑版。batch 0 三样张终审 + 共享集画风 A/B 比稿 B 胜出冻结（design「已冻结风格锁·目的地共享集」，原水彩锁降手帐皮肤专用）后开跑；**画不等接入**——接入走 M42 管线按批换上，卡顶个图属预期新增、代码零改动。进度： [cc]
    - **Batch 1 已终审转档**（2026-07-20）：用户明确 10 张全部通过（含初筛曾因匾额文字淘汰的 `nanjing`）；杭州采用本批 `v3` 新版替换既有母版，其余 9 张一起转 q90 WebP 入 `picked/dest/`。用户指出杭州已在 picked 却被重复生成，工单新增“开批去重”硬闸：picked 已存在 cityid 永久跳过、不占批次名额。 [codex]
    - **Batch 2 已完成生成与初筛，等待用户挑版**（2026-07-20）：去重扫描后按 `data-a.json` 顺序生成下一组 20 个未入选城市，范围 `dongji-island`→`chongming`，均为 1536×1024 RGB PNG；QA 总览=`raw/dest/qa/qa-m44-b2.png`（首行三基准），记录追加到 `raw/dest/qa/qa-m44-notes.md`。初筛 17 通过、3 淘汰：`xiandu` 主峰越出垂直中央 2/3 安全区，`qiandaohu` 船身与 `huaian` 城门匾额出现疑似文字样标记；全批并排未见“换画师”漂移。未启动 batch 3、未转本批候选入 picked、未接入代码。 [codex]
