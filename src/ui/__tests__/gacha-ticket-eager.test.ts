@@ -10,7 +10,7 @@ import { roll } from "../gacha";
 
 describe("扭蛋票券卡图 eager 加载（[interrupt]）", () => {
   beforeEach(() => {
-    // M59 ⑨：卡位（含票券）个图受 cardPhotosEnabled() 皮肤开关控制，奶油（默认皮肤）关——
+    // M59 ⑨：卡位（含票券）个图受 cardPhotosEnabled() 皮肤开关控制，奶油关——
     // 本测试关心的是 eager 加载这个行为本身，需要卡图真的渲染出来才有 .illust 可断言，故切到
     // 山水（cardPhotos:true）。与本测试的 [interrupt] 主题正交，只是让 .illust 存在的前提成立。
     document.documentElement.dataset.theme = "ink";

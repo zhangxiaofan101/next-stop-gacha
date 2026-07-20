@@ -8,7 +8,7 @@
      避免默认皮肤首屏先渲染一帧再被 JS 换肤的闪烁。数组/默认值特意与 src/skins/registry.ts
      重复而非 import（内联脚本不能依赖构建），两处一致性由 src/skins/__tests__/registry.test.ts
      的漂移钉子测试保证。 -->
-<script>(function(){try{var S=["cream","ink"],D="cream",c=localStorage.getItem("nextstop_skin_v1")||D,id=c==="random"?S[Math.floor(Math.random()*S.length)]:c;if(S.indexOf(id)<0)id=D;document.documentElement.dataset.theme=id;}catch(e){document.documentElement.dataset.theme="cream"}})()</script>
+<script>(function(){try{var S=["cream","ink"],D="ink",c=localStorage.getItem("nextstop_skin_v1")||D,id=c==="random"?S[Math.floor(Math.random()*S.length)]:c;if(S.indexOf(id)<0)id=D;document.documentElement.dataset.theme=id;}catch(e){document.documentElement.dataset.theme="ink"}})()</script>
 <title>下一站 · 去哪玩</title>
 </head>
 <body>

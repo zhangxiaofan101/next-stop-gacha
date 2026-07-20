@@ -188,7 +188,9 @@
   .s-dot.s冬 { background: var(--winter); }
   .s-dot.off.s春, .s-dot.off.s夏, .s-dot.off.s秋, .s-dot.off.s冬 { background: var(--dot-off-bg); }
   .c-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
-  .mini-tag { font-size: 11px; color: var(--tag-text); background: var(--tag-bg); border-radius: var(--radius-pill); padding: 1px 9px; }
+  /* 用户反馈：无边框纯色块在水墨宣纸底上"浮"得违和——app 里其余同类小色块（.dt-chip 家族）都有
+     配色描边，.mini-tag 此前是唯一例外，补上描边与其余 chip 家族同口径。 */
+  .mini-tag { font-size: 11px; color: var(--tag-text); background: var(--tag-bg); border: var(--bw-thin) solid var(--tag-border); border-radius: var(--radius-pill); padding: 1px 9px; }
   .c-actions { display: flex; gap: 7px; margin-top: 11px; }
   .act {
     font-size: 12px; font-family: var(--round); border: var(--bw-md) solid var(--ink); border-radius: var(--radius-pill);
@@ -496,13 +498,21 @@
      max-height + object-fit:contain：容器天然维持 2:1（height:auto 由 aspect-ratio 推导）直到
      宽度超过 2×上限高度才封顶，封顶后 contain 保证母版整幅可见（左右留白，不裁切）——山头在
      任意视口宽度下都完整，「实现者定」选择的是「锚定限宽」与「按比例封顶」的组合而非二选一。
-     bamboo 此前 190×130（比例 1.46，非 2:1）同样会被裁，一并按母版真实比例改正（同族自查）。 */
+     bamboo 此前 190×130（比例 1.46，非 2:1）同样会被裁，一并按母版真实比例改正（同族自查）。
+     用户反馈跟进：200px 封顶在宽视口下把母版压成约 400px 宽的小图居中飘在满宽空盒里——「又小又
+     居中」。真做到零缩放需要 height=width/2（如 1456px 宽视口即 728px 高），但页面只在 .wrap
+     的固定 170px 底部留白里"露出"这个 fixed 装饰，且该留白高度不随视口宽度变化——山头母版山峰
+     在画面偏左上方（约 35% 处），去掉封顶只会让露出的一条变成画面最底部的雾气留白，反而看不见
+     山头（现状虽小但整座山都在，去掉封顶是倒退）。改为不追求零缩放、只大幅放宽封顶（200→420，
+     整山视觉分量显著增强，不再是小豆腐块）+ object-position 从 center 改 left（贴合母版山峰
+     本就偏左的构图，读作"从左侧探出的装饰"而非居中飘着的缩略图，同 willow/bamboo 的边角锚定
+     范式一致）。 */
   .deco-willow, .deco-bamboo, .deco-hill { position: fixed; z-index: 0; pointer-events: none; object-fit: cover; }
   .deco-willow { top: 4px; left: 0; width: 220px; height: 110px; object-position: 8% 45%; opacity: .92; }
   .deco-bamboo { top: 0; right: 0; width: 190px; height: 95px; object-position: 92% 8%; opacity: .9; }
   .deco-hill {
-    left: 0; right: 0; bottom: 0; width: 100%; aspect-ratio: 2 / 1; height: auto; max-height: 200px;
-    object-fit: contain; object-position: center; opacity: .5;
+    left: 0; right: 0; bottom: 0; width: 100%; aspect-ratio: 2 / 1; height: auto; max-height: 420px;
+    object-fit: contain; object-position: left; opacity: .5;
   }
 
   /* M59 ⑦：机器插画 hero 化——此前 92px 小图 + 巨大的 ??? 结果窗是「无图时代遗留布局」（当年
@@ -546,7 +556,7 @@
   @media (max-width: 680px) {
     .mascot-decor { display: none; } /* 手机头部寸土寸金，纯装饰的吉祥物让位（同 M50 纪律：低频/纯氛围入口不占首屏行） */
     .deco-willow, .deco-bamboo { width: 120px; height: 60px; } /* M59 ①：66→60，配平 2:1 母版真实比例（同族自查） */
-    .deco-hill { max-height: 110px; } /* 手机屏幕更矮，封顶阈值同步收紧 */
+    .deco-hill { max-height: 220px; } /* 手机视口窄，height=width/2 天然就矮（约195-215px），220 基本等于零封顶 */
   }
 
   /* ---- M46 山水皮肤装饰块（style.css 是「装饰块」的家，见 design 部件清单表；ink.css 只放
@@ -646,7 +656,10 @@
      的工艺件消费代价（design「工艺件画布契约」原话）。M59 ⑧：源图左侧笔触浓重处压到 3px 高时
      几乎实心，与旁边稀疏的 repeating-gradient 虚线比过重；三处消费点统一收到 1.5px（与②的
      frame 校准同口径——都是往「更接近笔触真实观感」调，只是 frame 太弱要放大、divider 太重要
-     收细，方向相反）。 */
+     收细，方向相反）。用户反馈后续退回一处：`.rb-sk-row`（逐日速览行分隔线）的
+     `background-position: center` 是相对整行 padding 盒居中，不是贴在视觉分隔线该在的底边，
+     移动端更窄的行高把这个偏移放大到肉眼可见——判定为「画一笔不如不画」，已删除该消费点，
+     速览行分隔线退回本文件顶部 `.rb-sk-row` 基础规则的纯 CSS 虚线（无craft图层）。 */
   [data-theme="ink"] .leg-line .dash {
     border-top: none; height: 2px; align-self: center;
     background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
@@ -655,16 +668,6 @@
     background-repeat: no-repeat, repeat;
     background-position: center, initial;
   }
-  [data-theme="ink"] .rb-sk-row {
-    border-bottom-color: transparent;
-    background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
-      var(--divider-skrow) 0 7px, transparent 7px 11px, var(--divider-skrow) 11px 15px, transparent 15px 24px);
-    background-position: center, left bottom;
-    background-size: 100% 1.5px, 100% 1px;
-    background-repeat: no-repeat, no-repeat;
-  }
-  [data-theme="ink"] .rb-sk-row:last-child { background: none; }
-
   /* M59 ⑧：路书 leg 交通行（design「路书装配」的 stop.leg 文案行，非上方的 .leg-line 行程单
      交通段）此前沿用 .rb-leg 通用样式——浅蓝填色实线框，在宣纸+墨线语境里显得像贴了一张卡片，
      与周围轻盈的纸感不一致。降级为无填色、虚线下划的轻样式，文字色也从饱和蓝改回墨色系柔和调。 */

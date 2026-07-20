@@ -81,15 +81,17 @@ describe("M57 分隔线笔触（四处 --divider-* 消费点 + 图位垫底 c-ph
     applyCraftAssets("ink");
   });
 
-  it("leg-line .dash / rb-sk-row（非末行）/ console-foot::before / rb-cover::after 均引用 --craft-divider", () => {
-    document.body.innerHTML = `
-      <div class="leg-line"><span class="dash"></span></div>
-      <div class="rb-sk-row"></div><div class="rb-sk-row"></div>`; // 两个 row：只测非 last-child 那个
+  it("leg-line .dash / console-foot::before / rb-cover::after 均引用 --craft-divider", () => {
+    document.body.innerHTML = `<div class="leg-line"><span class="dash"></span></div>`;
     const dash = document.querySelector(".dash")!;
-    const row = document.querySelectorAll(".rb-sk-row")[0];
     expect(getComputedStyle(dash).backgroundImage).toContain("/illustrations/ink/divider.webp");
     expect(getComputedStyle(dash).backgroundImage).toContain("repeating-linear-gradient"); // 代码版兜底层仍在
-    expect(getComputedStyle(row).backgroundImage).toContain("/illustrations/ink/divider.webp");
+  });
+
+  it("rb-sk-row（逐日速览行）不再消费 --craft-divider——用户反馈画的分隔线在移动端丑、桌面端位置偏移，已退回纯 CSS 虚线（源码断言，同 console-foot/rb-cover 先例：happy-dom 对 border 简写+var() 的计算样式支持不可靠）", () => {
+    const css = readFileSync(join(ROOT, "src/style.css"), "utf8");
+    expect(css).not.toMatch(/\[data-theme="ink"\]\s*\.rb-sk-row\s*\{[^}]*--craft-divider/);
+    expect(css).toMatch(/\.rb-sk-row\s*\{[^}]*border-bottom:\s*1px dashed var\(--divider-skrow\)/);
   });
 
   it("console-foot::before / rb-cover::after 的源码声明含 --craft-divider（伪元素，happy-dom 不支持计算样式，断言源码）", () => {

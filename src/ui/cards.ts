@@ -45,7 +45,7 @@ export function cardHTML(d: Destination, i: number): string {
         <span class="c-emoji">${d.emoji}</span>
         <span>
           <span class="c-name">${d.name}</span>
-          <div class="c-prov">${isRoute ? routeLine : `${d.province} · ${d.cost} · ${transitIcon} ${d.transit}（${d.difficulty}）`}</div>
+          <div class="c-prov">${isRoute ? routeLine : `${d.province} · ${d.cost} · ${d.transit}（${d.difficulty}）`}</div>
         </span>
       </div>
       <div class="c-tagline">${d.tagline}</div>

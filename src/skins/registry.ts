@@ -42,7 +42,7 @@ export const SKINS: SkinDeclaration[] = [
 ];
 
 export const SKIN_IDS = SKINS.map(s => s.id);
-export const DEFAULT_SKIN = "cream";
+export const DEFAULT_SKIN = "ink";
 export const RANDOM_CHOICE = "random";
 
 // 归一化原始 choice（localStorage 可能存着脏数据/已下架皮肤）：合法皮肤 id 或 "random" 原样

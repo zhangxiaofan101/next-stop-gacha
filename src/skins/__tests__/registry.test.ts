@@ -21,8 +21,8 @@ describe("M46：山水皮肤声明契约（首次落地真实 fonts/assetDir/dec
     expect(ink!.assetDir).toBe("ink");
     expect(ink!.fonts).not.toBeNull();
   });
-  it("默认皮肤本模块仍是 cream（默认给谁是用户终审拍板项，见 state.md）", () => {
-    expect(DEFAULT_SKIN).toBe("cream");
+  it("默认皮肤已切换为 ink（用户拍板：默认水墨，见 state.md）", () => {
+    expect(DEFAULT_SKIN).toBe("ink");
   });
 });
 

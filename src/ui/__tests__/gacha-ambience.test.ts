@@ -48,8 +48,8 @@ describe("票券氛围带（M59 ⑪）", () => {
     expect(document.querySelector("#gachaTicket")!.firstElementChild).toBe(band);
   });
 
-  it("奶油（默认，cardPhotos:false）：roll() 后票券里不生成 .ticket-ambience（不留一个只会 404 的空盒）", () => {
-    delete document.documentElement.dataset.theme;
+  it("奶油（cardPhotos:false）：roll() 后票券里不生成 .ticket-ambience（不留一个只会 404 的空盒）", () => {
+    document.documentElement.dataset.theme = "cream"; // 默认皮肤已改 ink（用户拍板），显式指定测奶油分支
     vi.useFakeTimers();
     roll();
     vi.runAllTimers();

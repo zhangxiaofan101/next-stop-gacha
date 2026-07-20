@@ -118,11 +118,11 @@ describe("applySkinVisuals（assetDir + decorations 真实消费）", () => {
 });
 
 describe("currentSkinId", () => {
-  it("读 <html data-theme>，缺失时回退 DEFAULT_SKIN", () => {
-    document.documentElement.dataset.theme = "ink";
-    expect(currentSkinId()).toBe("ink");
-    delete document.documentElement.dataset.theme;
+  it("读 <html data-theme>，缺失时回退 DEFAULT_SKIN（现为 ink）", () => {
+    document.documentElement.dataset.theme = "cream";
     expect(currentSkinId()).toBe("cream");
+    delete document.documentElement.dataset.theme;
+    expect(currentSkinId()).toBe("ink");
   });
 });
 

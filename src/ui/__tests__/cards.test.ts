@@ -17,8 +17,8 @@ describe("cardHTML 卡位共享集展示（M59 ⑨⑩⑫，皮肤声明 cardPhot
     delete document.documentElement.dataset.theme;
   });
 
-  it("奶油（默认，cardPhotos:false）：城市卡与线路卡均不生成 .c-photo 槽位", () => {
-    delete document.documentElement.dataset.theme; // 未设 = 默认皮肤 = 奶油
+  it("奶油（cardPhotos:false）：城市卡与线路卡均不生成 .c-photo 槽位", () => {
+    document.documentElement.dataset.theme = "cream"; // 默认皮肤已改 ink（用户拍板），显式指定测奶油分支
     const city = parseCard(cardHTML(mkCity({ id: "hangzhou" }), 0));
     expect(city.querySelector(".c-photo")).toBeNull();
     const route = parseCard(cardHTML(mkCity({ id: "r1", stops: [{ id: "hangzhou", days: 2 }, { id: "suzhou", days: 2 }] }), 0));
@@ -46,20 +46,20 @@ describe("cardHTML 卡位共享集展示（M59 ⑨⑩⑫，皮肤声明 cardPhot
   });
 });
 
-describe("cardHTML 交通图标（M59 ④：条带 + 名下行共用同一次解析）", () => {
-  it("城市卡：条带与名下行使用同一个解析出的图标（transit 首个方式词一致）", () => {
+describe("cardHTML 交通图标（M59 ④ 条带解析；用户反馈收窄：图标只留条带一处）", () => {
+  it("城市卡：条带含 transit 首个方式词图标，名下行只是纯文字（不重复图标，用户反馈——非必要的图标削弱风格一致性）", () => {
     const card = parseCard(cardHTML(mkCity({ id: "hz", transit: "上海高铁2h直达；自驾约3h" }), 0));
     const stripText = card.querySelector(".c-route")!.textContent!;
     const subText = card.querySelector(".c-prov")!.textContent!;
     expect(stripText).toContain("🚄");
-    expect(subText).toContain("🚄");
-    expect(stripText).not.toContain("✈");
+    expect(subText).not.toContain("🚄");
+    expect(subText).toContain("上海高铁2h直达；自驾约3h");
   });
 
-  it("飞机主导的目的地条带与名下行都显示 ✈️，不再硬编码高铁", () => {
+  it("飞机主导的目的地条带显示 ✈️，名下行同样不带图标", () => {
     const card = parseCard(cardHTML(mkCity({ id: "sanya", transit: "上海直飞约3h" }), 0));
     expect(card.querySelector(".c-route")!.textContent).toContain("✈️");
-    expect(card.querySelector(".c-prov")!.textContent).toContain("✈️");
+    expect(card.querySelector(".c-prov")!.textContent).not.toContain("✈️");
   });
 
   it("线路卡条带不含交通图标（沿用「🎫 联程线路」，与城市卡语义不同）", () => {
