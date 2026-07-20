@@ -291,11 +291,13 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 资产清单同 A6 结构（`qh-` 前缀，产出进 `raw/porcelain/`）：mascot（**角色参照=咔啦通过版**，通体钴蓝但保持水豚特征与三件套形状——mock 中的熊形象不作角色参照）/ gacha / empty / decor（缠枝莲角饰/云纹/青花浪纹）——region ×9 已删（M60 共享题头层承担，见成套清单注）。朱红元素（抽一个/印章/热门徽章）是 UI chrome，由 cc 侧 CSS 承担，**资产内不得出现红色**。
 
-### A7 主题层首批（2026-07-21，待用户终审）
+### A7 主题层首批（2026-07-21，主题层终审通过）
 
 已按上述风格锁用 built-in imagegen 生成 12 张候选，均以 `raw/porcelain/style-ref-mock.png` 作画风参照；mascot 另以 `raw/journal/mascot-capybara-v4.png` 作角色参照，empty 再以本批 `qh-mascot-v1.png` 锁同一角色。候选位：mascot v1/v2、gacha v1/v2、empty v1/v2、decor-lotus/cloud/wave 各 v1/v2。原图留 `raw/porcelain/`，总览=`raw/porcelain/qa/qa-a7-theme-v1.png`。
 
 初筛：全批为瓷白底 + 钴蓝单色，无红黄残留、文字、水印、照片感或 3D 感；咔啦仍可读为方吻小圆耳水豚，帽/包/地图三件套形状齐；两版扭蛋机均为非对称黄山群峰而非孤锥。谨慎项：empty v1 含直接问号图形，虽承接 A3 原 prompt，但按「不烤符号」的长期纪律优先推荐 empty v2。首轮推荐组合=`mascot v2 + gacha v2 + empty v2 + lotus v2 + cloud v2 + wave v2`（更轻、更适合 UI 留白）；v1 组保留作更繁密的瓷盘/器物感备选。
+
+**用户终审拍板（2026-07-21）**：`mascot v1` / `gacha v2` / `empty v1` / `decor-lotus v2` / `decor-cloud v1` / `decor-wave v1`。empty v1 的直接问号图形随本次明确选择一并接受，不再作为待返工项。由 cc 按职责转 q90 WebP 入 `picked/porcelain/`；其余候选留 raw，不接入。
 
 为验证目的地共享集只做整体调色是否够用，另对 picked 基准三张（杭州/敦煌/三亚）做了**仅 QA、不改母版**的瓷白→钴蓝亮度映射预演，总览=`raw/porcelain/qa/qa-dest-cobalt-map.png`。本批不转 `picked/`、不接代码；用户终审后再由 cc 转档并开青花声明/滤镜实验。第二层工艺件（texture/frame/divider/seal/placeholder）尚未开画，不阻塞本轮 dest 调色判断。
 
