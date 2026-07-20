@@ -87,3 +87,32 @@ test("未知槽位命名不合规也计入违规、非零退出", () => {
     assert.match(result.stderr, /不属于已知类别/);
   });
 });
+
+// M57：五类工艺件槽位——真实使用仓库里已有的 picked/ink 母版（A8 批已终审转档，命名带描述性
+// 后缀，如 ink-texture-paper.webp），复用同一个 REAL_INK_PICKED 目录，不额外造合成图片。
+test("M57 工艺件槽位：texture/frame/divider/placeholder 描述性后缀归一化为裸槽位名", () => {
+  withTmpDirs((probeDir, pickedRoot, out) => {
+    copyFileSync(join(REAL_INK_PICKED, "ink-texture-paper.webp"), join(probeDir, "probe-texture-paper.webp"));
+    copyFileSync(join(REAL_INK_PICKED, "ink-frame-brush.webp"), join(probeDir, "probe-frame-brush.webp"));
+    copyFileSync(join(REAL_INK_PICKED, "ink-divider-brush.webp"), join(probeDir, "probe-divider-brush.webp"));
+    copyFileSync(join(REAL_INK_PICKED, "ink-placeholder-mist.webp"), join(probeDir, "probe-placeholder-mist.webp"));
+    const result = runPipeline(pickedRoot, out);
+    assert.equal(result.code, 0, `合规母版必须零退出通过，stderr: ${result.stderr}`);
+    // 输出文件名去掉了描述性后缀（-paper/-brush/-mist），归一化成裸槽位名
+    assert.ok(existsSync(join(out, "probe", "texture.webp")), "texture.webp 应归一化产出（不带 -paper 后缀）");
+    assert.ok(existsSync(join(out, "probe", "frame.webp")), "frame.webp 应归一化产出（不带 -brush 后缀）");
+    assert.ok(existsSync(join(out, "probe", "divider.webp")), "divider.webp 应归一化产出（不带 -brush 后缀）");
+    assert.ok(existsSync(join(out, "probe", "placeholder.webp")), "placeholder.webp 应归一化产出（不带 -mist 后缀）");
+  });
+});
+
+test("M57 工艺件槽位：seal-<name> 保留完整多实例标识符（不归一化，两枚印章各自独立产出）", () => {
+  withTmpDirs((probeDir, pickedRoot, out) => {
+    copyFileSync(join(REAL_INK_PICKED, "ink-seal-nextstop.webp"), join(probeDir, "probe-seal-nextstop.webp"));
+    copyFileSync(join(REAL_INK_PICKED, "ink-seal-wheretoplay.webp"), join(probeDir, "probe-seal-wheretoplay.webp"));
+    const result = runPipeline(pickedRoot, out);
+    assert.equal(result.code, 0, `合规母版必须零退出通过，stderr: ${result.stderr}`);
+    assert.ok(existsSync(join(out, "probe", "seal-nextstop.webp")));
+    assert.ok(existsSync(join(out, "probe", "seal-wheretoplay.webp")));
+  });
+});

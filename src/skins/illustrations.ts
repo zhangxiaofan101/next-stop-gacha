@@ -22,6 +22,22 @@ export const regionSlot = (region: string) => `region-${REGION_SLUG[region] || R
 
 export const currentSkinId = (): string => document.documentElement.dataset.theme || DEFAULT_SKIN;
 
+// M57：工艺件——底材纹理/容器边框/分隔线/图位垫底走 CSS background-image/border-image 消费，
+// URL 算好后挂成 CSS 自定义属性，供 style.css 里 [data-theme="ink"] 专属规则用，不进
+// SkinDeclaration。皮肤是否真的用到由该皮肤自己的 CSS 决定：cream.css 零处引用这些属性，哪怕
+// 这里对所有皮肤无条件设置也不会触发任何网络请求（浏览器只在某条真正生效的规则用到 url() 时才
+// 发请求，同 M42 装饰位 assetDir 机制的推论）。缺图时交给各消费处的原生 CSS 优雅降级
+// （background-image 多层/border-image 回退纯色边框），不需要 JS 侧探测存在性。
+// 印章不在这份列表——两枚印章走既有 [data-illust] + wireIllustFallbacks 机制（见 index.html
+// .ink-seal 结构：真图 <img> 叠在原 SVG 代码版之上，404 时 img 自己隐藏、SVG 天然透出当兜底，
+// 复用度更高的既有基础设施，不必再造一遍 CSS 自定义属性）。
+const CRAFT_SLOTS = ["texture", "frame", "divider", "placeholder"];
+export function applyCraftAssets(dir: string) {
+  CRAFT_SLOTS.forEach(slot => {
+    document.documentElement.style.setProperty(`--craft-${slot}`, `url(${illustSrc(dir, slot)})`);
+  });
+}
+
 // 皮肤切换（含首帧）时对齐画面：① 把 [data-illust] 静态槽位（吉祥物/扭蛋机/空态/自由装饰件）
 // 的 src 写成当前皮肤（真解析出的 assetDir，F58）的资产地址；② 消费 registry 的 decorations 声明
 // ——带 data-deco 的槽位只有该 key 在当前皮肤声明里为 true 才显示/取图，否则整个隐藏且不发请求
@@ -35,6 +51,7 @@ export const currentSkinId = (): string => document.documentElement.dataset.them
 export function applySkinVisuals(skinId: string) {
   const decorations = SKINS.find(s => s.id === skinId)?.decorations || {};
   const dir = assetDirFor(skinId);
+  applyCraftAssets(dir);
   document.querySelectorAll<HTMLImageElement>("[data-illust]").forEach(img => {
     const decoKey = img.dataset.deco;
     if (decoKey && !decorations[decoKey]) {

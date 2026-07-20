@@ -525,14 +525,19 @@
      token，选择器/伪元素这类结构性装饰逻辑放这里）---- */
   [data-theme="ink"] .sky, [data-theme="ink"] .hills { display: none; } /* 云朵山丘是奶油卡通专属氛围，水墨换成留白 + 自由装饰件 */
 
-  /* M52 丙：图位的宣纸山影占位——极淡墨色远山剪影垫在图片下面（CSS 渐变，零资产成本），
-     图片加载完成即被盖住；真缺图时容器仍按既有回退契约整体移除（缺图不硬占，M46 拍板不变），
-     这层只负责「加载中不露白/偶发慢网不突兀」。 */
+  /* M52 丙起的图位垫底——图片加载完成即被真图盖住；真缺图时容器仍按既有回退契约整体移除
+     （缺图不硬占，M46 拍板不变），这层只负责「加载中不露白/偶发慢网不突兀」。M57：第一层叠
+     真实图位垫底图（--craft-placeholder，A8 手绘，比 decor 更淡更空的氛围底，design「工艺件」
+     placeholder 定义）；第二三层=M52 时期极淡墨色远山剪影渐变，原样留作代码版兜底。 */
   [data-theme="ink"] .c-photo, [data-theme="ink"] .dt-banner {
-    background:
+    background-color: var(--paper);
+    background-image:
+      var(--craft-placeholder, none),
       radial-gradient(120% 70% at 18% 108%, rgba(var(--ink-rgb), .10) 0 56%, transparent 60%),
-      radial-gradient(140% 55% at 82% 106%, rgba(var(--ink-rgb), .06) 0 60%, transparent 64%),
-      var(--paper);
+      radial-gradient(140% 55% at 82% 106%, rgba(var(--ink-rgb), .06) 0 60%, transparent 64%);
+    background-position: center, 0 0, 0 0;
+    background-size: cover, auto, auto;
+    background-repeat: no-repeat, no-repeat, no-repeat;
   }
 
   /* M52 乙：水墨的按压反馈——没有「按下贴纸」位移（--press-shift:none），改用短促的透明度变化，
@@ -541,14 +546,21 @@
   [data-theme="ink"] .fab:active, [data-theme="ink"] .big-btn:active, [data-theme="ink"] .dock-go:active,
   [data-theme="ink"] .stop .mini:active, [data-theme="ink"] button.count-pill:active { opacity: .8; }
 
-  /* M52 戊-1：手绘 SVG 印章（index.html 内联两枚：副标题「下一站」/页脚「去哪玩」白文印，
-     sealRough 滤镜糙边）——只在山水下露出；替换掉此前被用户点名丑的 CSS「印」字块。 */
+  /* M52 戊-1 起：印章（index.html 内联两枚：副标题「下一站」/页脚「去哪玩」）——只在山水下露出；
+     取代此前被用户点名丑的 CSS「印」字块。M57：.ink-seal 从「就是那枚 SVG」改成一个小容器，
+     真图 .ink-seal-img 绝对定位叠在 .ink-seal-svg（sealRough 滤镜糙边代码版）之上——图加载成功
+     即完全盖住 SVG；404 时 wireIllustFallbacks 只隐藏 img 自身（未标 data-illust-frame，故不会
+     牵连隐藏整个容器），SVG 天然透出当缺图回退，不需要额外 JS 判断。 */
   .ink-seal { display: none; }
   [data-theme="ink"] .ink-seal {
-    display: inline-block; width: 30px; height: 30px; vertical-align: -9px; margin-left: 8px;
-    transform: rotate(-6deg); opacity: .85;
+    display: inline-block; position: relative; width: 30px; height: 30px; vertical-align: -9px;
+    margin-left: 8px; transform: rotate(-6deg); opacity: .85;
   }
   [data-theme="ink"] footer .ink-seal { transform: rotate(4deg); }
+  [data-theme="ink"] .ink-seal-svg { display: block; width: 100%; height: 100%; }
+  [data-theme="ink"] .ink-seal-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 3px;
+  }
 
   /* M52 丁B：飘动小飞机是奶油卡通物件，水墨页头留白（mock 标题旁没有物件） */
   [data-theme="ink"] .plane { display: none; }
@@ -564,9 +576,8 @@
     letter-spacing: 3px; border-radius: 14px 8px 16px 9px / 9px 15px 8px 14px;
   }
 
-  /* M52 戊-2：手绘边线。小件=不对称圆角 trick（1px 墨线立刻有手描感，零资产零滤镜成本）；
-     大容器=原边框转透明保布局，伪元素在同一位置叠一条经 inkWobble 位移的描边（只有线在抖，
-     文字不受滤镜影响）。卡片数量大（300+），走圆角 trick 不走滤镜，避免手机滚动掉帧。 */
+  /* M52 戊-2：手绘边线。小件=不对称圆角 trick（1px 墨线立刻有手描感，零资产零滤镜成本），
+     卡片数量大（300+）走这条不走滤镜/图片，避免手机滚动掉帧；大容器=真实边框图（M57，见下）。 */
   [data-theme="ink"] .chip { border-radius: 13px 11px 14px 10px / 12px 14px 10px 13px; }
   [data-theme="ink"] .btn, [data-theme="ink"] .sort, [data-theme="ink"] .search,
   [data-theme="ink"] .dock-go { border-radius: 12px 6px 14px 7px / 7px 13px 6px 12px; }
@@ -576,41 +587,60 @@
   [data-theme="ink"] .dock-box { border-radius: 13px 9px 14px 8px / 9px 13px 8px 14px; }
   /* g-window 有 overflow:hidden，外扩伪元素会被裁——它走圆角 trick 不进滤镜组 */
   [data-theme="ink"] .g-window { border-radius: 16px 11px 17px 10px / 11px 16px 10px 17px; }
-  [data-theme="ink"] .console, [data-theme="ink"] .paper, [data-theme="ink"] .machine,
-  [data-theme="ink"] .share-sheet { position: relative; border-color: transparent; }
-  [data-theme="ink"] .console::after, [data-theme="ink"] .paper::after, [data-theme="ink"] .machine::after,
-  [data-theme="ink"] .share-sheet::after {
-    content: ""; position: absolute; border: 0 solid var(--ink); border-radius: inherit;
-    filter: url(#inkWobble); pointer-events: none;
+  /* M57：大容器手绘边线从「原边框透明+inkWobble 滤镜伪元素」换成真实容器边框图（--craft-frame，
+     A8 手绘，border-image 9-slice）——border-image 直接画在真实边框盒上，不再需要伪元素外扩
+     叠加那一套（M52 时期为了让滤镜位移不影响文字才引入的间接层，现在图本身就是最终像素，
+     直接画上去更简单）。border-image-outset 让视觉边框比布局用的 border-width 更宽更好认笔触，
+     不占用额外布局空间（outset 只影响绘制范围，不影响内容盒尺寸）。**缺图回退**：border-color
+     恢复成 var(--ink)（M52 之前的基线实色边框，不是破图/空白）——border-image-source 缺图时
+     浏览器原生回退到 border-color/border-width/border-style 渲染，无需 JS 探测，也不需要保留旧
+     inkWobble 伪元素兜底（两者同时存在会双重描边）；#inkWobble 滤镜定义随之从 index.html 清除
+     （sealRough 仍在用，保留）。 */
+  [data-theme="ink"] .console, [data-theme="ink"] .paper {
+    position: relative; border-color: var(--ink);
+    border-image-source: var(--craft-frame, none); border-image-slice: 42; border-image-repeat: round;
+    border-image-width: 8px; border-image-outset: 3px;
   }
-  /* 伪元素定位基准是 padding box——外扩量必须与各容器自己的边框宽一致才能盖在原边框位置上 */
-  [data-theme="ink"] .console::after, [data-theme="ink"] .paper::after {
-    inset: calc(var(--bw-thick) * -1); border-width: var(--bw-thick);
-  }
-  [data-theme="ink"] .machine::after, [data-theme="ink"] .share-sheet::after {
-    inset: calc(var(--bw-xthick) * -1); border-width: var(--bw-xthick);
+  [data-theme="ink"] .machine, [data-theme="ink"] .share-sheet {
+    position: relative; border-color: var(--ink);
+    border-image-source: var(--craft-frame, none); border-image-slice: 42; border-image-repeat: round;
+    border-image-width: 9px; border-image-outset: 4px;
   }
 
-  /* M52 戊-2：抖动虚线口径推广到其余 --divider-* 消费点（console-foot/rb-cover 已在 M46 做） */
+  /* M52 戊-2 抖动虚线口径推广到其余 --divider-* 消费点（console-foot/rb-cover 已在 M46 做）；
+     M57：每处叠一层真实分隔线笔触图（--craft-divider，A8 手绘，"整条一笔首尾自然收笔"，故拉伸
+     铺满整条宽度而非像 repeating-gradient 那样切段平铺）在原 repeating-gradient 之上——缺图/
+     未加载时第一层不绘制，repeating-gradient 原样透出当代码版兜底，两者不需要 JS 判断谁在场。
+     非等比拉伸（100% 宽 / 固定小高度）会轻微压扁笔触，同 frame 9-slice 中段拉伸是同一类可接受
+     的工艺件消费代价（design「工艺件画布契约」原话）。 */
   [data-theme="ink"] .leg-line .dash {
     border-top: none; height: 2px; align-self: center;
-    background-image: repeating-linear-gradient(90deg,
+    background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
       var(--divider-leg) 0 6px, transparent 6px 10px, var(--divider-leg) 10px 13px, transparent 13px 20px);
+    background-size: 100% 3px, auto;
+    background-repeat: no-repeat, repeat;
+    background-position: center, initial;
   }
   [data-theme="ink"] .rb-sk-row {
     border-bottom-color: transparent;
-    background: repeating-linear-gradient(90deg,
-      var(--divider-skrow) 0 7px, transparent 7px 11px, var(--divider-skrow) 11px 15px, transparent 15px 24px)
-      left bottom / 100% 1px no-repeat;
+    background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
+      var(--divider-skrow) 0 7px, transparent 7px 11px, var(--divider-skrow) 11px 15px, transparent 15px 24px);
+    background-position: center, left bottom;
+    background-size: 100% 3px, 100% 1px;
+    background-repeat: no-repeat, no-repeat;
   }
   [data-theme="ink"] .rb-sk-row:last-child { background: none; }
 
-  /* M52 己：宣纸纤维噪点——mock 的纸感大半来自这层。fixed 伪元素合成层一张 256px 平铺噪点
-     （feTurbulence data-URI，无色值字面量），压在页面底色上、垫在 .wrap（z:1）之下；
-     总透明度 ≤.04 量级，只提供纤维颗粒不改变色相。 */
+  /* M57：宣纸纤维噪点——mock 的纸感大半来自这层。fixed 伪元素合成层平铺噪点，压在页面底色上、
+     垫在 .wrap（z:1）之下；总透明度 ≤.05 量级，只提供纤维颗粒不改变色相。两层 background-image：
+     第一层=真实底材纹理图（--craft-texture，M57 新增，A8 手绘水彩纸纹）；第二层=M52 时期的
+     feTurbulence 程序噪点 data-URI，永远原样留着当代码版兜底——第一层缺图/未加载完成时该层不
+     绘制任何内容（浏览器原生行为，无需 JS 探测），第二层透过来正常显示，纸面永远不会露白。 */
   [data-theme="ink"] body::after {
     content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .05;
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='256'%20height='256'%3E%3Cfilter%20id='g'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.18%200%200%200%200%200.15%200%200%200%200%200.12%200%200%200%200.9%200'/%3E%3C/filter%3E%3Crect%20width='256'%20height='256'%20filter='url(%23g)'/%3E%3C/svg%3E");
+    background-image: var(--craft-texture, none),
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='256'%20height='256'%3E%3Cfilter%20id='g'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.18%200%200%200%200%200.15%200%200%200%200%200.12%200%200%200%200.9%200'/%3E%3C/filter%3E%3Crect%20width='256'%20height='256'%20filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 512px 512px, 256px 256px;
   }
 
   /* M52 己：咔啦头像圈——山水的 mascot 母版自带圆墨圈构图，再叠深色硬边框=双重圈框，退掉 */
@@ -624,10 +654,14 @@
   [data-theme="ink"] .rb-cover { border-bottom-color: transparent; }
   [data-theme="ink"] .console-foot::before, [data-theme="ink"] .rb-cover::after {
     content: ""; position: absolute; left: 0; right: 0; height: 2px;
-    background-image: repeating-linear-gradient(90deg,
+    /* M57：真实分隔线笔触图叠在原 repeating-gradient 之上，同上方 .leg-line/.rb-sk-row 处理 */
+    background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
       var(--ink-soft) 0 7px, transparent 7px 11px,
       var(--ink-soft) 11px 15px, transparent 15px 24px,
       var(--ink-soft) 24px 27px, transparent 27px 34px);
+    background-size: 100% 3px, auto;
+    background-repeat: no-repeat, repeat;
+    background-position: center, initial;
   }
   [data-theme="ink"] .console-foot::before { top: -2px; }
   [data-theme="ink"] .rb-cover::after { bottom: -2px; }
