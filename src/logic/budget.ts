@@ -7,7 +7,9 @@ export interface TripBudget { daySum: number; lo: number; hi: number; km: number
 export function tripBudget(stops: TripStopX[], legs: TripLeg[]): TripBudget {
   const daySum = stops.reduce((s, d) => s + d.chosenDays, 0);
   const stay = stops.reduce((s, d) => s + d.chosenDays * PER_DAY_COST[d.cost], 0);
-  const trans = legs.reduce((s, l) => s + (l.mode === "飞机" ? 550 + l.km * 0.35 : l.km * 0.5), 0);
+  // M56：air 标记该段含航空运输（纯飞机/飞机+包车两档），比裸 mode==="飞机" 字符串匹配更稳健；
+  // 纯飞机段只计机票价，飞机+包车在机票价外再加一段地面包车价（陆路价对纯飞机段之外的所有档都适用）
+  const trans = legs.reduce((s, l) => s + (l.air ? 550 + l.km * 0.35 : 0) + (l.mode === "飞机" ? 0 : l.km * 0.5), 0);
   const lo = Math.round((stay * 0.8 + trans) / 100) * 100;
   const hi = Math.round((stay * 1.25 + trans * 1.15) / 100) * 100;
   return { daySum, lo, hi, km: legs.reduce((s, l) => s + l.km, 0) };

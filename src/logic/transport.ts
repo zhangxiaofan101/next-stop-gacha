@@ -30,28 +30,55 @@ export const TRANSPORT_META: Record<ExplicitTransport, { icon: string; kmph: num
   "游轮": { icon: "🚢", kmph: 26 }, "轮渡": { icon: "⛴", kmph: 24 }, "火车": { icon: "🚄", kmph: 120 },
 };
 
+// M56 守卫：noair/norail/slowrail 是数据体检落库的城市卡本体粒度字段（无民航客运/无轨道客运/
+// 轨道现役仅普速），挡住距离启发式可能编造的「高铁」「飞机」。两个守卫各自独立触发，触发后统一
+// 走同一张陆路/组合降级表：<650km 诚实降「包车/自驾」；更远时若这段两端不是都没有真实民航（即
+// 至少一端未被 noair 锁死）——现实是先飞到区域枢纽再包车最后一程，落「飞机+包车」（时长=飞行估+
+// 中转缓冲，标定：特克斯 transit 文案自述「伊宁…落地后包车」，伊宁→特克斯实测约 2.5-3h 车程）；
+// 两端皆无民航时诚实回落「包车/自驾」，再远也不编一段航班。slowrail 单独触发时降「火车」档——
+// 轨道现役只是慢，不是编造，时长按直线有效速 ~65km/h（标定=哈尔滨→漠河 K 车约 13h/直线约 850km），
+// 与 TRANSPORT_META 显式「火车」的 120（线路卡短程直线段专用）不混用。
+const AIR_CHARTER_TRANSFER_H = 3;
+
+function overlandOrCombo(km: number, noairBoth: boolean): { mode: string; icon: string; hours: number; air: boolean } {
+  if (km < 650) return { mode: "包车/自驾", icon: "🚐", hours: km / 55, air: false };
+  if (!noairBoth) return { mode: "飞机+包车", icon: "✈️", hours: km / 625 + 2.4 + AIR_CHARTER_TRANSFER_H, air: true };
+  return { mode: "包车/自驾", icon: "🚐", hours: km / 55, air: false };
+}
+
 // overland=true：该段是同一条完整 leg 组内的相邻站（招牌自驾/包车线，如 G318、阿里、沙漠公路），
 // 两站再远也是陆路翻山穿沙，不存在航班——此时禁用「飞机」判定，落包车/自驾（中途过夜由 leg.stays 承载）。
 export function legInfo(a: Place & { id?: string }, b: Place & { id?: string }, overland?: boolean, transport?: ExplicitTransport | null): LegEstimate {
   const km = hav(a.coords, b.coords);
   const straight = Math.round(km * 1.25); // 近似实际里程
-  if (transport && TRANSPORT_META[transport]) { // 显式模式优先于距离启发式
+  if (transport && TRANSPORT_META[transport]) { // 显式模式优先于距离启发式，且不受 M56 守卫约束（F30 的诚实声明本就是最高优先级）
     const t = TRANSPORT_META[transport];
-    return { km: straight, mode: transport, icon: t.icon, hours: Math.round(km / t.kmph * 10) / 10 };
+    return { km: straight, mode: transport, icon: t.icon, hours: Math.round(km / t.kmph * 10) / 10, air: false };
   }
   const provFly = FLY_PROV.has(a.province || "") || FLY_PROV.has(b.province || "");
   const needFly = provFly || (km >= 500 && (seaDetour(a, b) || seaDetour(b, a)));
   // M30：两端都在江浙沪的段（上海计入江浙沪），160~400km 也标自驾并列——用户自驾圈
   const jzh = a.region === "江浙沪" && b.region === "江浙沪";
-  let mode: string, icon: string, hours: number;
+  let mode: string, icon: string, hours: number, air = false;
   if (km < 60) { mode = "打车/自驾"; icon = "🚕"; hours = Math.max(.6, km / 50); }
   // overland：同一条完整 leg 组内的相邻站（招牌自驾/包车线），60km 以上一律陆路，不判高铁/飞机
   else if (overland) { mode = "包车/自驾"; icon = "🚐"; hours = km / 55; }
   else if (km < 160 && !needFly) { mode = "高铁/自驾"; icon = "🚄"; hours = km / 160 + .4; }
   else if (km < 950 && !needFly) { mode = jzh && km < 400 ? "高铁/自驾" : "高铁"; icon = "🚄"; hours = km / 190 + .6; }
-  else if (provFly && km < 400) { mode = "包车/大巴"; icon = "🚐"; hours = km / 55; }
-  else { mode = "飞机"; icon = "✈️"; hours = km / 625 + 2.4; }
-  return { km: straight, mode, icon, hours: Math.round(hours * 10) / 10 };
+  // M56：同省 FLY_PROV 段包车阈值 400→650km（乌鲁木齐↔伊犁/阿勒泰回归包车/自驾，乌鲁木齐↔喀什 ~1000km 仍飞）
+  else if (provFly && km < 650) { mode = "包车/自驾"; icon = "🚐"; hours = km / 55; }
+  else { mode = "飞机"; icon = "✈️"; hours = km / 625 + 2.4; air = true; }
+
+  // M56 守卫：命中即用降级表覆盖上面算出的候选档（见文件头注释）；两个矛盾都不成立时候选档保持不变
+  const isRail = mode === "高铁" || mode === "高铁/自驾";
+  if (mode === "飞机" && (a.noair || b.noair)) {
+    ({ mode, icon, hours, air } = overlandOrCombo(km, !!a.noair && !!b.noair));
+  } else if (isRail && (a.norail || b.norail)) {
+    ({ mode, icon, hours, air } = overlandOrCombo(km, !!a.noair && !!b.noair));
+  } else if (isRail && (a.slowrail || b.slowrail)) {
+    mode = "火车"; icon = "🚄"; hours = km / 65 + .5;
+  }
+  return { km: straight, mode, icon, hours: Math.round(hours * 10) / 10, air };
 }
 
 export const fmtH = (h: number) => h >= 1 ? `约${h}h` : `约${Math.round(h * 60)}分钟`;

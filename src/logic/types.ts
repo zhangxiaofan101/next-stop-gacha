@@ -59,6 +59,10 @@ export interface Destination {
   /** 进出门户城市 id（F31），仅整组行程生效 */
   entry?: string;
   exit?: string;
+  /** M56：本体粒度通达性守卫（无民航客运/无轨道客运/轨道现役仅普速），仅城市卡可标 */
+  noair?: boolean;
+  norail?: boolean;
+  slowrail?: boolean;
 }
 
 /** 行程单条目；r=装入来源线路 id（既是装入标记，也供路书回查 leg——F18） */
@@ -81,6 +85,10 @@ export interface Place {
   coords: [number, number];
   province?: string;
   region?: string;
+  /** M56：无民航/无轨道客运/轨道仅普速守卫（SH 锚点与合成 Place 天然缺省=false） */
+  noair?: boolean;
+  norail?: boolean;
+  slowrail?: boolean;
 }
 
 export interface LegEstimate {
@@ -88,6 +96,8 @@ export interface LegEstimate {
   mode: string;
   icon: string;
   hours: number;
+  /** M56：该段含航空运输（纯飞机或飞机+包车），供 budget 分支加机票价——比字符串匹配 mode 更稳健 */
+  air: boolean;
 }
 
 export interface TripLeg extends LegEstimate {

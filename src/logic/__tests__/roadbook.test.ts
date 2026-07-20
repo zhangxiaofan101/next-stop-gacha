@@ -45,7 +45,7 @@ describe("leg 整组文案接管（F18/F21）", () => {
 
 const fakeLeg = (over: Partial<TripLeg> = {}): TripLeg => ({
   from: { name: "上海", coords: [31.23, 121.47] }, to: { name: "x", coords: [30, 120] },
-  gwName: null, km: 100, mode: "高铁", icon: "🚄", hours: 2, ...over,
+  gwName: null, km: 100, mode: "高铁", icon: "🚄", hours: 2, air: false, ...over,
 });
 
 describe("逐日骨架（M29 / F35）", () => {

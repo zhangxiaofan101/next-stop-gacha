@@ -16,7 +16,7 @@ describe("legInfo 距离分档", () => {
   it("overland=true 时 60km 以上一律包车/自驾，不判高铁/飞机", () => {
     const a = mkCity({ id: "a", coords: [43.9, 88.1], province: "新疆" });
     const b = mkCity({ id: "b", coords: [43.0, 84.1], province: "新疆" });
-    expect(legInfo(a, b).mode).toBe("包车/大巴"); // 对照：无 overland 时新疆省内短段走包车/大巴档
+    expect(legInfo(a, b).mode).toBe("包车/自驾"); // 对照：无 overland 时新疆省内短段（<650km）同样落包车/自驾档（M56）
     expect(legInfo(a, b, true).mode).toBe("包车/自驾");
     const km = hav(a.coords, b.coords);
     expect(legInfo(a, b, true).hours).toBe(Math.round((km / 55) * 10) / 10);
@@ -40,6 +40,52 @@ describe("legInfo 距离分档", () => {
     const l = legInfo(SH, cd);
     expect(l.mode).toBe("飞机");
     expect(l.hours).toBe(Math.round((hav(SH.coords, cd.coords) / 625 + 2.4) * 10) / 10);
+    expect(l.air).toBe(true);
+  });
+});
+
+// M56：noair/norail/slowrail 三守卫——数据体检落库的本体粒度字段挡住启发式可能编造的「高铁」「飞机」，
+// 触发后降级为诚实的陆路/组合档；FLY_PROV 同省包车阈值 400→650km。
+describe("legInfo M56 守卫（noair/norail/slowrail）", () => {
+  it("乌鲁木齐→特克斯：真实数据，两端同新疆、<650km，落包车/自驾（阈值 400→650 修正即生效，无需守卫介入）", () => {
+    const urumqi = byId("tianshan-tianchi")!, tekes = byId("tekes-kalajun")!;
+    expect(tekes.noair).toBe(true);
+    expect(tekes.norail).toBe(true);
+    const l = legInfo(urumqi, tekes);
+    expect(l.mode).toBe("包车/自驾");
+    expect(l.air).toBe(false);
+  });
+  it("上海→特克斯：真实数据，远距离+特克斯 noair/norail 双标，飞机被 noair 挡下、落「飞机+包车」（上海端仍有航）", () => {
+    const tekes = byId("tekes-kalajun")!;
+    const l = legInfo(SH, tekes);
+    expect(l.mode).toBe("飞机+包车");
+    expect(l.air).toBe(true); // 供 budget 分支计入机票项
+    expect(l.hours).toBeGreaterThan(hav(SH.coords, tekes.coords) / 625 + 2.4); // 飞行估之外仍叠中转缓冲
+  });
+  it("哈尔滨→漠河：真实数据，漠河 slowrail（轨道现役仅普速），高铁候选降「火车」档，约13h 而非启发式误判的约5h「高铁」", () => {
+    const harbin = byId("harbin")!, mohe = byId("mohe")!;
+    expect(mohe.slowrail).toBe(true);
+    const l = legInfo(harbin, mohe);
+    expect(l.mode).toBe("火车");
+    expect(l.air).toBe(false);
+    const km = hav(harbin.coords, mohe.coords);
+    expect(l.hours).toBe(Math.round((km / 65 + .5) * 10) / 10);
+    expect(l.hours).toBeGreaterThan(12);
+    expect(l.hours).toBeLessThan(14);
+  });
+  it("江浙沪既有段位零回归：沪杭仍「高铁/自驾」、杭州→黄山仍「高铁」（无任何一城标 noair/norail/slowrail）", () => {
+    const hz = byId("hangzhou")!, hs = byId("huangshan")!;
+    expect(hz.noair ?? hz.norail ?? hz.slowrail).toBeFalsy();
+    expect(legInfo(SH, hz).mode).toBe("高铁/自驾");
+    expect(legInfo(hz, hs).mode).toBe("高铁");
+  });
+  it("两端皆无民航时即使守卫触发也不编飞机：诚实回落包车/自驾（非真实数据，合成两端 noair 的远距离对照）", () => {
+    const a = mkCity({ id: "a", coords: [39, 98], province: "甘肃", norail: true, noair: true });
+    const b = mkCity({ id: "b", coords: [45, 98], province: "甘肃", noair: true }); // 与 a 皆 noair，>650km 且原始候选会是「高铁」
+    expect(hav(a.coords, b.coords)).toBeGreaterThan(650);
+    const l = legInfo(a, b);
+    expect(l.mode).toBe("包车/自驾");
+    expect(l.air).toBe(false);
   });
 });
 

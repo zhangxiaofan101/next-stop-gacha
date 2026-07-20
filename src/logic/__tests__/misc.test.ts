@@ -17,7 +17,7 @@ describe("预算估算", () => {
       { ...mkCity({ id: "b", cost: "¥" }), chosenDays: 3, fromRoute: false },
     ] as TripStopX[];
     const legs = [
-      { mode: "高铁", km: 100 }, { mode: "飞机", km: 1000 }, { mode: "高铁", km: 200 },
+      { mode: "高铁", km: 100, air: false }, { mode: "飞机", km: 1000, air: true }, { mode: "高铁", km: 200, air: false },
     ] as TripLeg[];
     const b = tripBudget(stops, legs);
     expect(b.daySum).toBe(5);
@@ -25,6 +25,14 @@ describe("预算估算", () => {
     // stay=5*380=1900, trans=50+(550+350)+100=1050
     expect(b.lo).toBe(Math.round((1900 * 0.8 + 1050) / 100) * 100);
     expect(b.hi).toBe(Math.round((1900 * 1.25 + 1050 * 1.15) / 100) * 100);
+  });
+
+  it("M56「飞机+包车」组合档：机票价（550+0.35/km）与包车地面价（0.5/km）都计入，不因非纯「飞机」字符串而漏计机票项", () => {
+    const stops = [{ ...mkCity({ id: "a", cost: "¥" }), chosenDays: 2, fromRoute: false }] as TripStopX[];
+    const legs = [{ mode: "飞机+包车", km: 1000, air: true }] as TripLeg[];
+    const b = tripBudget(stops, legs);
+    // trans = (550+350) + 500 = 1400（机票项 + 包车段，两者都不是 0）
+    expect(b.lo).toBe(Math.round((760 * 0.8 + 1400) / 100) * 100);
   });
 });
 
