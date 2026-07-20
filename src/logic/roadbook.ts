@@ -137,15 +137,23 @@ export function extractMonths(sentence: string): Set<number> | null {
   let m: RegExpExecArray | null;
   const wrapRe = /(\d{1,2})月至次年(\d{1,2})月/g;
   while ((m = wrapRe.exec(sentence))) { found = true; monthRange(+m[1], +m[2]).forEach(x => months.add(x)); }
+  // 带旬修饰的跨年区间（真实数据「12月中旬-3月上旬」「12月下旬-2月」）：两侧各自独立的
+  // 「月」+ 可选「上/中/下旬」，与下面 rangeRe 的紧凑写法「7-8月」（单个末尾月）互不重叠。
+  const kwRangeRe = /(\d{1,2})月(?:[上中下]旬)?[-至](\d{1,2})月(?:[上中下]旬)?/g;
+  while ((m = kwRangeRe.exec(sentence))) { found = true; monthRange(+m[1], +m[2]).forEach(x => months.add(x)); }
   const rangeRe = /(\d{1,2})[-至](\d{1,2})月/g;
   while ((m = rangeRe.exec(sentence))) { found = true; monthRange(+m[1], +m[2]).forEach(x => months.add(x)); }
-  const singleRe = /(\d{1,2})月/g; // 与上面两个 range 正则的匹配区间有重叠（如"7-8月"里的"8月"）——
+  const singleRe = /(\d{1,2})月/g; // 与上面几个 range 正则的匹配区间有重叠（如"7-8月"里的"8月"）——
   while ((m = singleRe.exec(sentence))) { found = true; months.add(+m[1]); } // 重复 add 到 Set 是幂等的，无害
-  for (const [word, ms] of Object.entries(SEASON_MONTHS)) {
-    if (sentence.includes(word)) { found = true; ms.forEach(x => months.add(x)); }
-  }
+  // 节庆词先于季节词识别，并把命中的节庆子串从副本里挖掉再匹配季节——「春节」本身包含「春」，
+  // 不屏蔽会被季节表再匹配一次扩成 [3,4,5]（F61：真实数据「春节期间阆中过大年」5 月出发时因此
+  // 被误判为当季保留）。只挖掉命中的节庆子串本身，句子里独立出现的「春天」「春季」不受影响。
+  let rest = sentence;
   for (const [word, ms] of Object.entries(FESTIVAL_MONTHS)) {
-    if (sentence.includes(word)) { found = true; ms.forEach(x => months.add(x)); }
+    if (rest.includes(word)) { found = true; ms.forEach(x => months.add(x)); rest = rest.split(word).join(""); }
+  }
+  for (const [word, ms] of Object.entries(SEASON_MONTHS)) {
+    if (rest.includes(word)) { found = true; ms.forEach(x => months.add(x)); }
   }
   return found ? months : null;
 }

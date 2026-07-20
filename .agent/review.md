@@ -18,6 +18,14 @@
 
 ## Active findings
 
-> Review baseline: b47a8c8，Codex/GPT reviewer，2026-07-20。确认范围 `880e51f..b47a8c8`；其中 911e484（M58 控制面）与 1b1489d（M44 内容轨道）不作为本轮关闭依据，F58 的实际响应为 b47a8c8。`design.md` 的 standing mechanism 与部件表现已明确区分两条路径：`assetDir`/装饰开关由 `assetDirFor()`/`applySkinVisuals()` 在运行时消费；字体由 scoped CSS token（`--round`/`--sans`）及浏览器原生 `@font-face` 按需加载驱动，registry `fonts` 只作为测试读取的静态 drift-pin 元数据。该口径与代码、测试和 state 响应一致，F58 关闭。当前无 active finding；M45 `[R2 · S3]`、M46 `[R2 · S2]` 跨家族 gate 正式通过，M52 `[R2 · S2]` gate 维持通过。
+> Review baseline: 883655a（`origin/main`），Codex/GPT reviewer，2026-07-20。审计范围 `b47a8c8..883655a`，本轮代码模块为 interrupt、M51、M53、M54、M55、M57、M58；按用户指示不审 M48/M49/M56 内容工单，也不把本地仅领先一笔的 M44 图片压缩提交 f5a83fd 纳入代码 gate。上一轮 M45 `[R2 · S3]`、M46 `[R2 · S2]`、M52 `[R2 · S2]` 结论不变；本轮 M51/M53/M54/M58 及两条 interrupt 未发现 active finding，M55/M57 各留一项。
 >
-> 独立证据：`git diff --check 880e51f..b47a8c8` 通过；`rg` 确认生产代码没有读取 `.fonts`，仅测试用它核对 `@font-face` 与 `--round`/`--sans` 字面量，符合修订后的静态元数据契约。b47a8c8 只改 `design.md`/`state.md`，不含运行时或产物变化，故无需重跑生产部署；上一轮独立通过的 178 条测试、5 条资产管线测试、双皮肤往返与生产资产复验结论继续有效。
+> 独立证据：`git diff --check b47a8c8..883655a` 通过；`bun run verify` 179/179 + workerd 45/45；`bun run build` 通过；`bun run test:build-assets` 7/7（本机 Homebrew Python 3.14 动态库被系统签名策略拦截，改用系统 `/usr/bin/python3` 重跑同一测试后全绿，判定为本机环境问题）。另以真实 data 文案直调 `extractMonths()`/`filterSeasonNote()` 复现 F61，并用临时 picked/out 目录和真实 `ink-frame-brush.webp` 复制成两个描述后缀，复现 F62：脚本连续两次写同一个 `frame.webp` 且退出 0。
+
+### [P1] F61 — M55 时间词解析误判“春节”，并漏掉带“上/中/下旬”的跨年区间
+
+`src/logic/roadbook.ts:138-149` 先用裸 `春`/`夏`/`秋`/`冬` 子串匹配季节，再匹配节庆，因此“春节”会同时扩成 `[1,2]` 和春季 `[3,4,5]`；现有测试 `src/logic/__tests__/roadbook.test.ts:159-162` 还把这个错误并集写成期望值，属于从实现复制结论而非独立语义断言。真实 `data/data-f.json:2176` 因而在 5 月仍保留“春节期间阆中过大年”。同时区间正则只接受 `12-2月`，不接受真实数据里的 `12月中旬-3月上旬` / `12月下旬-2月`（`data/data-c.json:1319,1375,2432`）；崇礼 1 月行程会把整条核心雪季提示过滤为空。应先按不重叠词元处理节庆/季节（或屏蔽已命中的“春节”再识别“春”），并把旬修饰纳入跨年区间语法；回归测试须直接用上述真实文案，外部语义期望至少钉住“春节不命中 3-5 月”和“12 月中旬到 3 月上旬包含 1、2 月”。
+
+### [P2] F62 — M57 单例工艺槽位发生归一化碰撞时静默覆盖
+
+`tools/build_illustrations.py:84-96` 允许 texture/frame/divider/placeholder 携带任意描述后缀并归一化为裸槽位名，而 `process_skin_dir()`（`:153-170`）没有跟踪已占用的 `(skin, out_name)`。临时目录中同时放入 `probe-frame-first.webp` 与 `probe-frame-second.webp` 后，脚本两次报告 `OK frame.webp`、最终只留下一个文件且退出码为 0；文件名排序变化即可悄悄改变上线素材。`tests/build-illustrations.test.mjs:91-107` 只覆盖每个单例各一张，未覆盖碰撞。应在编码前拒绝同一皮肤内映射到相同输出名的第二个源文件（并计入 violations 非零退出），补一条双后缀碰撞回归；seal/region/decor 等多实例槽位继续按完整输出名去重即可。

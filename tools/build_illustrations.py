@@ -156,12 +156,24 @@ def process_skin_dir(skin: str, violations: list):
     if not files:
         return
     print(f"[{skin}]")
+    claimed: dict = {}  # out_name → 先占用它的源文件 basename（F62：撞名检测，见下）
     for f in files:
         basename = os.path.basename(f)
         result = classify(skin, basename, violations)
         if result is None:
             continue
         out_name, (tw, th, budget) = result
+        # F62：texture/frame/divider/placeholder 归一化去后缀后可能撞名（如
+        # ink-frame-a.webp 与 ink-frame-b.webp 都归一化成 frame.webp）；sorted(glob) 保证顺序
+        # 确定，但先到先得会悄悄丢弃后一个母版——按文件名排序取第一个，其余计入违规并跳过，
+        # 不静默覆盖。seal/region/decor 等多实例槽位输出名本身就含 name，正常不会撞，这里
+        # 用同一套「out_name 去重」兜底即可，不需要为它们单独分支。
+        if out_name in claimed:
+            msg = f"{skin}/{basename} 归一化输出名 `{out_name}` 与 {skin}/{claimed[out_name]} 撞名（同一皮肤只能有一个源产出这个槽位）"
+            print(f"  !! {msg}，跳过（保留 {claimed[out_name]}，清理多余母版或改描述性后缀避免混淆）", file=sys.stderr)
+            violations.append(msg)
+            continue
+        claimed[out_name] = basename
         out_path = os.path.join(OUT_DIR, skin, out_name)
         size = encode(f, out_path, tw, th, budget, violations)
         if size < 0:

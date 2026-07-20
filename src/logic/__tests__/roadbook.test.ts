@@ -158,7 +158,30 @@ describe("M55②：extractMonths 时间词解析", () => {
   });
   it("季节词与节庆词映射到月份集合", () => {
     expect(extractMonths("春秋气候最宜")).toEqual(new Set([3, 4, 5, 9, 10, 11]));
-    expect(extractMonths("冬季尤其春节前后最热闹")).toEqual(new Set([12, 1, 2, 3, 4, 5])); // 冬+春节+春 三词并集
+    // 「春节」不应连带命中裸「春」季节词并扩成 3-5 月（F61）：冬[12,1,2] ∪ 春节[1,2] = {12,1,2}，
+    // 句中真实没有独立出现的「春天/春季」，3、4、5 三月不该出现在结果里。
+    const wm = extractMonths("冬季尤其春节前后最热闹")!;
+    expect(wm).toEqual(new Set([12, 1, 2]));
+    expect([3, 4, 5].some(x => wm.has(x))).toBe(false);
+  });
+  it("F61 回归：真实数据「春节」不误扩成 3-5 月春季（langzhong 5 月出发不该保留春节句）", () => {
+    const note = byId("langzhong")!.seasonNote; // "3-5月与9-11月气候宜人；春节期间'阆中过大年'民俗最浓"
+    const springParagraph = note.split(/[；。]/)[1];
+    const sm = extractMonths(springParagraph)!;
+    expect(sm).toEqual(new Set([1, 2])); // 只是「春节」本身的月份，不含 3、4、5
+    expect(filterSeasonNote(note, new Set([5]))).not.toContain("春节");
+  });
+  it("F61 回归：带旬修饰的跨年区间（真实数据「12月中旬-3月上旬」「12月下旬-2月」）", () => {
+    // zhangjiakou-chongli: "12月中旬-3月上旬雪道状态较稳，7-8月林海避暑，9月山谷转金适合徒步骑行。"
+    const chongli = byId("zhangjiakou-chongli")!.seasonNote;
+    const skiSentence = chongli.split(/[，。]/)[0];
+    const skiMonths = extractMonths(skiSentence)!;
+    expect(skiMonths.has(1)).toBe(true);
+    expect(skiMonths.has(2)).toBe(true);
+    expect(filterSeasonNote(chongli, new Set([1]))).toContain("雪道状态较稳");
+    // xuexiang/wusongdao: "12月下旬-2月……" 单侧带旬、另一侧不带
+    const xuexiang = byId("xuexiang")!.seasonNote;
+    expect(extractMonths(xuexiang.split(/[，。]/)[0])).toEqual(new Set([12, 1, 2]));
   });
   it("不含任何时间词 → null（无关时间的句子，永远保留，不是「无法判断」的兜底）", () => {
     expect(extractMonths("海拔约3000m，是进藏适应的好起点")).toBeNull();
