@@ -3,7 +3,7 @@ import { DAY_BUCKETS } from "../logic/constants";
 import { filtered } from "../logic/filter";
 import { gachaPick } from "../logic/gacha";
 import type { Destination } from "../logic/types";
-import { assetDirFor, currentSkinId, illustSrc, regionSlot } from "../skins/illustrations";
+import { regionHeaderSrc } from "../skins/illustrations";
 import { CUR_SEASON, DATA, state } from "../store";
 import { cardHTML } from "./cards";
 import { $ } from "./dom";
@@ -83,8 +83,9 @@ export function roll() {
       subEl.textContent = `${pick.province} · ${pick.region} · ${pick.crowd}`;
       // M46：票券氛围带——用该目的地所属大区的题头图垫底（design M46：「扭蛋票券氛围垫底」）；
       // background-image 天生「缺图不硬占」（加载失败不显示任何东西、不报错、不留占位），不需要
-      // 额外的 onerror 处理，奶油皮肤下这行只是设了一个 404 的 url() 从不产生可见差异。
-      ticketEl.style.setProperty("--ticket-ambience", `url(${illustSrc(assetDirFor(currentSkinId()), regionSlot(pick.region))})`);
+      // 额外的 onerror 处理。M60：题头图恒走共享层（regionHeaderSrc），奶油皮肤下这行现在也是
+      // 一个真实存在的 URL（此前奶油无题头资产、这行必 404），不产生可见差异只是巧合改变了原因。
+      ticketEl.style.setProperty("--ticket-ambience", `url(${regionHeaderSrc(pick.region)})`);
       ticketEl.innerHTML = cardHTML(pick, 0);
       ticketEl.querySelector<HTMLImageElement>(".illust")?.setAttribute("loading", "eager"); // [interrupt] 票券容器自 display:none 切入，lazy 的可视观察永不触发
       ticketEl.className = "show";

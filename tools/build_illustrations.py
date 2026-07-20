@@ -17,7 +17,6 @@
   ink-mascot.webp          → mascot.webp        （方图 1:1，吉祥物）
   ink-gacha.webp           → gacha.webp         （方图 1:1，扭蛋机）
   ink-empty.webp           → empty.webp         （方图 1:1，空态）
-  ink-region-<slug>.webp   → region-<slug>.webp （九区题头 2:1，画布契约：原生比不浅裁）
   ink-decor-<name>.webp    → decor-<name>.webp  （自由装饰件，画幅不拘，当前母版均 2:1）
   ink-texture-<desc>.webp  → texture.webp       （M57 底材纹理 512x512 无缝 tile，描述性后缀归一化去掉）
   ink-frame-<desc>.webp    → frame.webp         （M57 容器边框 1024x1024 空心框，border-image 9-slice）
@@ -25,7 +24,10 @@
   ink-placeholder-<desc>.webp → placeholder.webp（M57 图位垫底，画布同题头 960x480）
   ink-seal-<name>.webp     → seal-<name>.webp   （M57 印章 256x256，多实例保留描述性 name）
   style-ref-mock.webp      （跳过——风格锚点，不是 UI 资产）
-  dest/<cityid>.webp       → dest/<cityid>.webp （目的地共享集，3:2，与皮肤无关）
+  dest/dest-<cityid>.webp  → dest/<cityid>.webp （目的地共享集，3:2，与皮肤无关）
+  dest/region-<slug>.webp  → dest/region-<slug>.webp （M60：九区题头晋升共享题头层，2:1，画布契约：
+    原生比不浅裁；与目的地个图同目录、各自按自己的比例校验，互不误伤——九区从此彻底退出皮肤
+    素材维度，`<skin>-region-*` 命名在皮肤目录下不再被识别为合法槽位，见 classify()）
 
 画布契约（design「插画层」）：装饰位（方图/题头/装饰件）≤60KB，目的地卡位 ≤40KB；题头位按
 「原生比展示、不做浅裁」——本脚本对题头/装饰件一律等比缩放（不裁切），交给前端 CSS 用
@@ -37,6 +39,12 @@
      旧版本"按母版实际比例校验"的说法此前是假的，resize 会无条件把任何比例的源图硬拉伸）；
   ② 命名不合规、槽位未知、webpinfo/cwebp 失败、质量下限 q40 仍超预算，全部计入违规清单；
   ③ 运行结束若违规清单非空，`sys.exit(1)`——只要有一项没扛住，退出码就不能是 0。
+
+**M60（2026-07-21）**：九区题头母版从各皮肤目录（原仅 `picked/ink/`）转入共享题头层
+`picked/dest/region-<slug>.webp`，产物 `public/illustrations/dest/region-<slug>.webp`，与目的地个图
+`dest-<cityid>.webp` 同目录、同 `process_dest()` 处理，按各自槽位类型（题头 2:1 960×480 / 个图 3:2
+640×427）分别校验，互不误伤。皮肤目录内 `<skin>-region-*` 命名从此不再被 `classify()` 识别（九区
+彻底退出皮肤素材维度，新皮肤成套不必再画 9 个题头版位）。
 """
 import glob, os, re, subprocess, sys
 
@@ -79,13 +87,16 @@ def classify(skin: str, basename: str, violations: list):
     slot = name[len(prefix):]
     if slot in ("mascot", "gacha", "empty"):
         return f"{slot}.webp", SQUARE
-    if slot.startswith("region-") or slot.startswith("decor-"):
+    # M60：region- 已从皮肤目录退场，晋升共享题头层（picked/dest/region-<slug>.webp，见
+    # process_dest()）——皮肤目录内的 `<skin>-region-*` 命名不再被识别，会落进下方「未知类别」
+    # 违规分支，这是刻意的（九区彻底退出皮肤素材维度，新皮肤不应再补画这 9 个版位）。
+    if slot.startswith("decor-"):
         return f"{slot}.webp", BANNER
     # M57 工艺件：texture/frame/divider/placeholder 皮肤内单例，母版命名允许带描述性后缀
     # （如 ink-texture-paper.webp）——后缀是这批母版的自选说明，不是稳定的运行时标识符，输出
     # 归一化成裸槽位名（texture.webp），供 illustrations.ts 用固定槽位名拼 URL，换母版不用改代码。
     # seal 例外：一皮肤可以有多枚不同用途的印章（下一站/去哪玩），name 本身就是稳定标识符，
-    # 原样保留（同 region-<slug>/decor-<name> 的多实例槽位先例）。
+    # 原样保留（同 decor-<name> 的多实例槽位先例）。
     if slot.startswith("texture"):
         return "texture.webp", TEXTURE
     if slot.startswith("frame"):
@@ -166,7 +177,7 @@ def process_skin_dir(skin: str, violations: list):
         # F62：texture/frame/divider/placeholder 归一化去后缀后可能撞名（如
         # ink-frame-a.webp 与 ink-frame-b.webp 都归一化成 frame.webp）；sorted(glob) 保证顺序
         # 确定，但先到先得会悄悄丢弃后一个母版——按文件名排序取第一个，其余计入违规并跳过，
-        # 不静默覆盖。seal/region/decor 等多实例槽位输出名本身就含 name，正常不会撞，这里
+        # 不静默覆盖。seal/decor 等多实例槽位输出名本身就含 name，正常不会撞，这里
         # 用同一套「out_name 去重」兜底即可，不需要为它们单独分支。
         if out_name in claimed:
             msg = f"{skin}/{basename} 归一化输出名 `{out_name}` 与 {skin}/{claimed[out_name]} 撞名（同一皮肤只能有一个源产出这个槽位）"
@@ -189,23 +200,31 @@ def process_dest(violations: list):
         print("[dest] picked/dest/ 暂无母版（M44 铺量前正常），跳过")
         return
     print("[dest]")
-    tw, th, budget = DEST
     for f in files:
         name = os.path.basename(f)[:-len(".webp")]
-        # picked/dest/ 母版命名去掉的只是 -v{n} 版本号（见 illustration-brief.md），dest- 前缀留着；
-        # 槽位名/运行时 URL 不带这个前缀（destPhotoSrc(id) 直接拼城市 id），这里要再剥一层。
-        if not name.startswith("dest-"):
-            msg = f"{os.path.basename(f)} 命名不含 `dest-` 前缀"
+        # M60：picked/dest/ 现同时容纳两族母版——目的地个图 `dest-<cityid>.webp`（3:2）与九区共享
+        # 题头 `region-<slug>.webp`（2:1，已从皮肤目录晋升至此）；各自按自己的槽位类型校验比例/
+        # 预算，互不误伤。picked/dest/ 母版命名去掉的只是 -v{n} 版本号（见 illustration-brief.md），
+        # dest- 前缀留着；槽位名/运行时 URL 不带这个前缀（destPhotoSrc(id) 直接拼城市 id），这里要
+        # 再剥一层；region- 前缀原样保留（输出名与源文件名一致，见 src/skins/illustrations.ts 的
+        # regionHeaderSrc()）。
+        if name.startswith("region-"):
+            out_name = f"{name}.webp"
+            tw, th, budget = BANNER
+        elif name.startswith("dest-"):
+            out_name = f"{name[len('dest-'):]}.webp"
+            tw, th, budget = DEST
+        else:
+            msg = f"{os.path.basename(f)} 命名不含 `dest-`/`region-` 前缀"
             print(f"  !! {msg}，跳过（检查工单命名规范）", file=sys.stderr)
             violations.append(msg)
             continue
-        cityid = name[len("dest-"):]
-        out_path = os.path.join(OUT_DIR, "dest", f"{cityid}.webp")
+        out_path = os.path.join(OUT_DIR, "dest", out_name)
         size = encode(f, out_path, tw, th, budget, violations)
         if size < 0:
             continue
         status = "OK" if size <= budget else "超限!"
-        print(f"  {status} {cityid}.webp：{size / 1024:.1f}KB（{tw}x{th}，预算 {budget // 1024}KB）")
+        print(f"  {status} {out_name}：{size / 1024:.1f}KB（{tw}x{th}，预算 {budget // 1024}KB）")
 
 
 def main():

@@ -1,6 +1,7 @@
 // 插画接入（M42，随山水皮肤 M46 首落地）。管线皮肤无关：url 只由 assetDir + 槽位名拼出，
-// 后续皮肤只要产出同名槽位（mascot/gacha/empty/region-<slug>/decor-<name>）即可复用本文件，
-// 不用改一行代码——这是「管线随首个带资产的皮肤落地、后续皮肤复用」的字面兑现（design M42）。
+// 后续皮肤只要产出同名槽位（mascot/gacha/empty/decor-<name>）即可复用本文件，不用改一行代码
+// ——这是「管线随首个带资产的皮肤落地、后续皮肤复用」的字面兑现（design M42）。九区题头
+// （region-<slug>）不在此列，见下方 regionHeaderSrc（M60：晋升共享题头层，皮肤无关不设覆盖）。
 import { REGION_SLUG } from "../logic/constants";
 import { DEFAULT_SKIN, SKINS, type SkinDeclaration } from "./registry";
 
@@ -19,6 +20,12 @@ export const illustSrc = (assetDir: string, slot: string) => `${BASE}illustratio
 export const destPhotoSrc = (id: string) => `${BASE}illustrations/dest/${id}.webp`;
 // 九区题头槽位名：region-<slug>，slug 见 REGION_SLUG（唯一真相源在 logic/constants.ts）
 export const regionSlot = (region: string) => `region-${REGION_SLUG[region] || REGION_SLUG["江浙沪"]}`;
+// M60：九区题头 URL——恒走共享题头层（picked/dest/region-<slug>.webp 产出，与目的地个图同目录，
+// 见 tools/build_illustrations.py），不设皮肤覆盖、不经 assetDir/currentSkinId。region-<slug> 恰好
+// 是 destPhotoSrc 需要的「id」，两个既有 helper 直接复合即可，不需要新的拼接逻辑。三处消费点
+// （详情兜底 ui/detail.ts、票券氛围带 ui/gacha.ts、卡位题头 ui/cards.ts）统一走这一个 helper，
+// 换皮肤不再改变九区题头的图源。
+export const regionHeaderSrc = (region: string) => destPhotoSrc(regionSlot(region));
 
 export const currentSkinId = (): string => document.documentElement.dataset.theme || DEFAULT_SKIN;
 

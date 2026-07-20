@@ -2,7 +2,7 @@
 import { REGION_COLOR } from "../logic/constants";
 import { routeDaysText } from "../logic/roadbook";
 import type { Destination } from "../logic/types";
-import { assetDirFor, currentSkinId, destPhotoSrc, illustSrc, regionSlot } from "../skins/illustrations";
+import { destPhotoSrc, regionHeaderSrc } from "../skins/illustrations";
 import { fetchWeather, wxInfo } from "../services/weather";
 import { byId, state } from "../store";
 import { seasonsHTML } from "./cards";
@@ -21,7 +21,7 @@ import { ICONS } from "./icons";
 // 连网络请求都不会发出）。card 网格自身的 `.c-photo` 不受影响（图片在正常文档流里滚动进出，
 // 懒加载语义本来就成立）；票券同款单图场景，改 eager 同样合理。
 function headerBannerHTML(d: Destination, isRoute: boolean): string {
-  const regionSrc = illustSrc(assetDirFor(currentSkinId()), regionSlot(d.region));
+  const regionSrc = regionHeaderSrc(d.region);
   const img = isRoute
     ? `<img class="illust" src="${regionSrc}" alt="" loading="eager" data-fallback="hide">`
     : `<img class="illust" src="${destPhotoSrc(d.id)}" alt="" loading="eager" data-fallback-src="${regionSrc}" data-fallback="hide" data-fallback-frame-toggle="photo">`;

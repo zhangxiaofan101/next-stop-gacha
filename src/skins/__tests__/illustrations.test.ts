@@ -5,7 +5,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  applySkinVisuals, assetDirFor, currentSkinId, destPhotoSrc, illustSrc, regionSlot,
+  applySkinVisuals, assetDirFor, currentSkinId, destPhotoSrc, illustSrc, regionHeaderSrc, regionSlot,
   wireIllustFallbacks,
 } from "../illustrations";
 import { SKINS } from "../registry";
@@ -24,6 +24,25 @@ describe("illustSrc / destPhotoSrc / regionSlot", () => {
     expect(regionSlot("江浙沪")).toBe("region-jzh");
     expect(regionSlot("港澳")).toBe("region-gangao");
     expect(regionSlot("不存在的大区")).toBe("region-jzh");
+  });
+});
+
+// M60：九区题头晋升共享题头层——URL 恒走 illustrations/dest/region-<slug>.webp，不设皮肤覆盖。
+describe("regionHeaderSrc（M60：九区题头恒走共享层，不设皮肤覆盖）", () => {
+  it("拼出 illustrations/dest/region-<slug>.webp，不经 assetDir", () => {
+    expect(regionHeaderSrc("江浙沪")).toMatch(/illustrations\/dest\/region-jzh\.webp$/);
+    expect(regionHeaderSrc("港澳")).toMatch(/illustrations\/dest\/region-gangao\.webp$/);
+  });
+  it("与当前皮肤无关——切换 data-theme 不改变解析出的 URL", () => {
+    document.documentElement.dataset.theme = "ink";
+    const inkResolved = regionHeaderSrc("华东");
+    document.documentElement.dataset.theme = "cream";
+    const creamResolved = regionHeaderSrc("华东");
+    expect(inkResolved).toBe(creamResolved);
+    expect(inkResolved).toMatch(/illustrations\/dest\/region-huadong\.webp$/);
+  });
+  it("等价于 destPhotoSrc(regionSlot(region))——复用既有 dest 共享层拼接，不是另起一套路径", () => {
+    expect(regionHeaderSrc("西北")).toBe(destPhotoSrc(regionSlot("西北")));
   });
 });
 
