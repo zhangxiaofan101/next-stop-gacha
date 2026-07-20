@@ -121,6 +121,24 @@ describe("wireIllustFallbacks（三级缺图回退，F 类回归钉子）", () =
     expect(document.querySelector("[data-illust-frame]")).not.toBeNull();
   });
 
+  it("M58：data-fallback-frame-toggle 存在时，换 src 的同时摘掉 frame 上的该 class（详情头图个图→题头图换源须同步换帧比）", () => {
+    document.body.innerHTML = `<div class="dt-banner photo" data-illust-frame><img class="illust" data-fallback-src="/region.webp" data-fallback="hide" data-fallback-frame-toggle="photo" src="/dest.webp"></div>`;
+    const img = document.querySelector("img")!;
+    const frame = document.querySelector<HTMLElement>("[data-illust-frame]")!;
+    expect(frame.classList.contains("photo")).toBe(true);
+    img.dispatchEvent(new Event("error"));
+    expect(img.src).toMatch(/\/region\.webp$/);
+    expect(frame.classList.contains("photo")).toBe(false); // 换源成功，帧比同步摘掉 3:2 修饰类回落 2:1
+  });
+
+  it("M58：没有 data-fallback-frame-toggle 时换 src 不动 frame 的 class（不误伤没声明这个约定的其他调用点）", () => {
+    document.body.innerHTML = `<div class="dt-banner photo" data-illust-frame><img class="illust" data-fallback-src="/b.webp" data-fallback="hide" src="/a.webp"></div>`;
+    const img = document.querySelector("img")!;
+    const frame = document.querySelector<HTMLElement>("[data-illust-frame]")!;
+    img.dispatchEvent(new Event("error"));
+    expect(frame.classList.contains("photo")).toBe(true); // 未声明 toggle，class 原样保留
+  });
+
   it("fallback-src 也失败（第二次 error）→ 落到 data-fallback：hide 最近的 frame 容器（F59：隐藏不删除，节点与 data-illust 元数据留在 DOM 里，供皮肤切回来时恢复）", () => {
     document.body.innerHTML = `<div data-illust-frame><img class="illust" data-fallback-src="/b.webp" data-fallback="hide" src="/a.webp"></div>`;
     const img = document.querySelector("img")!;

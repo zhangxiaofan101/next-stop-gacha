@@ -56,7 +56,9 @@ export function applySkinVisuals(skinId: string) {
 // error 事件不冒泡，必须用捕获阶段委托（同文档级 click 委托是同一习语，只是挂载阶段不同）。
 // 三级回退，由 data-* 区分，按顺序检查：
 //   ① data-fallback-src（一次性）→ 换一个 src 重试一次（详情页头图：目的地个图缺失时退到该城
-//      所属大区的题头图；`fallbackTried` 防止「换过的 src 也 404」时死循环重换）；
+//      所属大区的题头图；`fallbackTried` 防止「换过的 src 也 404」时死循环重换）；换源同时若
+//      img 带 data-fallback-frame-toggle=<class>，从最近的 [data-illust-frame] 容器摘掉该
+//      class（M58：详情头图换源=换了图源语义，容器帧比须同步换档，见 ui/detail.ts）；
 //   ② data-fallback 是显式 emoji 字符 → 就地在同级插入等大 <span> 顶上视觉，img 本身只隐藏不
 //      摘除（目前只有空态一处，插入的兜底必须原样是同一个 emoji 才叫「零回归」）；
 //   ③ 其余（含 "hide"，未标注也按此处理）→ 隐藏最近的 [data-illust-frame] 容器（找不到该属性
@@ -72,6 +74,8 @@ export function wireIllustFallbacks() {
     if (fallbackSrc && !img.dataset.fallbackTried) {
       img.dataset.fallbackTried = "1";
       img.src = fallbackSrc;
+      const toggleClass = img.dataset.fallbackFrameToggle;
+      if (toggleClass) img.closest<HTMLElement>("[data-illust-frame]")?.classList.remove(toggleClass);
       return;
     }
     img.hidden = true;

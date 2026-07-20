@@ -11,12 +11,21 @@ import { ICONS } from "./icons";
 
 // M46：详情页头图——九区题头的首选用途（design M46）。线路卡直接用大区题头；城市卡优先目的地
 // 个图（M44 分批铺量），个图缺失时退到同一张大区题头兜底，两者都缺才整块不占位（缺图不硬占）。
+// M58：容器帧比随图源双态切换——个图原生 3:2（.photo 类）、题头兜底/线路卡维持 2:1；
+// data-fallback-frame-toggle 告诉 illustrations.ts 的通用回退处理器「换源成功时摘掉这个类」，
+// 换源（个图→题头图）与换帧比（3:2→2:1）必须同步发生，不能拿 3:2 框硬撑一张 2:1 的题头图。
+// [interrupt]（M58 实现期浏览器复验抓到，2026-07-20）：headerBannerHTML 沿用至今的
+// `loading="lazy"` 与 [interrupt] 一轮修过的票券卡图是同一个坑——img 插进 innerHTML 时
+// `#detailOverlay` 还是 display:none，紧接着同步加 `.show`，懒加载可视观察永遇不到「从隐藏切
+// 到可见」这一刻，未被浏览器缓存过的目的地个图/题头图在详情页里恒不加载（`complete:false`，
+// 连网络请求都不会发出）。card 网格自身的 `.c-photo` 不受影响（图片在正常文档流里滚动进出，
+// 懒加载语义本来就成立）；票券同款单图场景，改 eager 同样合理。
 function headerBannerHTML(d: Destination, isRoute: boolean): string {
   const regionSrc = illustSrc(assetDirFor(currentSkinId()), regionSlot(d.region));
   const img = isRoute
-    ? `<img class="illust" src="${regionSrc}" alt="" loading="lazy" data-fallback="hide">`
-    : `<img class="illust" src="${destPhotoSrc(d.id)}" alt="" loading="lazy" data-fallback-src="${regionSrc}" data-fallback="hide">`;
-  return `<div class="dt-banner" data-illust-frame>${img}</div>`;
+    ? `<img class="illust" src="${regionSrc}" alt="" loading="eager" data-fallback="hide">`
+    : `<img class="illust" src="${destPhotoSrc(d.id)}" alt="" loading="eager" data-fallback-src="${regionSrc}" data-fallback="hide" data-fallback-frame-toggle="photo">`;
+  return `<div class="dt-banner${isRoute ? "" : " photo"}" data-illust-frame>${img}</div>`;
 }
 
 function detailHTML(d: Destination): string {

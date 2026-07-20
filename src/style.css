@@ -486,14 +486,19 @@
   .g-illust { display: flex; justify-content: center; margin-bottom: 8px; }
   .g-illust .illust { width: 92px; height: 92px; object-fit: contain; }
 
-  /* 卡片顶部目的地照片（M44 共享集，皮肤无关）：card 本身已有描边，贴边铺满不再叠白框 */
-  .c-photo { aspect-ratio: 3 / 2; overflow: hidden; }
+  /* 卡片顶部目的地照片（M44 共享集，皮肤无关）：card 本身已有描边，贴边铺满不再叠白框。
+     M58：卡片流是快速下滑的浏览流，2:1 扁条只求看个意思、不抢文字（安全区「主体压垂直
+     中央 2/3」保证浅裁不伤主体）；详情页深读用原生比例，见 .dt-banner */
+  .c-photo { aspect-ratio: 2 / 1; overflow: hidden; }
   .c-photo .illust { width: 100%; height: 100%; object-fit: cover; }
 
-  /* 详情页头图：九区题头首选用途（design M46）——2:1 画布契约，object-fit:cover 在比例吻合的
-     题头图上等价于 contain（不裁切）；目的地个图比例是 3:2，落进 2:1 框会有温和裁切，属于个图
-     升级展示时的合理取舍（不是「题头位」本身被裁，题头位契约只约束题头图自己） */
+  /* 详情页头图：单城深读，M58 起双态——个图原生 3:2 完整展示不裁（.photo 修饰类）；大区题头
+     兜底/线路卡维持 2:1 原生（题头位契约不变，object-fit:cover 在比例吻合的题头图上等价于
+     contain）。态由渲染路径按图源打 class（ui/detail.ts headerBannerHTML），缺图回退换源时
+     （个图 404 退题头图）illustrations.ts 的 data-fallback-frame-toggle 同步摘掉 .photo，
+     容器帧比跟着换源一起变，不会拿 3:2 框硬撑一张 2:1 题头图 */
   .dt-banner { aspect-ratio: 2 / 1; overflow: hidden; border-radius: var(--radius-panel); margin-bottom: 14px; border: var(--bw-thick) solid var(--ink); }
+  .dt-banner.photo { aspect-ratio: 3 / 2; }
   .dt-banner .illust { width: 100%; height: 100%; object-fit: cover; }
 
   /* 扭蛋票券氛围带：该目的地所属大区的题头图垫底（design M46），卡片本身（含卡顶个图）叠在下面。
