@@ -192,4 +192,8 @@
   --map-dot-idle: #b9c6d6; /* 未打卡点 */
   --map-dot-visited: #2e7d43; /* 已打卡点 */
   --map-heart: #ff6b81; /* 收藏点心形标记 */
+
+  /* ---- 共享集皮肤适配滤镜（M51）：作用于目的地共享集图（.c-photo/.dt-banner.photo），
+     不影响各皮肤自有的题头/装饰插画。奶油=原色，不做任何色调调和。 ---- */
+  --dest-filter: none;
 }

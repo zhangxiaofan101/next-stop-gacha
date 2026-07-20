@@ -501,6 +501,12 @@
   .dt-banner.photo { aspect-ratio: 3 / 2; }
   .dt-banner .illust { width: 100%; height: 100%; object-fit: cover; }
 
+  /* M51：共享集皮肤适配滤镜——只作用于目的地共享集图（卡顶个图 + 详情页 .photo 态个图），
+     不碰各皮肤自有的题头/装饰插画（那些本就是皮肤原生画风，不需要也不该被调和）。运行时渲染、
+     零资产成本；`--dest-filter` 缺失或引用的 SVG 滤镜 id 不存在时浏览器原生按 none 处理，天然
+     「滤镜失败优雅回退原图」不需要额外代码兜底。 */
+  .c-photo .illust, .dt-banner.photo .illust { filter: var(--dest-filter, none); }
+
   /* 扭蛋票券氛围带：该目的地所属大区的题头图垫底（design M46），卡片本身（含卡顶个图）叠在下面。
      只在声明了资产的皮肤下露出——奶油皮肤从不设这条规则，不会平白多出一圈从未被填过色的留白
      （即使加了也只是留白，量虽小也算视觉回归，故随 [data-theme] 显式声明，而非放进通用规则再
