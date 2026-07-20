@@ -102,7 +102,9 @@ for src, d in all_rows:
     if d.get("difficulty") not in DIFFICULTIES: errors.append(f"{tag} difficulty 非法: {d.get('difficulty')}")
     # M56：城市卡可选布尔字段 noair/norail（无民航客运/无轨道客运，挡编造档的守卫输入）。
     # 判定口径=本体粒度三档（见 design M56）；仅城市卡可标，线路卡通达性由停留站传导，不自带。
-    for gk in ("noair", "norail"):
+    # slowrail（M56 追加，2026-07-21）：轨道现役但仅普速无高铁/动车——「高铁」守卫的第三输入，
+    # 命中时 leg 降「火车」档；与 norail 互斥语义（norail=完全无轨道客运时不再标 slowrail）。
+    for gk in ("noair", "norail", "slowrail"):
         if gk in d:
             if not isinstance(d[gk], bool): errors.append(f"{tag} {gk} 非法(需布尔): {d[gk]}")
             if "stops" in d: errors.append(f"{tag} 线路卡不得标 {gk}（通达性归停留站城市卡）")
