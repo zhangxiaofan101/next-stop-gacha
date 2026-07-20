@@ -50,5 +50,5 @@ export const seasonForMonth = (month: number) => SEASON_BY_MONTH[month];
 // 从严收录——单基地+一晚特色住宿（林芝/神农架/漠河）与双基地（乐山峨眉/晋东南）不算路线型。
 export const ROUTE_STAY = new Set(["chuanxi-loop", "hulunbuir", "gannan", "yili", "siguniangshan-danba", "altay"]); // M31：独库/青海湖环线已迁线路卡
 
-export const TRIP_MAX = 6; // 一次行程最多 6 站
+export const TRIP_MAX = 10; // M54：一次行程最多站数 6→10（最长线路 4 站，散选 3 城再装整线即顶满旧上限）
 export const CMP_MAX = 6; // M53：对比池上限 4→6

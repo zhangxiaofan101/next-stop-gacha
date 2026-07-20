@@ -32,7 +32,7 @@ export function toggleTrip(id: string) {
   const i = state.trip.findIndex(t => t.id === id);
   if (i >= 0) state.trip.splice(i, 1);
   else {
-    if (state.trip.length >= TRIP_MAX) { toast("一次行程最多 6 站，贪多嚼不烂～"); return; }
+    if (state.trip.length >= TRIP_MAX) { toast(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`); return; }
     const d = byId(id)!;
     state.trip.push({ id, days: Math.min(...d.days) });
     toast(`已加入行程：${d.name}`);
@@ -51,6 +51,6 @@ export function addRouteToTrip(routeId: string) {
   }
   saveLS(); render();
   if (added === 0) toast(skippedFull ? "行程已满，一站都没装进去" : "这条线路的站点都已在行程里啦");
-  else if (skippedFull) toast(`行程已满 6 站，只装入了前 ${added} 站`);
+  else if (skippedFull) toast(`行程已满 ${TRIP_MAX} 站，只装入了前 ${added} 站`);
   else toast(`已把「${route.name}」整条装入行程（${added} 站）`);
 }
