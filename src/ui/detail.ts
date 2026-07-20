@@ -1,6 +1,7 @@
 /* 详情 */
 import { REGION_COLOR } from "../logic/constants";
 import { routeDaysText } from "../logic/roadbook";
+import { parseTransitIcon } from "../logic/transport";
 import type { Destination } from "../logic/types";
 import { destPhotoSrc, regionHeaderSrc } from "../skins/illustrations";
 import { fetchWeather, wxInfo } from "../services/weather";
@@ -33,6 +34,9 @@ function detailHTML(d: Destination): string {
   const chips = (arr: string[], cls = "") => arr.length ? `<div class="dt-chips">${arr.map(x => `<span class="dt-chip ${cls}">${x}</span>`).join("")}</div>` : "";
   const rs = REGION_COLOR[d.region] || "var(--region-fallback)";
   const isRoute = !!d.stops;
+  // M59 ④ 收尾：dt-meta 交通行图标与卡片同源解析（此前硬编码 🚄，高铁城/飞机城同病）。
+  // 线路卡不同于 cards.ts 的「不显示」——详情页真的展示线路 transit（首末大交通文案，方式词齐全），一并解析。
+  const transitIcon = parseTransitIcon(d.transit);
   const inTrip = state.trip.some(t => t.id === d.id);
   const tripBtn = isRoute
     ? `<button class="big-btn" data-addroute="${d.id}">🎫 整条装入行程单</button>`
@@ -56,7 +60,7 @@ function detailHTML(d: Destination): string {
     <div class="dt-meta">
       ${seasonsHTML(d)}
       <span>📅 ${d.stops ? `${routeDaysText(d)}（各站天数装入行程单后可调）` : `建议 ${d.days.join(" / ")} 天`}</span>
-      <span>🚄 ${d.transit}（${d.difficulty}）</span>
+      <span>${transitIcon} ${d.transit}（${d.difficulty}）</span>
       <span>🥾 ${d.effort.length ? d.effort.join(" / ") : "怎么玩都行"}</span>
       <span>👥 ${d.companions.length ? d.companions.join(" / ") : "谁来都合适"}</span>
     </div>
