@@ -6,13 +6,15 @@
 
 **线上**：`lab.medspiral.com/next-stop-gacha/`——Vite+TS 工程化版，267 城 + 53 线全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；后端短链分享（KV）+ 同步码云同步（Durable Object）已闭环并过跨家族 review；主题皮肤机制落地，奶油/山水双肤可切（山水已过 M52 形态精修并生产复验），DOM 结构与 token 体系处冻结态（再动结构须用户拍板）。四期代码侧（M37/M38/M40/M41/M42 管线）与五期代码轨道（M47→M45→M50→M46→M52）全部落地，明细见 ✅ 与 git 历史。 [cc]
 
-**在飞**：①review 全关：codex 三轮复核完毕（baseline b47a8c8，review.md 零 active finding），**M45/M46/M52 三个跨家族 gate 全部正式通过**；两条 [interrupt] 线上小修**已修复入库**（见 ✅，代码此前只在 state.md 记了计划从未真的落地，本轮补上）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环，产物随 F60 管线修复一并生成上线）；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 1）；③A8 山水工艺件 **六槽位已转档入 `picked/ink/`**，M57 接入待排；④/loop 批 **M53/M54 已落地**（见 ✅）；M58/M55/M51/M57 按序续做中，M56/M48/M49/M22/M11 执行侧已划转 claude（P1/P2）。 [cc]
+**在飞**：①review 全关：codex 三轮复核完毕（baseline b47a8c8，review.md 零 active finding），**M45/M46/M52 三个跨家族 gate 全部正式通过**；两条 [interrupt] 线上小修**已修复入库**（见 ✅，代码此前只在 state.md 记了计划从未真的落地，本轮补上）；②M44 目的地共享集：**44/267 城母版已终审入库并出产物上线**（江浙沪 42 城全闭环，产物随 F60 管线修复一并生成上线）；batch 4（华东）codex 在批生成中，其停批后交用户挑版（🔜 1）；③A8 山水工艺件 **六槽位已转档入 `picked/ink/`**，M57 接入待排；④/loop 批 **M53/M54 已落地**（见 ✅）；M58/M55/M51/M57 按序续做中；⑤**内容批（fable orchestrator 会话）开跑**：M48 体检段已完成产出 `.agent/m48-findings.md` 交 triage（见 ✅ M48 与 🟡），M56 数据体检段/M49 调研段按序续做中；M22/M11 仍候排（P1/P2）。 [cc]
 
 **近期顺序**：/loop 批（本会话，用户指定顺序）：[interrupt] 两条线上小修✅ → M53✅ → M54✅ → M58 → M55 → M51 → M57，模块边界 compact；M56 本批不动，留 🔜；内容批 M48/M49 随时可插∥用户侧：M44 华东 batch 挑版、山水终审 + 默认皮肤拍板（🟡）。 [cc]
 
 ## ✅ Implemented
 
 （Phase 1 已封板 → 见 🪦 墓碑；M1–M25 全部条目与 Verified 证据明细在 git 历史（至 176512d）；新模块自 M26 起编号） [cc]
+
+- M48 — 线路全量体检·体检段 [R2 · S2] → fable 编排 · worker opus · high ×10 + 反方复核 opus ×1（2026-07-20，内容批第一模块；spec 见 design M48）｜53 线按地理走廊分 10 片并行网查体检（checklist 三节+一节+二节联查逐项过、逐项留依据）；机械项（leg 成组/stays/天数契约/stop id/alt 传播/门户 id）离线脚本先行清零，20 条 plan 疑漏站软提示 worker 人审 20/20 判分词误报。产出 `.agent/m48-findings.md` 工单：**阻塞1**（晋北线沪太高铁 5.5h 实为约 9h）/**警告6**（茶卡「动车」实为 Y 字头旅游专列、呼伦贝尔线路卡与城市卡直飞矛盾、洛阳 4.5h 低估、晋北并入木塔悬空寺两独立卡、桂林与四姑娘丹巴 difficulty 口径冲突）/**建议23**/**拍板项3**（difficulty 全库口径、晋北重叠、太原修法→🟡）。存量只读纪律执行：零数据改动。checklist 回写 8 条新规（注 M48）：两端门户自述、旅游专列≠动车、时长实测口径、线路卡↔城市卡交叉自洽、独立卡「可接」指引、无 leg 线披露口径、易变信息对冲、体检编排范式｜Verified：fable 抽查——全部驱动改动的摘录逐条与 data 原文核对为真（含 4 组 difficulty 冲突、2 处线路卡↔城市卡矛盾直接实证），无幻觉摘录；6 条事实性阻塞/警告级结论 opus 换视角反方复核（只验依据链）6/6 成立零推翻（沪太 6 班直达 8h41m-9h42m 无 6h 内班次、沪洛最快 5h26m、茶卡站无 D/C 常态班次、沪海拉尔直飞每周约 23 班约 3.5h、荆州→武当山西同实体车汉口改号须分段购票、蟳埔=国家级非遗且泉州 22 世遗点逐点比对不含）；worker 交付原文 10 片全量暂存会话 scratchpad（m48-results/），工单消费前可追溯 [cc]
 
 - M54 — 行程站数上限放宽 [R1 · S1] → sonnet · low · cc in-session（2026-07-20，/loop 第三轮）｜spec 见 design M54。落地：`TRIP_MAX` 6→10（`src/logic/constants.ts` 单点）；三处 cap 检查各自持有的 toast 文案原先硬编码「6 站」（`src/ui/trip.ts` `insertOnWay` 一处、`src/ui/actions.ts` `toggleTrip`/`addRouteToTrip` 两处），改用模板字符串插值 `${TRIP_MAX}`，此后再改上限不会漏改文案。边界复核（design「已核」结论现场验证一致）：`persist.ts` 的 `sanitizeTripItems` 只按 `days∈[1,14]`+城市 id 过滤，无数组长度上限；`cloudflare/worker.mjs` 分享 API 无逐项计数校验，只有 payload 体量与单站天数约束，10 项 JSON 远小于 8KB｜Verified：`bun run verify` 142/142（139+3 新增：`src/ui/__tests__/trip-max.test.ts` 覆盖 `toggleTrip`/`addRouteToTrip`/`insertOnWay` 三条装入路径的 cap 行为与 toast 文案，`insertOnWay` 一例利用其 cap 检查先于顺路几何计算的实现顺序、无需构造真实顺路场景即可测早退；均手动 revert 验证过会红：单独回退常量与单独回退文案两种缺陷分别单测复现）+ 45 workerd 无回归；`bun run build` 干净，CSS 产物哈希与 M53 相同（本模块零 CSS 改动）。**浏览器全链路复验**（`python3 -m http.server` 服务生产构建，claude-in-chrome；本模块无视觉改动，主验证在 cream，ink 做零回归抽查）：cream 皮肤连续点击 11 张卡片「行程」按钮，第 11 次被拒绝、`localStorage.trip.length===10`、toast 精确为「一次行程最多 10 站，贪多嚼不烂～」；打开行程单显示全部 10 站，点「自动排序」（顺路排序）无报错、按最近邻结果重排（苏州→乌镇西塘→莫干山→杭州→绍兴→宁波→…）；生成路书成功，标题栏「10 站 · 总里程约 1589km」，逐日速览 D1–D21+ 完整、宿地/交通逐段正确；ink 皮肤下同一 10 站行程单渲染无破版（手绘描边/宿地色标正常）。控制台全程零 error。**生产复验（push 344a15d 后，Cloudflare 自动部署完成）**：`index-XiZDHy2a.js` 与本地过闸构建**字节级一致**（`diff` 通过，CSS 哈希本轮未变）；真机 `lab.medspiral.com/next-stop-gacha/` 实点 10 张卡「行程」全部装入；打开路书后点「分享」→ `read_network_requests` 抓到 `POST https://lab.medspiral.com/next-stop-gacha/api/share` 返回 **200**（真实携带 10 站 trip payload 过 Worker 短链创建，design「边界已核」的 8KB/单站天数校验现场验证未被 10 站触发拒绝）；控制台零 error；Lab 首页 `/` 与游戏路径均 200 零回归。 [cc]
 
@@ -119,7 +121,7 @@
 
 ## ⏭ P1
 
-- 【内容】M48 — 线路全量体检 [R2 · S2] → fable 编排、worker opus · high（53 线总量小、多约束互查吃判断力；2026-07-20 用户拍板自 codex 划转，同日确认 worker 档位升 opus）｜ 2026-07-19 用户点名「整体路线审查」；只读审查不改数据，与皮肤线零冲突可随时插入；审查项含站间交通表意（与 M56 互参，design M48 已补）；体检按 `.agent/content-checklist.md` 规程执行并回写新规；spec 见 design M48 [cc]
+- 【内容】M48·发现处置批 ｜ gating：用户 triage `.agent/m48-findings.md`（阻塞1/警告6/建议23 + 拍板项A difficulty 口径/B 晋北重叠/C 太原修法）后，按 triage 结果落数据修改（预计 sonnet · medium 一揽子批改 + build 过闸）；体检段本体已完成（见 ✅ M48） [cc]
 - 【内容】M49 — 特色主题游扩容 + 筛选标签扩充（调研段）[R2 · S2 · 🌫️] → fable 编排、worker opus · high + 网查（开放式甄别；2026-07-20 用户拍板自 codex 划转，同日确认 worker 档位升 opus）｜ 2026-07-19 用户点名（诸暨珍珠城/横店影视城一族 + 「还能加什么筛选 tag」）；调研产出候选清单+标签提案交用户拍板，实施随拍板另立条目；新收录候选按 content-checklist 通用节预检；spec 见 design M49 [cc]
 - 【前端+内容】M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] ｜ 2026-07-20 用户拍板全模块划转 claude 侧（含原定 codex 的数据批）；2026-07-19 用户重排进 P1（原 2026-07-14「遥远将来」拍板作废）：先北京，其他城市再往后。两段式：**机制段**（行程/路书/彩蛋起点参数化=小头；difficulty 与 transit 均为上海视角、difficulty 还是筛选契约，per-origin schema 方案 🌫️ 需拍板）→ **北京数据批**（claude 侧，全量城市 transit/difficulty 北京视角重打+情侣周末类短途语义复审）。建议排在 M48/M49 实施之后——卡池稳定后再写北京视角文案，避免新增卡二次补写；spec 见 design M22（机制段开工时扩写） [cc]
 
@@ -133,6 +135,7 @@
 
 ## 🟡 Pending decisions
 
+- **M48 体检发现 triage**（2026-07-20 起待用户）：`.agent/m48-findings.md` 工单交拍——①阻塞1+警告6+建议23 的处置批准；②拍板项A：线路卡 difficulty 全库口径（门户抵达 vs 整程复杂度 vs 计班次密度，fable 建议整程复杂度+逐线核定清单在工单）；③拍板项B：晋北线并入应县木塔/悬空寺=改「可接」指引 vs 登记有意重叠；④拍板项C：太原阻塞修法（fable 建议主推直飞+高铁如实约9h）。拍定后 difficulty 口径成文进 checklist 三节+design 线路契约 [cc]
 - **默认皮肤**（2026-07-19 起待定；M46 落地但用户验收打回立 M52；**M52 已于 2026-07-20 落地，待用户终审山水新效果后拍板**）：奶油保守/山水尝鲜/「随机」，本轮 M46 交付刻意维持 `DEFAULT_SKIN="cream"` 不动（用户本次routing消息明确写死「默认给谁=用户终审拍板项」，不是 implementer 漏做）；～～选择器入口位置～～已随 M50 动作分区解决（页头全局动作区），M45「🎨 按钮位置临时」的注记随 M50 落地作废 [cc]
 - **资产终审闸（皮肤化后口径）**：①~~A6 山水批用户挑版~~ 已收官（见 ✅ A6 条目）；②水彩资产终审拆两半（2026-07-20）：M43 三地样张终审**提前**为 M44 铺量 batch 0（见 🔜 第 2 条），扭蛋机/空态/九区版本组合维持挂手帐皮肤（P2）gating；③~~风格锁经终审冻结后晋升 design~~ **山水锁已于 M46 落地时晋升**（design「已冻结风格锁·山水皮肤」），其余皮肤按同规则各自执行 [cc]
 - 插画轨道执行细节：codex 若无图像 API 可用，降级为「整理批量 prompt 清单交用户手动生成」（工单已写明两种模式）；用哪个图像模型由 codex/用户按可用性定，cc 不锁定 [cc]
