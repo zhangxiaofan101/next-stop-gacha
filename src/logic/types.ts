@@ -98,6 +98,12 @@ export interface LegEstimate {
   hours: number;
   /** M56：该段含航空运输（纯飞机或飞机+包车），供 budget 分支加机票价——比字符串匹配 mode 更稳健 */
   air: boolean;
+  /**
+   * F64：budget 分支算地面包车/自驾价专用的里程口径，与 km（展示用的整段大圆距离）分离——
+   * 「飞机+包车」只包落地后最后一程，不能按整段距离计价；纯「飞机」没有地面段记 0；
+   * 其余所有陆路档（含显式游轮/轮渡/火车）地面价覆盖全程，等于 km。
+   */
+  groundKm: number;
 }
 
 export interface TripLeg extends LegEstimate {

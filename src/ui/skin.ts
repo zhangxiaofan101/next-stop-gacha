@@ -2,6 +2,7 @@
 import { applySkinChoice, normalizeSkinChoice, RANDOM_CHOICE, SKINS } from "../skins/registry";
 import { getSkinChoice } from "../store";
 import { $ } from "./dom";
+import { render } from "./render";
 import { toast } from "./toast";
 
 const OPTIONS = [...SKINS.map(s => ({ id: s.id, label: s.label })), { id: RANDOM_CHOICE, label: "🎲 随机" }];
@@ -26,6 +27,9 @@ function renderSkin() {
 // 每次切换后原地刷新高亮，弹层保持打开——这是「留着对比」的机制保证。
 export function selectSkin(id: string) {
   applySkinChoice(id);
+  // F63：cardPhotosEnabled() 只在 cardHTML() 拼串时读一次皮肤，applySkinChoice 换 data-theme
+  // 不会让已经渲染在网格里的卡片自己重算——不重渲染网格，弹层文案「点一下立即切换」就是假的。
+  render();
   const label = OPTIONS.find(o => o.id === id)?.label || id;
   toast(`已切换皮肤：${label}`);
   renderSkin();

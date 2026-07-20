@@ -41,6 +41,7 @@ describe("legInfo 距离分档", () => {
     expect(l.mode).toBe("飞机");
     expect(l.hours).toBe(Math.round((hav(SH.coords, cd.coords) / 625 + 2.4) * 10) / 10);
     expect(l.air).toBe(true);
+    expect(l.groundKm).toBe(0); // F64：纯飞机没有地面段，budget 不重复计包车价
   });
 });
 
@@ -54,6 +55,7 @@ describe("legInfo M56 守卫（noair/norail/slowrail）", () => {
     const l = legInfo(urumqi, tekes);
     expect(l.mode).toBe("包车/自驾");
     expect(l.air).toBe(false);
+    expect(l.groundKm).toBe(l.km); // 纯陆路档地面价覆盖全程
   });
   it("上海→特克斯：真实数据，远距离+特克斯 noair/norail 双标，飞机被 noair 挡下、落「飞机+包车」（上海端仍有航）", () => {
     const tekes = byId("tekes-kalajun")!;
@@ -61,6 +63,10 @@ describe("legInfo M56 守卫（noair/norail/slowrail）", () => {
     expect(l.mode).toBe("飞机+包车");
     expect(l.air).toBe(true); // 供 budget 分支计入机票项
     expect(l.hours).toBeGreaterThan(hav(SH.coords, tekes.coords) / 625 + 2.4); // 飞行估之外仍叠中转缓冲
+    // F64：地面价按接驳里程代理（165km=3h×55km/h），不是上海→特克斯的整段大圆距离——
+    // 否则会把 4640km 全程重复按机票+包车两次计价
+    expect(l.groundKm).toBe(165);
+    expect(l.groundKm).toBeLessThan(l.km);
   });
   it("哈尔滨→漠河：真实数据，漠河 slowrail（轨道现役仅普速），高铁候选降「火车」档，约13h 而非启发式误判的约5h「高铁」", () => {
     const harbin = byId("harbin")!, mohe = byId("mohe")!;
@@ -68,6 +74,7 @@ describe("legInfo M56 守卫（noair/norail/slowrail）", () => {
     const l = legInfo(harbin, mohe);
     expect(l.mode).toBe("火车");
     expect(l.air).toBe(false);
+    expect(l.groundKm).toBe(l.km);
     const km = hav(harbin.coords, mohe.coords);
     expect(l.hours).toBe(Math.round((km / 65 + .5) * 10) / 10);
     expect(l.hours).toBeGreaterThan(12);
@@ -86,6 +93,7 @@ describe("legInfo M56 守卫（noair/norail/slowrail）", () => {
     const l = legInfo(a, b);
     expect(l.mode).toBe("包车/自驾");
     expect(l.air).toBe(false);
+    expect(l.groundKm).toBe(l.km);
   });
 });
 

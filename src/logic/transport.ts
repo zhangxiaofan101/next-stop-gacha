@@ -39,6 +39,11 @@ export const TRANSPORT_META: Record<ExplicitTransport, { icon: string; kmph: num
 // 轨道现役只是慢，不是编造，时长按直线有效速 ~65km/h（标定=哈尔滨→漠河 K 车约 13h/直线约 850km），
 // 与 TRANSPORT_META 显式「火车」的 120（线路卡短程直线段专用）不混用。
 const AIR_CHARTER_TRANSFER_H = 3;
+// F64：「飞机+包车」的地面包车段只是落地后最后一程接驳，不是整段大圆距离——用固定保守代理
+// （按下面 overlandOrCombo 陆路档同款 55km/h 换算 AIR_CHARTER_TRANSFER_H，与特克斯标定的
+// 伊宁→特克斯实测约 2.5-3h/约150km 车程量级一致），供 budget.ts 算地面价专用，不影响展示用的
+// LegEstimate.km（那仍是整段大圆距离，用于行程单/预算总里程展示）。
+const AIR_CHARTER_TRANSFER_KM = AIR_CHARTER_TRANSFER_H * 55;
 
 function overlandOrCombo(km: number, noairBoth: boolean): { mode: string; icon: string; hours: number; air: boolean } {
   if (km < 650) return { mode: "包车/自驾", icon: "🚐", hours: km / 55, air: false };
@@ -53,7 +58,7 @@ export function legInfo(a: Place & { id?: string }, b: Place & { id?: string }, 
   const straight = Math.round(km * 1.25); // 近似实际里程
   if (transport && TRANSPORT_META[transport]) { // 显式模式优先于距离启发式，且不受 M56 守卫约束（F30 的诚实声明本就是最高优先级）
     const t = TRANSPORT_META[transport];
-    return { km: straight, mode: transport, icon: t.icon, hours: Math.round(km / t.kmph * 10) / 10, air: false };
+    return { km: straight, mode: transport, icon: t.icon, hours: Math.round(km / t.kmph * 10) / 10, air: false, groundKm: straight };
   }
   const provFly = FLY_PROV.has(a.province || "") || FLY_PROV.has(b.province || "");
   const needFly = provFly || (km >= 500 && (seaDetour(a, b) || seaDetour(b, a)));
@@ -78,7 +83,10 @@ export function legInfo(a: Place & { id?: string }, b: Place & { id?: string }, 
   } else if (isRail && (a.slowrail || b.slowrail)) {
     mode = "火车"; icon = "🚄"; hours = km / 65 + .5;
   }
-  return { km: straight, mode, icon, hours: Math.round(hours * 10) / 10, air };
+  // F64：groundKm 与展示用 km（=straight）分离——纯「飞机」没有地面段记 0；「飞机+包车」只包最后
+  // 一程接驳，记固定代理 AIR_CHARTER_TRANSFER_KM；其余陆路档地面价覆盖全程，等于 straight。
+  const groundKm = mode === "飞机" ? 0 : mode === "飞机+包车" ? AIR_CHARTER_TRANSFER_KM : straight;
+  return { km: straight, mode, icon, hours: Math.round(hours * 10) / 10, air, groundKm };
 }
 
 export const fmtH = (h: number) => h >= 1 ? `约${h}h` : `约${Math.round(h * 60)}分钟`;

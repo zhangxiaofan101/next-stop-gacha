@@ -108,6 +108,11 @@ for src, d in all_rows:
         if gk in d:
             if not isinstance(d[gk], bool): errors.append(f"{tag} {gk} 非法(需布尔): {d[gk]}")
             if "stops" in d: errors.append(f"{tag} 线路卡不得标 {gk}（通达性归停留站城市卡）")
+    # F68：norail 与 slowrail 互斥（注释已明确该不变式但此前未执行）——norail=完全无轨道客运，
+    # slowrail=轨道现役仅普速，两者同真在语义上自相矛盾，且运行时 legInfo 的 norail 分支在前，
+    # 会静默吞掉 slowrail，过闸但跑起来悄悄按错误档降级。
+    if d.get("norail") is True and d.get("slowrail") is True:
+        errors.append(f"{tag} norail 与 slowrail 不能同时为 true（互斥：前者=无轨道客运，后者=仅普速现役）")
     cp = d.get("companions")
     if not isinstance(cp, list) or any(x not in COMPANIONS for x in cp) or len(set(cp)) != len(cp) or len(cp) >= 4: errors.append(f"{tag} companions 非法(四档全打应留空): {cp}")
     for k in ["food", "museums", "architecture", "highlights"]:

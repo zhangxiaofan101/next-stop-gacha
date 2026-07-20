@@ -11,28 +11,31 @@ const data = loadRealData();
 const byId = byIdOf(data);
 
 describe("预算估算", () => {
-  it("住宿×天数 + 交通（飞机 550+0.35/km，其余 0.5/km），百元取整", () => {
+  it("住宿×天数 + 交通（飞机 550+0.35/km，其余 0.5/km，按 groundKm 计），百元取整", () => {
     const stops = [
       { ...mkCity({ id: "a", cost: "¥" }), chosenDays: 2, fromRoute: false },
       { ...mkCity({ id: "b", cost: "¥" }), chosenDays: 3, fromRoute: false },
     ] as TripStopX[];
     const legs = [
-      { mode: "高铁", km: 100, air: false }, { mode: "飞机", km: 1000, air: true }, { mode: "高铁", km: 200, air: false },
+      { mode: "高铁", km: 100, air: false, groundKm: 100 },
+      { mode: "飞机", km: 1000, air: true, groundKm: 0 },
+      { mode: "高铁", km: 200, air: false, groundKm: 200 },
     ] as TripLeg[];
     const b = tripBudget(stops, legs);
     expect(b.daySum).toBe(5);
     expect(b.km).toBe(1300);
-    // stay=5*380=1900, trans=50+(550+350)+100=1050
+    // stay=5*380=1900, trans=50+(550+350)+100=1050（纯飞机段 groundKm=0，不计地面价）
     expect(b.lo).toBe(Math.round((1900 * 0.8 + 1050) / 100) * 100);
     expect(b.hi).toBe(Math.round((1900 * 1.25 + 1050 * 1.15) / 100) * 100);
   });
 
-  it("M56「飞机+包车」组合档：机票价（550+0.35/km）与包车地面价（0.5/km）都计入，不因非纯「飞机」字符串而漏计机票项", () => {
+  it("F64「飞机+包车」组合档：地面价按 groundKm（落地后接驳里程）而非 km（整段大圆距离），不会把整段距离重复计入机票+包车两项", () => {
     const stops = [{ ...mkCity({ id: "a", cost: "¥" }), chosenDays: 2, fromRoute: false }] as TripStopX[];
-    const legs = [{ mode: "飞机+包车", km: 1000, air: true }] as TripLeg[];
+    // km=1000（整段展示距离）但 groundKm=150（接驳代理，刻意与 km 不同，证明两者不会被混用）
+    const legs = [{ mode: "飞机+包车", km: 1000, air: true, groundKm: 150 }] as TripLeg[];
     const b = tripBudget(stops, legs);
-    // trans = (550+350) + 500 = 1400（机票项 + 包车段，两者都不是 0）
-    expect(b.lo).toBe(Math.round((760 * 0.8 + 1400) / 100) * 100);
+    // trans = (550+350) + 150*0.5=75 = 975（机票项按整段 km，地面价按 groundKm，不是 1000*0.5=500）
+    expect(b.lo).toBe(Math.round((760 * 0.8 + 975) / 100) * 100);
   });
 });
 
