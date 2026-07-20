@@ -459,6 +459,7 @@
      静默失败）；本节只管布局/画布契约，不管哪张图存在——奶油皮肤下这里的每一张图都 404，视觉上
      与改造前逐像素一致。 ---- */
   .illust { display: block; }
+  .illust[hidden] { display: none; } /* [interrupt] F59 回退残留：.illust{display:block} 打穿 UA 的 hidden 属性 display:none，露破图框 */
   .illust-fallback { display: inline-block; line-height: 1; }
 
   /* M52 丁A：线形功能图标（src/ui/icons.ts）——随所在文字流取色取号，全皮肤共享 */

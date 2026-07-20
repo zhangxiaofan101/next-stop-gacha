@@ -77,6 +77,7 @@ export function roll() {
       // 额外的 onerror 处理，奶油皮肤下这行只是设了一个 404 的 url() 从不产生可见差异。
       ticketEl.style.setProperty("--ticket-ambience", `url(${illustSrc(assetDirFor(currentSkinId()), regionSlot(pick.region))})`);
       ticketEl.innerHTML = cardHTML(pick, 0);
+      ticketEl.querySelector<HTMLImageElement>(".illust")?.setAttribute("loading", "eager"); // [interrupt] 票券容器自 display:none 切入，lazy 的可视观察永不触发
       ticketEl.className = "show";
       $("gDetailBtn").style.display = "";
       $("gTripBtn").style.display = "";
