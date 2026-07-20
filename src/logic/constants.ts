@@ -24,7 +24,7 @@ export const DAY_BUCKETS: { key: string; label: string; test: (d: number[]) => b
 ];
 export const CROWDS = ["热门", "适中", "小众"];
 // 玩法 chip 列表：数据里仍保留「亲子」tag（搜索可命中），但 chip 不再展示——同行组「带娃」承载该场景（2026-07-14 用户拍板：UI 隐藏、数据保留）
-export const TAGS = ["美食", "博物馆", "古建筑", "古镇古村", "自然风光", "海岛海滨", "徒步", "民俗非遗", "citywalk", "夜生活", "温泉", "滑雪", "沙漠", "草原", "摄影出片", "世界遗产", "边境风情"];
+export const TAGS = ["美食", "博物馆", "古建筑", "古镇古村", "自然风光", "海岛海滨", "徒步", "民俗非遗", "citywalk", "夜生活", "温泉", "滑雪", "沙漠", "草原", "摄影出片", "世界遗产", "边境风情", "实景演艺", "观星", "工业遗产"];
 export const COMPANIONS = ["带娃", "带爸妈", "独行", "情侣周末"]; // 偏好型多选 OR；记录 companions 为空数组 = 谁来都合适（通配）
 export const CROWD_CLASS: Record<string, string> = { "热门": "hot", "适中": "mid", "小众": "hid" };
 export const EFFORTS = ["躺平", "正常", "费腿", "硬核"]; // 偏好型多选 OR；记录 effort 为空数组 = 怎么玩都行（通配）

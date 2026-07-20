@@ -72,13 +72,13 @@ describe("空池定向放宽（relaxCandidates）", () => {
 
 describe("真实数据回归", () => {
   const data = loadRealData();
-  it("全量 320 条（267 城 + 53 线）", () => {
-    expect(data).toHaveLength(320);
-    expect(data.filter(d => !d.stops)).toHaveLength(267);
+  it("全量 335 条（282 城 + 53 线）", () => {
+    expect(data).toHaveLength(335);
+    expect(data.filter(d => !d.stops)).toHaveLength(282);
   });
-  it("「江浙沪」chip 命中 46（M37 浏览器复验口径；线路按 regions 多选 OR）", () => {
+  it("「江浙沪」chip 命中 49（M37 浏览器复验口径；线路按 regions 多选 OR）", () => {
     const s = mkState({ region: new Set(["江浙沪"]) });
-    expect(filtered(data, s, "夏")).toHaveLength(46);
+    expect(filtered(data, s, "夏")).toHaveLength(49);
   });
   it("默认无排序时保持 manifest 拼接顺序（首卡杭州）", () => {
     expect(filtered(data, mkState(), "夏")[0].id).toBe("hangzhou");
