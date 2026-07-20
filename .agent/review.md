@@ -18,14 +18,6 @@
 
 ## Active findings
 
-> Review baseline: 883655a（`origin/main`），Codex/GPT reviewer，2026-07-20。审计范围 `b47a8c8..883655a`，本轮代码模块为 interrupt、M51、M53、M54、M55、M57、M58；按用户指示不审 M48/M49/M56 内容工单，也不把本地仅领先一笔的 M44 图片压缩提交 f5a83fd 纳入代码 gate。上一轮 M45 `[R2 · S3]`、M46 `[R2 · S2]`、M52 `[R2 · S2]` 结论不变；本轮 M51/M53/M54/M58 及两条 interrupt 未发现 active finding，M55/M57 各留一项。
+> Review baseline: ccab80e（`origin/main`），Codex/GPT reviewer，2026-07-21。确认范围 `883655a..ccab80e`，聚焦复核修复提交 43d87d5；其后提交未再触碰 F61/F62 的四个实现/测试文件。F61（M55 时间词解析）与 F62（M57 工艺槽位撞名）均关闭，当前无 active finding；上一轮其余模块结论及 M45 `[R2 · S3]`、M46 `[R2 · S2]`、M52 `[R2 · S2]` gate 状态不变。本轮未审 M48/M49/M56 内容工单及 M49 后续内容入库。
 >
-> 独立证据：`git diff --check b47a8c8..883655a` 通过；`bun run verify` 179/179 + workerd 45/45；`bun run build` 通过；`bun run test:build-assets` 7/7（本机 Homebrew Python 3.14 动态库被系统签名策略拦截，改用系统 `/usr/bin/python3` 重跑同一测试后全绿，判定为本机环境问题）。另以真实 data 文案直调 `extractMonths()`/`filterSeasonNote()` 复现 F61，并用临时 picked/out 目录和真实 `ink-frame-brush.webp` 复制成两个描述后缀，复现 F62：脚本连续两次写同一个 `frame.webp` 且退出 0。
-
-### [P1] F61 — M55 时间词解析误判“春节”，并漏掉带“上/中/下旬”的跨年区间
-
-`src/logic/roadbook.ts:138-149` 先用裸 `春`/`夏`/`秋`/`冬` 子串匹配季节，再匹配节庆，因此“春节”会同时扩成 `[1,2]` 和春季 `[3,4,5]`；现有测试 `src/logic/__tests__/roadbook.test.ts:159-162` 还把这个错误并集写成期望值，属于从实现复制结论而非独立语义断言。真实 `data/data-f.json:2176` 因而在 5 月仍保留“春节期间阆中过大年”。同时区间正则只接受 `12-2月`，不接受真实数据里的 `12月中旬-3月上旬` / `12月下旬-2月`（`data/data-c.json:1319,1375,2432`）；崇礼 1 月行程会把整条核心雪季提示过滤为空。应先按不重叠词元处理节庆/季节（或屏蔽已命中的“春节”再识别“春”），并把旬修饰纳入跨年区间语法；回归测试须直接用上述真实文案，外部语义期望至少钉住“春节不命中 3-5 月”和“12 月中旬到 3 月上旬包含 1、2 月”。
-
-### [P2] F62 — M57 单例工艺槽位发生归一化碰撞时静默覆盖
-
-`tools/build_illustrations.py:84-96` 允许 texture/frame/divider/placeholder 携带任意描述后缀并归一化为裸槽位名，而 `process_skin_dir()`（`:153-170`）没有跟踪已占用的 `(skin, out_name)`。临时目录中同时放入 `probe-frame-first.webp` 与 `probe-frame-second.webp` 后，脚本两次报告 `OK frame.webp`、最终只留下一个文件且退出码为 0；文件名排序变化即可悄悄改变上线素材。`tests/build-illustrations.test.mjs:91-107` 只覆盖每个单例各一张，未覆盖碰撞。应在编码前拒绝同一皮肤内映射到相同输出名的第二个源文件（并计入 violations 非零退出），补一条双后缀碰撞回归；seal/region/decor 等多实例槽位继续按完整输出名去重即可。
+> 独立证据：`git diff --check 883655a..ccab80e` 通过；`bun run verify` 181/181 + workerd 45/45；`PATH="/usr/bin:$PATH" bun run test:build-assets` 8/8；`bun run build` 通过。另直调 `extractMonths()`/`filterSeasonNote()` 验证「春节」独立映射、节庆与真实春季并存、两种旬区间及五月过滤语义；F62 回归确认归一化撞名非零退出并保留首个产物。首次 sandbox 内 Worker 验证因 Wrangler 日志目录与 `127.0.0.1` 监听被拒而退出，非代码失败；相同命令获批在 sandbox 外重跑全绿。
