@@ -113,12 +113,12 @@
 6. 【前端】M55 — 路书语境化：全局日序+当季文案 [R2 · S2] → sonnet · high｜反馈③⑤合并立项（同一根因：路书照搬单城/全季节语境的卡素材）；主体在 logic/roadbook 与路书渲染层，排 review 关闸后；解析口径=online 渲染时解析（2026-07-20 拍板）；spec 见 design M55 [cc]
 7. 【前端】M51 — 共享集皮肤适配滤镜 [R1 · S1] → sonnet · medium｜2026-07-20 用户提出（换肤按皮肤调目的地图色调/饱和度，零重画），cc 确认可行入 design；前置 M46 已落地，几十行小改 [cc]
 8. 【画面→前端】A8 — 山水工艺件批 [R1 · S1] → codex · low（2026-07-20 用户终审完成，cc 已转档）∥ M57 — 皮肤工艺件接入 [R1 · S2] → sonnet · medium｜A8 定版 texture=v2 / frame=v2 / divider=v2 / seal-nextstop=v2 / seal-wheretoplay=v4 / placeholder=v1，cc 用 `cwebp -q 90` 转档（尺寸逐张核对与画布契约一致：512×512/1024×1024/1024×32/256×256×2/960×480），命名去 `-v{n}` 存入 `assets/illustrations/picked/ink/`（`ink-texture-paper.webp`/`ink-frame-brush.webp`/`ink-divider-brush.webp`/`ink-seal-nextstop.webp`/`ink-seal-wheretoplay.webp`/`ink-placeholder-mist.webp`）；`bun run verify` 178/178 无回归（纯新增资产文件，`build_illustrations.py` 尚不识别这些槽位类，M57 落地前静默不处理）。17 张 raw 候选与四份 QA 仍完整保留。**尚未接入**——`tools/build_illustrations.py` 需先加这五类槽位的分类/尺寸预算才能出 UI 用小图，接入 spec 见 design M57（逐类替换、代码版留缺图回退、不声明皮肤零变化）；gating：review 关闸（已通过）→ M57 排期 [cc]
-9. 【前端+内容】M56 — 交通方式修正：西部陆路语义 [R2 · S2] → 机制段 sonnet · high（logic/transport+budget+schema，与在审文件零冲突可先行）；数据体检段 claude 网查 sonnet · high（noair/norail 清单交用户过目后落库，按 content-checklist 二节规程）｜反馈④，根因=疆内段 400km 阈值+无民航/无轨守卫缺失；表意口径=按当地习惯列自驾/包车、有航线并列飞机（组合标签）；spec 见 design M56；本轮 /loop 批不含此项 [cc]
+9. 【前端+内容】M56 — 交通方式修正：西部陆路语义 [R2 · S2] → 机制段 sonnet · high（logic/transport+budget+schema，与在审文件零冲突可先行）；数据体检段 fable 编排分片（东中部扫盲片 sonnet · medium 扫→可疑升 opus 深查；西部习惯区省份直接 opus · high；noair/norail 清单交用户过目后落库，按 content-checklist 二节规程；2026-07-20 用户确认 worker 可用 opus，档位按片险级重拨）｜反馈④，根因=疆内段 400km 阈值+无民航/无轨守卫缺失；表意口径=按当地习惯列自驾/包车、有航线并列飞机（组合标签）；spec 见 design M56；本轮 /loop 批不含此项 [cc]
 
 ## ⏭ P1
 
-- 【内容】M48 — 线路全量体检 [R2 · S2] → claude 侧 sonnet · high（2026-07-20 用户拍板自 codex 划转）｜ 2026-07-19 用户点名「整体路线审查」；只读审查不改数据，与皮肤线零冲突可随时插入；审查项含站间交通表意（与 M56 互参，design M48 已补）；体检按 `.agent/content-checklist.md` 规程执行并回写新规；spec 见 design M48 [cc]
-- 【内容】M49 — 特色主题游扩容 + 筛选标签扩充（调研段）[R2 · S2 · 🌫️] → claude 侧 sonnet · high + 网查（2026-07-20 用户拍板自 codex 划转）｜ 2026-07-19 用户点名（诸暨珍珠城/横店影视城一族 + 「还能加什么筛选 tag」）；调研产出候选清单+标签提案交用户拍板，实施随拍板另立条目；新收录候选按 content-checklist 通用节预检；spec 见 design M49 [cc]
+- 【内容】M48 — 线路全量体检 [R2 · S2] → fable 编排、worker opus · high（53 线总量小、多约束互查吃判断力；2026-07-20 用户拍板自 codex 划转，同日确认 worker 档位升 opus）｜ 2026-07-19 用户点名「整体路线审查」；只读审查不改数据，与皮肤线零冲突可随时插入；审查项含站间交通表意（与 M56 互参，design M48 已补）；体检按 `.agent/content-checklist.md` 规程执行并回写新规；spec 见 design M48 [cc]
+- 【内容】M49 — 特色主题游扩容 + 筛选标签扩充（调研段）[R2 · S2 · 🌫️] → fable 编排、worker opus · high + 网查（开放式甄别；2026-07-20 用户拍板自 codex 划转，同日确认 worker 档位升 opus）｜ 2026-07-19 用户点名（诸暨珍珠城/横店影视城一族 + 「还能加什么筛选 tag」）；调研产出候选清单+标签提案交用户拍板，实施随拍板另立条目；新收录候选按 content-checklist 通用节预检；spec 见 design M49 [cc]
 - 【前端+内容】M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] ｜ 2026-07-20 用户拍板全模块划转 claude 侧（含原定 codex 的数据批）；2026-07-19 用户重排进 P1（原 2026-07-14「遥远将来」拍板作废）：先北京，其他城市再往后。两段式：**机制段**（行程/路书/彩蛋起点参数化=小头；difficulty 与 transit 均为上海视角、difficulty 还是筛选契约，per-origin schema 方案 🌫️ 需拍板）→ **北京数据批**（claude 侧，全量城市 transit/difficulty 北京视角重打+情侣周末类短途语义复审）。建议排在 M48/M49 实施之后——卡池稳定后再写北京视角文案，避免新增卡二次补写；spec 见 design M22（机制段开工时扩写） [cc]
 
 ## ⏭ P2
