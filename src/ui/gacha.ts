@@ -13,7 +13,15 @@ import { computeRelax } from "./render";
 let rolling = false, lastPick: Destination | null = null;
 export const getLastPick = () => lastPick;
 
-export function openGacha() {
+// M53：对比池抽签——一次性池覆盖，仅对本次 openGacha 到下次 openGacha 之间的 roll() 生效；
+// 🎰 FAB 入口不传参，天然重置回全量筛选结果（不留任何跨会话残留状态）。
+let cmpPoolOverride: Destination[] | null = null;
+function currentPool(): Destination[] {
+  return cmpPoolOverride ?? filtered(DATA, state, CUR_SEASON);
+}
+
+export function openGacha(cmpPool?: Destination[]) {
+  cmpPoolOverride = cmpPool ?? null;
   const parts: string[] = [];
   if (state.region.size) parts.push([...state.region].join("/"));
   if (state.season.size) parts.push([...state.season].join("/") + "季");
@@ -27,11 +35,12 @@ export function openGacha() {
   if (state.noAlt) parts.push("避开高海拔");
   if (state.hideVisited) parts.push("隐藏去过");
   if (state.q) parts.push(`「${state.q}」`);
-  const pool = filtered(DATA, state, CUR_SEASON);
-  $("gachaScope").innerHTML =
-    (parts.length ? `扭蛋池：<b>${parts.join(" · ")}</b>` : "扭蛋池：全国不限") + `｜共 <b>${pool.length}</b> 颗蛋`;
+  const pool = currentPool();
+  $("gachaScope").innerHTML = cmpPoolOverride
+    ? `对比池 · 共 <b>${pool.length}</b> 颗`
+    : (parts.length ? `扭蛋池：<b>${parts.join(" · ")}</b>` : "扭蛋池：全国不限") + `｜共 <b>${pool.length}</b> 颗蛋`;
   $("gCity").textContent = pool.length ? "？？？" : "空空如也";
-  const relaxCands = pool.length ? [] : computeRelax();
+  const relaxCands = pool.length || cmpPoolOverride ? [] : computeRelax(); // 对比池不是筛选结果，放宽建议无意义
   $("gSub").textContent = pool.length ? "转一下旋钮，命运发货"
     : (relaxCands.length ? `筛选太严了，${relaxCands[0].label}就有 ${relaxCands[0].n} 颗` : "筛选太严了，回去放宽一点");
   const gr = $("gRelaxBtn");
@@ -46,7 +55,7 @@ export function openGacha() {
 
 export function roll() {
   if (rolling) return;
-  const pool = filtered(DATA, state, CUR_SEASON); if (!pool.length) return;
+  const pool = currentPool(); if (!pool.length) return;
   rolling = true;
   const cityEl = $("gCity");
   const subEl = $("gSub");

@@ -51,3 +51,4 @@ export const seasonForMonth = (month: number) => SEASON_BY_MONTH[month];
 export const ROUTE_STAY = new Set(["chuanxi-loop", "hulunbuir", "gannan", "yili", "siguniangshan-danba", "altay"]); // M31：独库/青海湖环线已迁线路卡
 
 export const TRIP_MAX = 6; // 一次行程最多 6 站
+export const CMP_MAX = 6; // M53：对比池上限 4→6

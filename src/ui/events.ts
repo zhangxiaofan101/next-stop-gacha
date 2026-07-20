@@ -1,5 +1,6 @@
 /* 事件（文档级委托 + 静态元素接线；行为与旧版逐条一致） */
-import { saveLS, state } from "../store";
+import type { Destination } from "../logic/types";
+import { byId, saveLS, state } from "../store";
 import { addRouteToTrip, toggleCmp, toggleFav, toggleTrip, toggleVisited } from "./actions";
 import { copyText } from "./clipboard";
 import { openCompare } from "./compare";
@@ -57,12 +58,18 @@ export function wireEvents() {
 
   $("cmpGo").addEventListener("click", openCompare);
   $("tripGo").addEventListener("click", openTrip);
+  $("cmpGachaGo").addEventListener("click", () => openGacha(state.cmp.map(byId).filter((d): d is Destination => !!d))); // M53：对比池抽签
+  $("cmpTableGachaGo").addEventListener("click", () => {
+    $("cmpOverlay").classList.remove("show"); // 两层 overlay 同 z-index，DOM 序更晚的 cmpOverlay 不关就会盖住新开的 gachaOverlay
+    openGacha(state.cmp.map(byId).filter((d): d is Destination => !!d));
+  });
   $("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
   $("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
   $("footPill").addEventListener("click", openMap); // 足迹统计胶囊本身即地图入口（M50 修订）
   $("shareBtn").addEventListener("click", openShare);
   $("skinBtn").addEventListener("click", openSkin);
-  $("fabGacha").addEventListener("click", openGacha);
+  $("fabGacha").addEventListener("click", () => openGacha()); // 全量池入口；直传 openGacha 会把 MouseEvent 当成 cmpPool 参数传入，必须包一层
+
   $("gKnob").addEventListener("click", roll);
   $("empty").addEventListener("click", e => {
     const b = (e.target as HTMLElement).closest<HTMLElement>("[data-relax]");

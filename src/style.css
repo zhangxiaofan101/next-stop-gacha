@@ -236,6 +236,10 @@
   .dock-go:active { transform: var(--press-shift); box-shadow: none; }
   .dock-go.cmp { background: var(--purple); }
   .dock-go.trip { background: var(--orange); }
+  /* M53：对比池抽签入口——dock 行空间紧张（label+6 城 chips+比一比+✕ 已逼近移动端宽度），
+     不再加一个同尺寸的 dock-go 文字按钮（实测 618px 内容宽度在 366px 移动端预算下会溢出），
+     改用 M50 同款 icon-btn（35px + ::after 外扩热区 ≥44px），只占一个圆钮的宽度 */
+  .icon-btn.cmp-gacha { background: var(--orange-deep); color: var(--on-color); }
   .dock-x {
     flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
     border: var(--bw-thin) solid var(--ink); background: var(--paper); color: var(--ink-soft);
@@ -332,6 +336,7 @@
 
   /* 对比表 */
   .cmp-sheet { max-width: 1120px; margin: 0 auto; position: relative; }
+  .cmp-table-gacha { display: block; margin: 0 0 12px; } /* M53：对比池抽签入口，紧贴表格上方 */
   .cmp-scroll { overflow-x: auto; border: var(--bw-thick) solid var(--ink); border-radius: var(--radius-card); background: var(--paper); box-shadow: var(--shadow-cmp); }
 
   /* 足迹地图 */

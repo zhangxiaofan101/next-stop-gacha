@@ -1,5 +1,5 @@
 /* 收藏 / 对比 / 行程 篮子 */
-import { TRIP_MAX } from "../logic/constants";
+import { CMP_MAX, TRIP_MAX } from "../logic/constants";
 import { byId, saveLS, state } from "../store";
 import { $ } from "./dom";
 import { renderMap } from "./mapview";
@@ -23,7 +23,7 @@ export function toggleCmp(id: string) {
   const i = state.cmp.indexOf(id);
   if (i >= 0) state.cmp.splice(i, 1);
   else {
-    if (state.cmp.length >= 4) { toast("最多对比 4 个哦"); return; }
+    if (state.cmp.length >= CMP_MAX) { toast(`最多对比 ${CMP_MAX} 个哦`); return; }
     state.cmp.push(id);
   }
   saveLS(); render();
