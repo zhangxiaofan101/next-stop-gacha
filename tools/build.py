@@ -100,6 +100,12 @@ for src, d in all_rows:
     if d.get("id") in ALT_TRUE_PIN and d.get("alt") is not True:
         errors.append(f"{tag} 在人工海拔断言清单（标准方案到 2500m+），alt 必须为 true（F24）")
     if d.get("difficulty") not in DIFFICULTIES: errors.append(f"{tag} difficulty 非法: {d.get('difficulty')}")
+    # M56：城市卡可选布尔字段 noair/norail（无民航客运/无轨道客运，挡编造档的守卫输入）。
+    # 判定口径=本体粒度三档（见 design M56）；仅城市卡可标，线路卡通达性由停留站传导，不自带。
+    for gk in ("noair", "norail"):
+        if gk in d:
+            if not isinstance(d[gk], bool): errors.append(f"{tag} {gk} 非法(需布尔): {d[gk]}")
+            if "stops" in d: errors.append(f"{tag} 线路卡不得标 {gk}（通达性归停留站城市卡）")
     cp = d.get("companions")
     if not isinstance(cp, list) or any(x not in COMPANIONS for x in cp) or len(set(cp)) != len(cp) or len(cp) >= 4: errors.append(f"{tag} companions 非法(四档全打应留空): {cp}")
     for k in ["food", "museums", "architecture", "highlights"]:

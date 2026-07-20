@@ -434,7 +434,7 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达",
+    "difficulty": "一次中转",
     "companions": [
       "带爸妈",
       "独行"
@@ -507,7 +507,7 @@
       "正常"
     ],
     "alt": false,
-    "difficulty": "直达",
+    "difficulty": "一次中转",
     "companions": [
       "带娃",
       "带爸妈",
@@ -564,7 +564,7 @@
       "费腿"
     ],
     "alt": false,
-    "difficulty": "一次中转",
+    "difficulty": "直达",
     "companions": [
       "带娃",
       "带爸妈",
