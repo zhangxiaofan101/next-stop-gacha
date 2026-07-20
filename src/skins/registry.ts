@@ -22,10 +22,14 @@ export interface SkinDeclaration {
   fonts: { title: string; body: string } | null;
   assetDir: string;
   decorations: Record<string, boolean>;
+  // M59 ⑨：卡位是否展示目的地共享集个图/大区题头（详情位不受此开关——皮肤无关常显，M60 已
+  // 实现）。奶油卡通与水墨淡彩共享集画风违和，关；山水本身与共享集同族，开。票券氛围带与卡位
+  // 走同一路径同一开关（design「目的地图展示语义」）。
+  cardPhotos: boolean;
 }
 
 export const SKINS: SkinDeclaration[] = [
-  { id: "cream", label: "奶油", fonts: null, assetDir: "cream", decorations: {} },
+  { id: "cream", label: "奶油", fonts: null, assetDir: "cream", decorations: {}, cardPhotos: false },
   {
     id: "ink", label: "山水",
     fonts: { title: "Ink Title", body: "Ink Body" },
@@ -33,6 +37,7 @@ export const SKINS: SkinDeclaration[] = [
     // 自由浮动装饰件（柳桥/竹枝/远山，design「装饰位画布契约」）——三件套皆随本皮肤整套启停；
     // 键名与 index.html 里对应 img 的 data-deco 值一一对应，见 illustrations.ts 的消费逻辑。
     decorations: { willow: true, bamboo: true, distantHill: true },
+    cardPhotos: true,
   },
 ];
 

@@ -55,6 +55,10 @@
   --note-hotel-bg: #fef7ec; /* 住宿提示条（暖棕） */
   --note-hotel-border: #f0cf96;
   --note-hotel-text: #7d5b1e;
+  --arch-chip-bg: #e3f6f2; /* 古建古迹 chip（M59 ⑥：与美食/博物馆区分的第三色，铜绿/瓦当调） */
+  --arch-chip-border: #8fd4c7;
+  --arch-chip-text: #1f7a68;
+  --highlight-accent: #d67ab0; /* 特色体验列表项目符号色（M59 ⑥，玫红——列表家族的强调色而非填色） */
   --panel-cool-bg: #f6faff; /* 行程方案卡 / 行程单站点行的浅蓝底 */
   --panel-cool-border: #cfe3f5;
   --field-bg: #f3f9ff; /* 搜索框 / dock chip 等输入类浅蓝底 */

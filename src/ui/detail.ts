@@ -64,8 +64,8 @@ function detailHTML(d: Destination): string {
     ${d.alt ? `<div class="dt-meta"><span>⛰️ 主要游玩区海拔 2500m+，注意高原反应，头两天慢一点</span></div>` : ""}
     ${sec("🍜 当地美食", chips(d.food, "food"))}
     ${sec("🏛 博物馆", chips(d.museums))}
-    ${sec("🏯 古建古迹", chips(d.architecture))}
-    ${sec("✨ 特色体验", d.highlights.length ? `<ul class="dt-list">${d.highlights.map(h => `<li>${h}</li>`).join("")}</ul>` : "")}
+    ${sec("🏯 古建古迹", chips(d.architecture, "arch"))}
+    ${sec("✨ 特色体验", d.highlights.length ? `<ul class="dt-list highlight">${d.highlights.map(h => `<li>${h}</li>`).join("")}</ul>` : "")}
     <div id="wxSec"></div>
     ${sec("🏨 住宿参考", d.hotel ? `<div class="note-box hotel">${d.hotel}</div>` : "")}
     ${sec("🚌 当地交通", d.local ? `<div class="note-box">${d.local}</div>` : "")}

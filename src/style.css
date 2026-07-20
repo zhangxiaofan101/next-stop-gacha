@@ -46,8 +46,14 @@
   header { padding: 40px 0 6px; }
   .title-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
   /* M50 修订：全局入口挂靠语境、不集中占行——足迹胶囊本身可点开地图，📤 备份 + 🎨 皮肤
-     为与胶囊等高的小图标钮同簇随行；视觉不超胶囊高度，触达经 ::after 外扩热区保 ≥44px */
-  .icon-btn {
+     为与胶囊等高的小图标钮同簇随行；视觉不超胶囊高度，触达经 ::after 外扩热区保 ≥44px。
+     M59 ③ 实现期发现的真实回归：选择器写的是单类 `.icon-btn`，与后文同样单类的 `.btn`
+     （padding: 7px 14px）specificity 相同，源码序在后的 `.btn` 赢——这条 `padding: 0` 从
+     M50 落地起就从未真正生效过，实际内容盒被压到约 3~5px 宽，线形图标/emoji 全部被挤扁
+     （文字类内容溢出盒子还看得出大致形状，故长期未被肉眼揪出；这次放大 SVG 尺寸才暴露）。
+     改成与 HTML 实际用法一致的复合选择器 `.btn.icon-btn`（specificity 更高），padding:0 才
+     真正生效。 */
+  .btn.icon-btn {
     width: 35px; height: 35px; padding: 0; display: inline-flex; align-items: center;
     justify-content: center; border-radius: var(--radius-pill); font-size: 15px; position: relative;
   }
@@ -280,8 +286,14 @@
   .dt-chips { display: flex; flex-wrap: wrap; gap: 7px; }
   .dt-chip { font-size: 13px; background: var(--info-blue-bg); border: var(--bw-thin) solid var(--info-blue-border); border-radius: var(--radius-pill); padding: 3px 12px; color: var(--info-blue-text); }
   .dt-chip.food { background: var(--food-chip-bg); border-color: var(--food-chip-border); color: var(--food-chip-text); }
+  /* M59 ⑥：详情区段视觉系统——chip 家族三成员（美食/博物馆/古建古迹）同构格式、各自一色；
+     古建古迹此前无差别沿用博物馆的蓝（两同一异），改为独立第三色，与美食/博物馆并列可辨。 */
+  .dt-chip.arch { background: var(--arch-chip-bg); border-color: var(--arch-chip-border); color: var(--arch-chip-text); }
   .dt-list { margin: 0; padding-left: 20px; font-size: 14px; color: var(--text-body); }
   .dt-list li { margin: 3px 0; }
+  /* 特色体验是完整语句（非短标签），不适合 chip 格式；同一「列表家族」里靠项目符号色而非填色
+     区分——文字仍走中性正文色，只有 marker 吃该区段的强调色。 */
+  .dt-list.highlight li::marker { color: var(--highlight-accent); }
   .note-box {
     font-size: 13px; background: var(--note-green-bg); border: 2px dashed var(--note-green-border); border-radius: var(--radius-panel-sm);
     padding: 9px 14px; color: var(--note-green-text);
@@ -316,9 +328,9 @@
   .g-scope b { color: var(--orange-deep); }
   .g-window {
     background: var(--grad-window); border: var(--bw-xthick) solid var(--ink); border-radius: var(--radius-window);
-    padding: 30px 14px; position: relative; overflow: hidden;
+    padding: 18px 14px; position: relative; overflow: hidden;
   }
-  .g-city { font-family: var(--round); font-size: clamp(34px, 8vw, 52px); letter-spacing: 4px; line-height: 1.2; min-height: 1.2em; }
+  .g-city { font-family: var(--round); font-size: clamp(24px, 5.5vw, 36px); letter-spacing: 3px; line-height: 1.2; min-height: 1.2em; }
   .g-city.spin { animation: gspin .1s linear infinite; }
   @keyframes gspin { 0% { opacity: .4; transform: translateY(-4px); } 100% { opacity: 1; transform: translateY(3px); } }
   .g-sub { font-size: 13px; color: var(--ink-soft); margin-top: 8px; min-height: 1.4em; }
@@ -469,7 +481,7 @@
 
   /* M52 丁A：线形功能图标（src/ui/icons.ts）——随所在文字流取色取号，全皮肤共享 */
   .ic { width: 1.05em; height: 1.05em; vertical-align: -0.14em; }
-  .icon-btn .ic { width: 17px; height: 17px; } /* 独立图标钮里线形图标视觉质量比 emoji 轻，放大补足存在感 */
+  .icon-btn .ic { width: 20px; height: 20px; } /* M59 ③：17px 与足迹胶囊行（14px 文字+其行高）视觉失衡偏小，放大到与胶囊行更相称的比重 */
 
   .mascot-decor {
     display: inline-flex; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
@@ -477,14 +489,27 @@
   }
   .mascot-decor .illust { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
 
-  /* 自由浮动装饰件（柳桥/竹枝/远山）：不参与布局流，画幅不拘，见 design「装饰位画布契约」 */
+  /* 自由浮动装饰件（柳桥/竹枝/远山）：不参与布局流，见 design「装饰位画布契约」——母版均 2:1，
+     画幅不拘不等于比例不拘，容器盒必须匹配母版比例，否则 object-fit:cover 会裁切主体。
+     M59 ①：deco-hill 此前 fixed 高度（140px/移动端 90px）配全宽容器，与 960×480 母版比例严重
+     不符，606px 视口只显 30% 纵向带、山峰在条带上缘被切（视口越宽越糟）。改用 aspect-ratio +
+     max-height + object-fit:contain：容器天然维持 2:1（height:auto 由 aspect-ratio 推导）直到
+     宽度超过 2×上限高度才封顶，封顶后 contain 保证母版整幅可见（左右留白，不裁切）——山头在
+     任意视口宽度下都完整，「实现者定」选择的是「锚定限宽」与「按比例封顶」的组合而非二选一。
+     bamboo 此前 190×130（比例 1.46，非 2:1）同样会被裁，一并按母版真实比例改正（同族自查）。 */
   .deco-willow, .deco-bamboo, .deco-hill { position: fixed; z-index: 0; pointer-events: none; object-fit: cover; }
   .deco-willow { top: 4px; left: 0; width: 220px; height: 110px; object-position: 8% 45%; opacity: .92; }
-  .deco-bamboo { top: 0; right: 0; width: 190px; height: 130px; object-position: 92% 8%; opacity: .9; }
-  .deco-hill { left: 0; right: 0; bottom: 0; width: 100%; height: 140px; object-position: 15% 55%; opacity: .5; }
+  .deco-bamboo { top: 0; right: 0; width: 190px; height: 95px; object-position: 92% 8%; opacity: .9; }
+  .deco-hill {
+    left: 0; right: 0; bottom: 0; width: 100%; aspect-ratio: 2 / 1; height: auto; max-height: 200px;
+    object-fit: contain; object-position: center; opacity: .5;
+  }
 
-  .g-illust { display: flex; justify-content: center; margin-bottom: 8px; }
-  .g-illust .illust { width: 92px; height: 92px; object-fit: contain; }
+  /* M59 ⑦：机器插画 hero 化——此前 92px 小图 + 巨大的 ??? 结果窗是「无图时代遗留布局」（当年
+     没有插画，视觉重心只能落在文字上）；扭蛋机画面现在才是这台机器的看点，结果窗降级配合。
+     DOM 冻结点按用户本人点名视为已授权修订，落地后重新冻结（design「新皮肤诞生流程」冻结点）。 */
+  .g-illust { display: flex; justify-content: center; margin-bottom: 4px; }
+  .g-illust .illust { width: 190px; height: 190px; object-fit: contain; }
 
   /* 卡片顶部目的地照片（M44 共享集，皮肤无关）：card 本身已有描边，贴边铺满不再叠白框。
      M58：卡片流是快速下滑的浏览流，2:1 扁条只求看个意思、不抢文字（安全区「主体压垂直
@@ -507,18 +532,21 @@
      「滤镜失败优雅回退原图」不需要额外代码兜底。 */
   .c-photo .illust, .dt-banner.photo .illust { filter: var(--dest-filter, none); }
 
-  /* 扭蛋票券氛围带：该目的地所属大区的题头图垫底（design M46），卡片本身（含卡顶个图）叠在下面。
-     只在声明了资产的皮肤下露出——奶油皮肤从不设这条规则，不会平白多出一圈从未被填过色的留白
-     （即使加了也只是留白，量虽小也算视觉回归，故随 [data-theme] 显式声明，而非放进通用规则再
-     指望背景图 404 时「反正也看不出来」）。顶部留一条足够高的实条带（非四周窄边），题头图本身
-     负空间多，边缘窄条经常正好落在空白宣纸上、读不出氛围，只有给够高度才看得出该区的题头画。 */
-  #gachaTicket { background-image: var(--ticket-ambience, none); background-size: cover; background-position: center; border-radius: var(--radius-card); }
-  [data-theme="ink"] #gachaTicket.show { padding: 90px 0 0; }
+  /* 扭蛋票券氛围带（M59 ⑪ 重做）：该目的地所属大区的题头图垫底（design M46），现为独立条带盒
+     ——固定高度 + 自己的 cover/居中定位，卡片在其下方正常渲染，不再靠整券背景 + 皮肤专属 padding
+     去露出一条被卡片遮住大半的顶缘（此前城市券完全遮住、线路券勉强可见且位置不可控）。边框语言
+     与 .card 同款 token（--bw-thick/--ink/--radius-card），跟着皮肤走、不需要额外覆写。随 ⑨ 卡位
+     开关生成（cardPhotosEnabled()===false 时 gacha.ts 整条不产出，不留空盒）。 */
+  #gachaTicket { border-radius: var(--radius-card); }
+  .ticket-ambience {
+    height: 90px; margin-bottom: 10px; border-radius: var(--radius-card);
+    border: var(--bw-thick) solid var(--ink); background-size: cover; background-position: center;
+  }
 
   @media (max-width: 680px) {
     .mascot-decor { display: none; } /* 手机头部寸土寸金，纯装饰的吉祥物让位（同 M50 纪律：低频/纯氛围入口不占首屏行） */
-    .deco-willow, .deco-bamboo { width: 120px; height: 66px; }
-    .deco-hill { height: 90px; }
+    .deco-willow, .deco-bamboo { width: 120px; height: 60px; } /* M59 ①：66→60，配平 2:1 母版真实比例（同族自查） */
+    .deco-hill { max-height: 110px; } /* 手机屏幕更矮，封顶阈值同步收紧 */
   }
 
   /* ---- M46 山水皮肤装饰块（style.css 是「装饰块」的家，见 design 部件清单表；ink.css 只放
@@ -596,15 +624,18 @@
      浏览器原生回退到 border-color/border-width/border-style 渲染，无需 JS 探测，也不需要保留旧
      inkWobble 伪元素兜底（两者同时存在会双重描边）；#inkWobble 滤镜定义随之从 index.html 清除
      （sealRough 仍在用，保留）。 */
+  /* M59 ②：42px 源切片压缩到 8/9px 边框宽后，母版本就纤细的发丝墨线被压到约 1px，与普通实线
+     肉眼无差（用户实证截图）。放大 border-image-width/outset 让压缩比逼近 1:1，笔触糙边才认得
+     出来；仍是这批母版的固有细度，只是不再被五倍压缩抹平。 */
   [data-theme="ink"] .console, [data-theme="ink"] .paper {
     position: relative; border-color: var(--ink);
     border-image-source: var(--craft-frame, none); border-image-slice: 42; border-image-repeat: round;
-    border-image-width: 8px; border-image-outset: 3px;
+    border-image-width: 18px; border-image-outset: 6px;
   }
   [data-theme="ink"] .machine, [data-theme="ink"] .share-sheet {
     position: relative; border-color: var(--ink);
     border-image-source: var(--craft-frame, none); border-image-slice: 42; border-image-repeat: round;
-    border-image-width: 9px; border-image-outset: 4px;
+    border-image-width: 20px; border-image-outset: 7px;
   }
 
   /* M52 戊-2 抖动虚线口径推广到其余 --divider-* 消费点（console-foot/rb-cover 已在 M46 做）；
@@ -612,12 +643,15 @@
      铺满整条宽度而非像 repeating-gradient 那样切段平铺）在原 repeating-gradient 之上——缺图/
      未加载时第一层不绘制，repeating-gradient 原样透出当代码版兜底，两者不需要 JS 判断谁在场。
      非等比拉伸（100% 宽 / 固定小高度）会轻微压扁笔触，同 frame 9-slice 中段拉伸是同一类可接受
-     的工艺件消费代价（design「工艺件画布契约」原话）。 */
+     的工艺件消费代价（design「工艺件画布契约」原话）。M59 ⑧：源图左侧笔触浓重处压到 3px 高时
+     几乎实心，与旁边稀疏的 repeating-gradient 虚线比过重；三处消费点统一收到 1.5px（与②的
+     frame 校准同口径——都是往「更接近笔触真实观感」调，只是 frame 太弱要放大、divider 太重要
+     收细，方向相反）。 */
   [data-theme="ink"] .leg-line .dash {
     border-top: none; height: 2px; align-self: center;
     background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
       var(--divider-leg) 0 6px, transparent 6px 10px, var(--divider-leg) 10px 13px, transparent 13px 20px);
-    background-size: 100% 3px, auto;
+    background-size: 100% 1.5px, auto;
     background-repeat: no-repeat, repeat;
     background-position: center, initial;
   }
@@ -626,10 +660,18 @@
     background-image: var(--craft-divider, none), repeating-linear-gradient(90deg,
       var(--divider-skrow) 0 7px, transparent 7px 11px, var(--divider-skrow) 11px 15px, transparent 15px 24px);
     background-position: center, left bottom;
-    background-size: 100% 3px, 100% 1px;
+    background-size: 100% 1.5px, 100% 1px;
     background-repeat: no-repeat, no-repeat;
   }
   [data-theme="ink"] .rb-sk-row:last-child { background: none; }
+
+  /* M59 ⑧：路书 leg 交通行（design「路书装配」的 stop.leg 文案行，非上方的 .leg-line 行程单
+     交通段）此前沿用 .rb-leg 通用样式——浅蓝填色实线框，在宣纸+墨线语境里显得像贴了一张卡片，
+     与周围轻盈的纸感不一致。降级为无填色、虚线下划的轻样式，文字色也从饱和蓝改回墨色系柔和调。 */
+  [data-theme="ink"] .rb-leg {
+    background: none; border: none; border-bottom: var(--bw-thin) dashed var(--info-blue-border);
+    border-radius: 0; padding: 4px 2px; color: var(--text-subtle);
+  }
 
   /* M57：宣纸纤维噪点——mock 的纸感大半来自这层。fixed 伪元素合成层平铺噪点，压在页面底色上、
      垫在 .wrap（z:1）之下；总透明度 ≤.05 量级，只提供纤维颗粒不改变色相。两层 background-image：
@@ -659,7 +701,7 @@
       var(--ink-soft) 0 7px, transparent 7px 11px,
       var(--ink-soft) 11px 15px, transparent 15px 24px,
       var(--ink-soft) 24px 27px, transparent 27px 34px);
-    background-size: 100% 3px, auto;
+    background-size: 100% 1.5px, auto;
     background-repeat: no-repeat, repeat;
     background-position: center, initial;
   }

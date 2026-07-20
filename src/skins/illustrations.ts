@@ -29,6 +29,11 @@ export const regionHeaderSrc = (region: string) => destPhotoSrc(regionSlot(regio
 
 export const currentSkinId = (): string => document.documentElement.dataset.theme || DEFAULT_SKIN;
 
+// M59 ⑨：卡位（含票券，走同一 cardHTML 路径）是否展示目的地共享集个图/大区题头，由当前皮肤
+// 声明的 cardPhotos 决定——奶油关、山水开；详情位不受此开关（皮肤无关常显，见 M60）。
+export const cardPhotosEnabled = (skins: SkinDeclaration[] = SKINS): boolean =>
+  skins.find(s => s.id === currentSkinId())?.cardPhotos ?? false;
+
 // M57：工艺件——底材纹理/容器边框/分隔线/图位垫底走 CSS background-image/border-image 消费，
 // URL 算好后挂成 CSS 自定义属性，供 style.css 里 [data-theme="ink"] 专属规则用，不进
 // SkinDeclaration。皮肤是否真的用到由该皮肤自己的 CSS 决定：cream.css 零处引用这些属性，哪怕

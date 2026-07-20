@@ -3,7 +3,7 @@ import { DAY_BUCKETS } from "../logic/constants";
 import { filtered } from "../logic/filter";
 import { gachaPick } from "../logic/gacha";
 import type { Destination } from "../logic/types";
-import { regionHeaderSrc } from "../skins/illustrations";
+import { cardPhotosEnabled, regionHeaderSrc } from "../skins/illustrations";
 import { CUR_SEASON, DATA, state } from "../store";
 import { cardHTML } from "./cards";
 import { $ } from "./dom";
@@ -49,7 +49,7 @@ export function openGacha(cmpPool?: Destination[]) {
   $("gKnob").style.display = pool.length ? "" : "none";
   $("gDetailBtn").style.display = "none";
   $("gTripBtn").style.display = "none";
-  const t = $("gachaTicket"); t.className = ""; t.innerHTML = ""; t.style.removeProperty("--ticket-ambience");
+  const t = $("gachaTicket"); t.className = ""; t.innerHTML = "";
   $("gachaOverlay").classList.add("show");
 }
 
@@ -81,12 +81,16 @@ export function roll() {
       cityEl.classList.remove("spin");
       cityEl.textContent = pick.emoji + " " + pick.name;
       subEl.textContent = `${pick.province} · ${pick.region} · ${pick.crowd}`;
-      // M46：票券氛围带——用该目的地所属大区的题头图垫底（design M46：「扭蛋票券氛围垫底」）；
-      // background-image 天生「缺图不硬占」（加载失败不显示任何东西、不报错、不留占位），不需要
-      // 额外的 onerror 处理。M60：题头图恒走共享层（regionHeaderSrc），奶油皮肤下这行现在也是
-      // 一个真实存在的 URL（此前奶油无题头资产、这行必 404），不产生可见差异只是巧合改变了原因。
-      ticketEl.style.setProperty("--ticket-ambience", `url(${regionHeaderSrc(pick.region)})`);
-      ticketEl.innerHTML = cardHTML(pick, 0);
+      // M46：票券氛围带——用该目的地所属大区的题头图垫底（design M46：「扭蛋票券氛围垫底」）。
+      // M59 ⑪：此前整券背景 cover+center，靠 ink 专属 90px 顶部 padding 露出一条顶缘——城市券
+      // （带卡顶个图）卡片占满券高完全遮住氛围带，线路券矮才勉强露出且位置不可控。改为独立
+      // 条带盒（自己的定高、定位、cover），卡片在其下方正常渲染，两者不再互相依赖/干扰；
+      // background-image 天生「缺图不硬占」，不需要额外 onerror 处理。随 ⑨ 卡位开关——与卡位同
+      // 一个 cardPhotosEnabled() 判断，奶油下整条不生成（不留一个只会 404 的空盒）。
+      const ambience = cardPhotosEnabled()
+        ? `<div class="ticket-ambience" style="background-image:url(${regionHeaderSrc(pick.region)})"></div>`
+        : "";
+      ticketEl.innerHTML = ambience + cardHTML(pick, 0);
       ticketEl.querySelector<HTMLImageElement>(".illust")?.setAttribute("loading", "eager"); // [interrupt] 票券容器自 display:none 切入，lazy 的可视观察永不触发
       ticketEl.className = "show";
       $("gDetailBtn").style.display = "";
