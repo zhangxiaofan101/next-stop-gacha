@@ -1,6 +1,9 @@
 /* 路书（HTML 渲染 + 天气异步填充；模型/文本装配在 logic/roadbook） */
 import { ROUTE_STAY } from "../logic/constants";
-import { fmtMD, roadbookModel, roadbookText, shortName, skelDayLabel, skeletonRows, tripDate, type RoadbookModel } from "../logic/roadbook";
+import {
+  filterSeasonNote, fmtMD, remapDayCodes, roadbookModel, roadbookText, shortName, skelDayLabel,
+  skeletonRows, stayMonths, tripDate, type RoadbookModel,
+} from "../logic/roadbook";
 import type { TripItem, TripLeg } from "../logic/types";
 import { fmtH } from "../logic/transport";
 import { createTripShareLink } from "../services/shareApi";
@@ -38,24 +41,29 @@ function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): s
       return `<div class="rb-sk-row">${lb.date ? `<span class="rb-sk-date">${lb.date}</span>` : ""}<span class="rb-sk-d">${lb.d}</span><span class="rb-sk-act">${r.act}</span><span class="rb-sk-stay">${r.stay === "🏠 回家" ? r.stay : "宿 " + r.stay}</span></div>`;
     }).join("")}
   </div>
-  ${m.items.map((it, i) => `
+  ${m.items.map((it, i) => {
+    // M55②：设了出发日期才按停留月过滤（未设＝现状，全文展示；详情/对比页从不走这个函数不受影响）；
+    // 全部句子被滤掉时省略整个 span（同样是「全滤则整行省略」，只是单位是 span 不是文本行）。
+    const seasonText = tripStart ? filterSeasonNote(it.d.seasonNote, stayMonths(it.start, it.end, tripStart)) : it.d.seasonNote;
+    return `
     ${legLine(it.legIn, i === 0 ? "上海 → " + (it.legIn.gwName || it.d.name) : m.items[i - 1].d.name + " → " + it.d.name)}
     <div class="rb-day"><span class="rb-dtag">${dayRange(it)}</span></div>
     <div class="rb-stop">
       <h4>${it.d.emoji} ${it.d.name} <span style="font-size:12px;color:var(--ink-soft);font-family:var(--sans)">（${it.d.chosenDays}天 · 方案「${it.plan.title}」${it.plan.days !== it.d.chosenDays ? "，按" + it.plan.days + "天版改编" : ""}）</span></h4>
-      <div class="rb-plan">${it.plan.route}</div>
+      <div class="rb-plan">${remapDayCodes(it.plan.route, it.start)}</div>
       <div class="rb-facts">
         <span><b>🍜 别错过：</b>${it.d.food.slice(0, 4).join("、")}</span>
         ${it.d.highlights.length ? `<span><b>✨ 特色：</b>${it.d.highlights.slice(0, 2).join("；")}</span>` : ""}
         ${ROUTE_STAY.has(it.d.id) ? `<span><b>🧭 节奏：</b>路线型玩法，沿线多点换宿——按每晚落脚点分段订房，不必全程订一处</span>` : ""}
         <span><b>🏨 住宿：</b>${it.d.hotel || "以酒店 App 实查为准"}</span>
         <span><b>🚌 市内：</b>${it.d.local || "打车/公共交通"}</span>
-        <span><b>🌤 季节：</b>${it.d.seasonNote}</span>
+        ${seasonText ? `<span><b>🌤 季节：</b>${seasonText}</span>` : ""}
         <span class="rb-wx" data-wx="${it.d.id}"></span>
       </div>
     </div>
     ${it.legOut ? legLine(it.legOut, it.d.name + (it.legOut.gwName ? " → " + it.legOut.gwName : "") + " → 上海（返程）") : ""}
-  `).join("")}
+  `;
+  }).join("")}
   <div class="trip-stats rb-budget">
     <span>💰 人均预算 <b>¥${m.budget.lo.toLocaleString()} ~ ${m.budget.hi.toLocaleString()}</b>（含大交通与住宿餐饮，不含购物）</span>
   </div>

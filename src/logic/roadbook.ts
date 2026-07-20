@@ -109,6 +109,78 @@ export const skelDayLabel = (n: number, tripStart: string) => {
   return { d: `D${n}`, date: t ? fmtMD(t) : "" };
 };
 
+// M55①：城市方案/leg 文本自带局部 D 编码（D1/D2…、D1-2 区间），与路书全局日序（该站从 start
+// 天起算）打架——按站起始日偏移量重映射，只替换文本、不碰数据（267 城零迁移）。与是否设了出发
+// 日期无关：逐日速览的 D 序号本就全局无条件展示，城市段文案必须跟它对齐，不是「有日期才对齐」。
+export function remapDayCodes(route: string, start: number): string {
+  const offset = start - 1;
+  if (!offset) return route; // 首站 start=1，本地编号天然=全局编号，等价于不做替换
+  return route.replace(/D(\d+)(?:-(\d+))?/g, (_, a: string, b?: string) =>
+    b === undefined ? `D${Number(a) + offset}` : `D${Number(a) + offset}-${Number(b) + offset}`);
+}
+
+// M55②：当季文案句级过滤——只在设了出发日期时启用（未设=显示全文，即本函数不参与）。
+const SEASON_MONTHS: Record<string, number[]> = { 春: [3, 4, 5], 夏: [6, 7, 8], 秋: [9, 10, 11], 冬: [12, 1, 2] };
+const FESTIVAL_MONTHS: Record<string, number[]> = { 春节: [1, 2], 五一: [5], 暑假: [7, 8], 国庆: [10] };
+function monthRange(a: number, b: number): number[] {
+  if (a <= b) return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  const out: number[] = [];
+  for (let m = a; m <= 12; m++) out.push(m);
+  for (let m = 1; m <= b; m++) out.push(m);
+  return out; // 跨年环绕（如「12-2月」「10月至次年4月」）
+}
+// 一句话里提取时间语义对应的月份集合；null=完全不含时间词——这类句子（如「避开黄金周人挤人」）
+// 与「当季」无关，任何停留月份都保留，不是「无法判断故保留」的兜底，是语义上确实不该被滤掉。
+export function extractMonths(sentence: string): Set<number> | null {
+  const months = new Set<number>();
+  let found = false;
+  let m: RegExpExecArray | null;
+  const wrapRe = /(\d{1,2})月至次年(\d{1,2})月/g;
+  while ((m = wrapRe.exec(sentence))) { found = true; monthRange(+m[1], +m[2]).forEach(x => months.add(x)); }
+  const rangeRe = /(\d{1,2})[-至](\d{1,2})月/g;
+  while ((m = rangeRe.exec(sentence))) { found = true; monthRange(+m[1], +m[2]).forEach(x => months.add(x)); }
+  const singleRe = /(\d{1,2})月/g; // 与上面两个 range 正则的匹配区间有重叠（如"7-8月"里的"8月"）——
+  while ((m = singleRe.exec(sentence))) { found = true; months.add(+m[1]); } // 重复 add 到 Set 是幂等的，无害
+  for (const [word, ms] of Object.entries(SEASON_MONTHS)) {
+    if (sentence.includes(word)) { found = true; ms.forEach(x => months.add(x)); }
+  }
+  for (const [word, ms] of Object.entries(FESTIVAL_MONTHS)) {
+    if (sentence.includes(word)) { found = true; ms.forEach(x => months.add(x)); }
+  }
+  return found ? months : null;
+}
+// 按「；。」切句：命中月份集合交集、或本身不含时间词的句子保留，原分隔符随保留句一起带出；
+// 全部句子被滤掉时天然返回空串——「全滤则整行省略」由调用方检查空串决定是否渲染该行。
+export function filterSeasonNote(note: string, stayMonths: Set<number>): string {
+  if (!note) return "";
+  const parts = note.split(/([；。])/);
+  let out = "";
+  for (let i = 0; i < parts.length; i += 2) {
+    const sentence = parts[i];
+    if (!sentence) continue;
+    const delim = parts[i + 1] ?? "";
+    const sm = extractMonths(sentence);
+    if (sm === null || [...sm].some(x => stayMonths.has(x))) out += sentence + delim;
+  }
+  return out;
+}
+// 该站实际停留会覆盖的月份集合（跨月停留天然落进多个月）；tripStart 为空/非法时 tripDate 恒
+// 返回 null，集合为空——调用方须先判断 tripStart truthy 再调用，空集合不代表「全年通配」。
+export function stayMonths(start: number, end: number, tripStart: string): Set<number> {
+  const months = new Set<number>();
+  for (let n = start; n <= end; n++) {
+    const t = tripDate(n, tripStart);
+    if (t) months.add(t.getMonth() + 1);
+  }
+  return months;
+}
+// content-checklist 四节离线审计用：句子「看起来」有时间语义（含旺季/花期一类词）但 extractMonths
+// 解析不出月份——运行时過滤逻辑會把这类句子当「不含时间词」无条件保留（安全默认，不会误滤），
+// 但语义上其实想按时间收窄，只是数据没写成可解析的月份——产出清单交内容侧补写月份。
+const TIME_HINT_RE = /旺季|淡季|花期|雨季|干季|汛期|黄金周|巅峰期|高峰期|节假日/;
+export function looksTimeSpecific(sentence: string): boolean { return TIME_HINT_RE.test(sentence); }
+export function sentencesOf(note: string): string[] { return note.split(/[；。]/).map(s => s.trim()).filter(Boolean); }
+
 // 纯文本导出。getWxLine=按站取「已缓存的」天气行（不发请求；无缓存返回 null），由调用方注入。
 export function roadbookText(m: RoadbookModel, tripStart: string, getWxLine: (id: string) => string | null): string {
   const title = m.stops.map(d => d.name).join(" → ");
@@ -126,11 +198,15 @@ export function roadbookText(m: RoadbookModel, tripStart: string, getWxLine: (id
     const outName = (i === 0 && it.legIn.gwName) ? it.legIn.gwName : it.d.name; // 入口门户（F31）
     s += `【${inName} → ${outName}】${it.legIn.mode} ${fmtH(it.legIn.hours)}（约${it.legIn.km}km）\n`;
     s += `D${it.start}${it.end > it.start ? "–D" + it.end : ""} ${it.d.name}（${it.d.chosenDays}天 · ${it.plan.title}）\n`;
-    s += `  行程：${it.plan.route}\n`;
+    s += `  行程：${remapDayCodes(it.plan.route, it.start)}\n`;
     s += `  美食：${it.d.food.slice(0, 4).join("、")}\n`;
     if (ROUTE_STAY.has(it.d.id)) s += `  节奏：路线型玩法，沿线多点换宿（按每晚落脚点分段订房）\n`;
     s += `  住宿：${it.d.hotel || "以酒店App实查为准"}\n`;
     s += `  市内：${it.d.local || "打车/公共交通"}\n`;
+    if (tripStart) { // 未设出发日期＝现状（不加当季提示行），详情/对比页从不走这条路径不受影响
+      const sn = filterSeasonNote(it.d.seasonNote, stayMonths(it.start, it.end, tripStart));
+      if (sn) s += `  当季提示：${sn}\n`;
+    }
     const wl = getWxLine(it.d.id); // 只读缓存，不发请求；没缓存就不加这行
     if (wl) { wxUsed = true; s += `  天气参考：${wl}\n`; }
     s += `\n`;
