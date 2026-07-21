@@ -4,6 +4,7 @@
 import { CMP_MAX, DAY_BUCKETS } from "../logic/constants";
 import { filtered } from "../logic/filter";
 import { gachaPick } from "../logic/gacha";
+import { getOrigin } from "../logic/origin";
 import type { Destination } from "../logic/types";
 import { cardPhotosEnabled, destPhotoSrc, regionHeaderSrc } from "../skins/illustrations";
 import { CUR_SEASON, DATA, saveLS, state } from "../store";
@@ -36,14 +37,26 @@ export function _resetGachaSession() { pile = []; cmpPoolOverride = null; rollin
 let cmpPoolOverride: Destination[] | null = null;
 
 // 基础池（未扣蛋堆）：对比池覆盖优先，否则当前筛选结果
+// F79：本城卡对偶隐藏三处一体（filter.ts matchOne / itinerary.ts onwaySuggestions / 这里）的
+// 第三处——filtered() 分支早已在 matchOne 里排除过当前出发地的本城卡，但 cmpPoolOverride
+// （M53 对比池定向抽）整池来自 state.cmp，而 state.cmp 持久化在 localStorage、跨出发地切换存活，
+// 完全绕开 matchOne：不补排除的话「上海视角把北京卡加入对比 → 切到北京出发 → 从对比池抽」能把
+// 北京卡重新抽回蛋池。选在 basePool() 而不是 events.ts 传参前（不改调用方）：这里是 gacha 模块内
+// 所有读池路径的唯一咽喉——drawablePool()/renderScope 计数/renderStage 池说明/roll() 全部经它，
+// 改一处即可全链路一致；filtered() 分支再滤一次是幂等空操作，无需按 override 与否分叉判断。
 function basePool(): Destination[] {
-  return cmpPoolOverride ?? filtered(DATA, state, CUR_SEASON);
+  const pool = cmpPoolOverride ?? filtered(DATA, state, CUR_SEASON);
+  return pool.filter(d => d.id !== getOrigin().cardId);
 }
 // 可抽池：基础池扣掉已落堆的 id（design：已落地蛋按 id 排除、连扭不重复；排除叠加于一次性池覆盖之上）
 function drawablePool(): Destination[] {
   const landed = pileIds();
   return basePool().filter(d => !landed.has(d.id));
 }
+
+// 测试辅助：暴露当前可抽池（F79 断言本城卡对偶排除时用，避免「多摇几次没摇到」这种概率性断言；
+// 下划线前缀＝非生产入口，同 _resetGachaSession 惯例）
+export function _drawablePool(): Destination[] { return drawablePool(); }
 
 // —— 蛋壳图形件：SVG + 皮肤 token 上色（皮肤无关形状、随肤取色，design M63）。质感不足再按成套清单立插画小批。
 const bowlSVG = () =>
@@ -240,6 +253,16 @@ export function clearPile() {
   pile = [];
   renderAll();
   toast("蛋堆已清空");
+}
+
+// F79：本城卡对偶隐藏的第三处收尾——蛋堆（pile）是不经 basePool()/matchOne 的独立会话态，
+// 切出发地前用旧出发地视角抽到的蛋，可能恰好等于切换后的新本城卡（例如上海视角抽到北京卡
+// 落堆，再切到北京出发）。basePool() 的排除只挡「以后再抽」，堆里已落地的旧蛋得单独清一次。
+// 调用方：main.ts wireOriginSwitch 回调，每次出发地切换都跑。
+export function purgePileForOrigin() {
+  const before = pile.length;
+  pile = pile.filter(d => d.id !== getOrigin().cardId);
+  if (pile.length !== before) renderAll();
 }
 
 // 整堆写入对比池并开对比表（M69：直接覆盖旧池不弹确认——对比池可随手重建，confirm 打断心流不值）
