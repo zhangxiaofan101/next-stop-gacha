@@ -29,7 +29,7 @@ export interface SkinDeclaration {
 }
 
 export const SKINS: SkinDeclaration[] = [
-  { id: "cream", label: "奶油", fonts: null, assetDir: "cream", decorations: {}, cardPhotos: false },
+  { id: "cream", label: "原味", fonts: null, assetDir: "cream", decorations: {}, cardPhotos: false },
   {
     id: "ink", label: "山水",
     fonts: { title: "Ink Title", body: "Ink Body" },
