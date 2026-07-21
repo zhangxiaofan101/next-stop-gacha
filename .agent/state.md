@@ -30,20 +30,21 @@
 
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。 [cc]
 
-1. **M64 — 扭蛋机与咔啦主页显性化 [R1 · S2] → sonnet · high（cc）+ 用户目检（下一个）**｜2026-07-21 用户点名「机器不抢眼/咔啦不明显（手机端更甚）」，两答拍板（见 📋）：FAB 升级迷你扭蛋机 + 咔啦趴机、桌面页头探头放大（44→约90px）、手机不设常驻位靠高频出场（toast 咔啦气泡 + M63 舞台操作员 + 趴 FAB）；M63 已落地（舞台操作员气泡已在弹层就位），本模块补主页三处显性化；spec 见 design M64。**首步：ink-mascot-cutout-v1 已终审通过（见 📋），转档 `picked/ink/mascot-cutout.webp` 后 M63 舞台操作员与本模块趴机/探头/气泡一并换透明底。** cream 缺 gacha/mascot 资产，三处均走回退形态（补画待办见 🟡）。**注：M63 已把 `.deco-emoji` 包 span 习语落地（ink 隐藏装饰 emoji），M64 的 FAB「扭一个」emoji/toast 气泡沿用同口径。** [cc]
+1. **M64 — 扭蛋机与咔啦主页显性化 [R1 · S2] → sonnet · high（cc）+ 用户目检（异步，不阻塞 loop）（下一个）**｜2026-07-21 用户点名「机器不抢眼/咔啦不明显（手机端更甚）」，两答拍板（见 📋）：FAB 升级迷你扭蛋机 + 咔啦趴机、桌面页头探头放大（44→约90px）、手机不设常驻位靠高频出场（toast 咔啦气泡 + M63 舞台操作员 + 趴 FAB）；M63 已落地（舞台操作员气泡已在弹层就位），本模块补主页三处显性化；spec 见 design M64。**首步：ink-mascot-cutout-v1 已终审通过（见 📋），转档 `picked/ink/mascot-cutout.webp` 后 M63 舞台操作员与本模块趴机/探头/气泡一并换透明底。** cream 缺 gacha/mascot 资产，三处均走回退形态（补画待办见 🟡）。**注：M63 已把 `.deco-emoji` 包 span 习语落地（ink 隐藏装饰 emoji），M64 的 FAB「扭一个」emoji/toast 气泡沿用同口径。** [cc]
 2. **M66 — 皮肤视觉回归快照 [R2 · S2] → sonnet · high（cc）**｜2026-07-21 与 M65 同轮拍板立项：Playwright 皮肤×关键视图截图基线，改坏任一皮肤机器先于目检报警——皮肤×视图×模块是乘法，目检不可扩展；**排 M64 之后、M61 之前**（基线必须拍在扭蛋新舞台+主页显性化定型后，拍早了全是废片；两套新皮肤落地时直接受益）。spec 见 design M66。 [cc]
-3. **M68 — 搜索增强：地理别名 + 概念词筛选映射 [R2 · S2] → 机制段 sonnet · high（cc）· aka 数据批 opus 分片（内容轨道，可与皮肤代码轨道并行）**｜2026-07-21 用户报「搜川西/搜短途搜不到很尬」，三答拍板（见 📋）：双层方案、排 M66 后皮肤前。aka 批过 content-checklist；「短途」距离派生逻辑与 M22 出发地参数化共用（先按上海写、M22 换起点自动跟随）。spec 见 design M68。 [cc]
+3. **M68 — 搜索增强：地理别名 + 概念词筛选映射 [R2 · S2] → 机制段 sonnet · high（cc）· aka 数据批 opus 分片（自包含子代理，sonnet loop 会话可编排）**｜2026-07-21 用户报「搜川西/搜短途搜不到很尬」，三答拍板（见 📋）：双层方案、排 M66 后皮肤前。aka 批过 content-checklist；「短途」距离派生逻辑与 M22 出发地参数化共用（先按上海写、M22 换起点自动跟随）。spec 见 design M68。 [cc]
 4. **M61 — 皮肤：青花（porcelain）[R2 · S2] → sonnet · high（cc）+ 用户终审**｜就绪度最高、排首位：A7 主题层 6 张已终审（mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1，empty v1 问号随选择接受）。步骤：①cc 转档 6 张 q90 WebP 入 `picked/porcelain/`，M42 管线出装饰位产物；②porcelain 声明 + token 批（白瓷底/钴蓝；朱红只许出现在 UI chrome 语义色，资产内无红——A7 工单红线）；③共享集钴蓝滤镜首次真实消费（M51 机制）；④cardPhotos 开关按滤镜后目检拍定；⑤工艺件批（texture/seal/placeholder，frame/divider 已撤出成套清单）codex 另开、不阻塞 chrome。 [cc]
 5. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
 6. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜排两套皮肤之后——卡池/皮肤稳定后再写北京视角文案，避免二次补写；数据批含京畿短途补卡子批（约 10~12 张，2026-07-21 密度侦查：北京 350km 内 15 张 vs 上海同径 42 张，spec 见 design M22）；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate，并试行 S3→分支+PR+Cloudflare preview 的 git 工作流映射（M65 同轮拍板，skill「Mechanical enforcement」可选条）。spec 见 design M22（已按两段式改述）。 [cc]
 
-- 六期 review gate：M63+M64+M67+M69 一轮 codex 跨家族复核（扭蛋/对比面 + 彩蛋守卫补漏同轮捎带）→ M68 搜索面随后或并入皮肤轮 → M61+M62 皮肤面合并一轮（同 M46/M52 先例）；M22 因 S3 单独一轮。 [cc]
+- 六期 review gate（2026-07-21 为 loop 连跑重排——用户要求少打断、一次多落几个模块）：**代码面合并一轮**（M63+M64+M66+M67+M68+M69，排 M68 后、M61 前；原「M64 后扭蛋面一轮」并入）codex 跨家族复核 → M61+M62 皮肤面合并一轮（同 M46/M52 先例）；M22 因 S3 单独一轮。M64 的用户目检改为落地后异步（部署站上看，反馈走修缮批），不阻塞 loop 批次。 [cc]
 
 ## ⏭ P2
 
 - 【画面+前端】M39 — 皮肤：手帐（水彩剪贴簿）[R2 · S2] ｜ gating：扭蛋机/空态等 19 张水彩资产用户终审（原 28 张中九区 9 张已随 M60 转素材库存档）；审过 cc 转 picked/；另按成套清单需补工艺件批；施工图=质感样稿 v2（git 历史） [cc]
 - 【画面+前端】皮肤：画报（丝网印刷复古）[R2 · S2] ｜ gating：按用户兴致排；spec 见 design 皮肤库表（青花已提前晋升六期 M61） [cc]
 - 【内容】M11 — 海外版数据 [R2 · S2] ｜ goal 长期方向；2026-07-21 用户确认为六期之后的远期方向；开工前需 scoping 拍板（海外区域枚举/出发地假设/签证难度维度等）；执行侧 claude（2026-07-20 划转拍板） [cc]
+- 【前端】M70 — 手机 App 化第一步：PWA [R2 · S2 · 🌫️] ｜ 2026-07-21 用户新增更远期方向（App 化从 PWA 起步）；gating：六期之后按用户兴致排；开工前 scoping 拍板（SW 缓存/更新策略、安装引导位）；spec 见 design M70 [cc]
 - 【内容】M22·其他出发城市 ｜ 北京批落地验证 per-origin 管线后逐城扩（2026-07-19 用户口径：北京先行、其余往后排）；spec 同 M22 [cc]
 - 【前端】顺游半径西部放宽（150→按区域 200km） [R1 · S1] ｜ 2026-07-17 用户认可候补；gating：真实使用中觉得西部（拉萨类）彩蛋太冷清再动，动时注意东部不放宽 [cc]
 - 【内容】高时效交通复卡清单（M56 批A 落库随附，定期回查，触发即回写文案/翻转标记）：上海轨交22号线（2026年内通车→chongming norail 翻转）、枣庄翼云（已校飞随时通航→taierzhuang noair）、红河蒙自（在建目标2026→jianshui-mengzi noair）、元阳机场（延期中→yuanyang-terrace）、丽水机场（2025-04 试飞→songyang/缙云片区文案）、冠豸山复航（→changting noair）、牡丹江海浪复航（或至2028→jingpohu noair）、雄忻高铁五台山站（2027-03→wutaishan）、甬石铁路（2027→shipu-xiangshan norail）、郑登洛城际（→dengfeng-songshan norail）、延榆高铁（2028）、兰合铁路（2027→gannan norail）、黑河高铁（→wudalianchi 文案）、漳汕高铁东山岛站（→dongshandao norail）、大瑞铁路保山以西（→ruili norail）、川青黄胜关以北（2028→ruoergai norail）、川藏铁路雅林段（2032→chuanxi-loop norail）、邵永高铁（2027-12→langshan-danxia norail）——共 18 项；**批B 新增 2**（2026-07-21）：云桂线阳宗站客运班次（2026-01 刚开、日约 3 班→chengjiang-fuxianhu 文案/norail 复议）、鄂州花湖机场客运航线存续（2025 收缩至约 1 条→huangshi-daye noair 复议）；**slowrail 批新增 2**（2026-07-21）：白阿线动车化改造（规划中→aershan slowrail 翻转）、滨洲线开行动车（电气化已成暂无动车→hulunbuir slowrail 翻转）——既列「黑河高铁」项触发时同步翻 wudalianchi slowrail [cc]
@@ -57,6 +58,7 @@
 
 ## 📋 拍板档案
 
+- **2026-07-21 App 化远期方向**（用户）：本站逐步变手机 App、从 PWA 起步 → goal 长期方向新增 + design M70 spec of record + P2 挂账；同轮用户要求 loop 连跑六期批次（少打断多落模块）→ 代码面 review gate 合并重排（见 review gate 行）。 [cc]
 - **2026-07-21 交互修缮六条反馈**（用户）：①「用这堆蛋替换掉它们？」类确认弹窗全站排查（仅此一处原生 confirm）并拍板「直接替换、不设确认」→ 升华 design 无 confirm 原则；②对比表要有就地删除；③蛋堆区背景须与机器面板连体；④「清空蛋堆」的「堆」字体不对（=子集缺字）；⑤气泡尖角应指向右侧咔啦——五项立 M69 当日修；⑥朋友口径京畿主题清单「山水/草原/古建筑/古城/清帝陵/海」→ 入 M22 京畿子批主题覆盖口径。 [cc]
 - **2026-07-21 六期中程增补拍板**（用户四点反馈 + AskUserQuestion 三答）：①彩蛋 bug（丽江拉萨行程出无锡/苏州/信阳）诊断为「飞机+包车」绕过 mode 字符串守卫 → 立 M67 当日修；近出发地不设禁入——用户口径「去南京顺路苏州可以，去新疆自驾就别推无锡」，后者由飞行段守卫结构保证并入回归测试；②搜索增强选**双层方案**（aka 地理别名批 + 概念词→筛选映射 chip；「短途」按距出发地派生，不新增筛选行）→ 立 M68，**排 M66 后、皮肤前**（三答均选推荐项）；③北京首发要配京畿短途卡（密度侦查 15 vs 42）→ M22 数据批增京畿子批；拓展两方向原则（京沪级配周边密度 / 普通城市只通机制）记入 goal 长期方向；④ink-mascot-cutout-v1 终审通过 → 转档消费并入 M64 首步。 [cc]
 - **2026-07-21 协议机械化拍板**（用户，采纳 cc 对 agent-project-workflow 工作流的评估）：①skill 增设「Mechanical enforcement」节（协议 linter / CI 红绿灯 / S3→PR 可选映射 / 视觉回归四件）+ 第五类常驻领域文件条款（观察源=本项目 content-checklist/illustration-brief 两个编外文件证明四文件模型需要正式的第五类）——codex 侧经 `~/.codex/skills` 软链自动同步；②立 M65（.agent linter + CI）即刻落地；③立 M66（皮肤视觉回归）排 M64 后 M61 前，基线等舞台定型；④S3→PR+preview 映射记入 M22 试行。 [cc]
@@ -73,7 +75,7 @@
 
 ## 📥 Review backlog（triage 结果）
 
-- **M63 扭蛋主舞台重做已落地（2026-07-21），待 codex 跨家族复核**：按六期 review gate 与 M64 扭蛋面合并一轮（M64 落地后开）。复核关注点建议：连扭排除/容量的池语义边界（对比池覆盖 × 蛋堆排除叠加）、揭晓卡与蛋堆同源 `currentPick=堆尾` 单一真相是否漏态、`.deco-emoji` 纪律是否有遗漏的裸 emoji、reduced-motion 与缺资产皮肤回退。改动面：`src/ui/gacha.ts` 重写、`index.html` 弹层重构、`src/style.css` 舞台/开壳卡/蛋堆 + 移除 `#gachaTicket`/`.ticket-ambience`、`src/skins/{cream,ink}.css` 新增 `--cap-*`、`src/ui/events.ts` 委托、gacha 三测迁移。 [cc]
+- **M63 扭蛋主舞台重做已落地（2026-07-21），待 codex 跨家族复核**：按六期 review gate 代码面合并一轮（M68 落地后开，含 M64/M66/M67/M68/M69）。复核关注点建议：连扭排除/容量的池语义边界（对比池覆盖 × 蛋堆排除叠加）、揭晓卡与蛋堆同源 `currentPick=堆尾` 单一真相是否漏态、`.deco-emoji` 纪律是否有遗漏的裸 emoji、reduced-motion 与缺资产皮肤回退。改动面：`src/ui/gacha.ts` 重写、`index.html` 弹层重构、`src/style.css` 舞台/开壳卡/蛋堆 + 移除 `#gachaTicket`/`.ticket-ambience`、`src/skins/{cream,ink}.css` 新增 `--cap-*`、`src/ui/events.ts` 委托、gacha 三测迁移。 [cc]
 - 截至封板（2026-07-21）：历史 F 项（F14–F69）全部修复并经 codex 复核关闭，review.md 无 active findings（最新 baseline e5a6648）；M38/M41/M45/M46/M52 跨家族 gate 均正式通过。**内容批（批A/批B）「codex 跨家族抽查」gate 收口**：89c7b04 复核轮范围明确覆盖 M48/M49 内容批与 M56 交通守卫（提出的 F64/F65/F68 均属该范围且已修复关闭），gate 视为已执行并通过，原「待开」记录就此销项——内容轨道可开新批。 [cc]
 
 ## 🪦 Sealed phases
