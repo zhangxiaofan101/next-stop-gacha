@@ -226,14 +226,10 @@ export function clearPile() {
   toast("蛋堆已清空");
 }
 
-// 整堆写入对比池并开对比表（覆盖非空且不同的对比池前需确认）
+// 整堆写入对比池并开对比表（M69：直接覆盖旧池不弹确认——对比池可随手重建，confirm 打断心流不值）
 export function pileToCompare() {
   if (!pile.length) return;
-  const ids = pile.map(d => d.id);
-  const cur = state.cmp;
-  const differs = cur.length > 0 && (cur.length !== ids.length || ids.some((x, k) => x !== cur[k]));
-  if (differs && !confirm("对比池里已经有几个了，用这堆蛋替换掉它们？")) return;
-  state.cmp = ids.slice(0, CMP_MAX);           // 蛋堆上限＝CMP_MAX，天然不溢出
+  state.cmp = pile.map(d => d.id).slice(0, CMP_MAX); // 蛋堆上限＝CMP_MAX，天然不溢出
   saveLS();
   $("gachaOverlay").classList.remove("show");
   if (state.cmp.length >= 2) openCompare();

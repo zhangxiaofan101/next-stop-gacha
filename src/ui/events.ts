@@ -38,7 +38,15 @@ export function wireEvents() {
     const addRoute = t.closest<HTMLElement>("[data-addroute]");
     if (addRoute) { e.stopPropagation(); addRouteToTrip(addRoute.dataset.addroute!); return; }
     const rmCmp = t.closest<HTMLElement>("[data-rmcmp]");
-    if (rmCmp) { toggleCmp(rmCmp.dataset.rmcmp!); return; }
+    if (rmCmp) {
+      toggleCmp(rmCmp.dataset.rmcmp!);
+      // M69：对比表开着时就地刷新——够 2 个继续比，不够就收摊（对比池还剩 1 个，继续抽或从卡片再加）
+      if ($("cmpOverlay").classList.contains("show")) {
+        if (state.cmp.length >= 2) openCompare();
+        else { $("cmpOverlay").classList.remove("show"); toast("对比池只剩 1 个啦，再攒一个继续比"); }
+      }
+      return;
+    }
     const rmTrip = t.closest<HTMLElement>("[data-rmtrip]");
     if (rmTrip) { toggleTrip(rmTrip.dataset.rmtrip!); return; }
     const up = t.closest<HTMLElement>("[data-up]");

@@ -105,7 +105,9 @@ def main():
             ok = False
             continue
         charset = full_charset if use_full else narrow_charset
-        corpus_path = os.path.join(OUT_DIR, f".corpus-{out_name}.tmp.txt")
+        # 语料落盘进 git（M69）：woff2 是二进制黑盒，语料文本是它唯一可 diff/可断言的影子——
+        # font-corpus 测试拿它对照源文件字符集，UI/数据新增字没重跑本脚本时红灯（「堆」缺字复发案）
+        corpus_path = os.path.join(OUT_DIR, out_name.replace(".woff2", ".corpus.txt"))
         open(corpus_path, "w", encoding="utf-8").write("".join(sorted(charset)))
         out_path = os.path.join(OUT_DIR, out_name)
         r = subprocess.run(
@@ -119,7 +121,6 @@ def main():
             ],
             capture_output=True, text=True,
         )
-        os.remove(corpus_path)
         if r.returncode != 0:
             print(f"!! pyftsubset 处理 {label} 失败：\n{r.stderr}", file=sys.stderr)
             ok = False

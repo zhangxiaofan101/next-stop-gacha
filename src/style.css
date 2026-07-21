@@ -333,10 +333,11 @@
   .g-bubble {
     position: relative; max-width: 84%; margin: 0 auto 6px; text-align: left;
     background: var(--panel-warm-bg); border: var(--bw-thick) solid var(--panel-warm-border);
-    border-radius: 14px 14px 14px 4px; padding: 7px 12px; font-size: 12.5px; color: var(--ink); line-height: 1.4;
+    border-radius: 14px 14px 4px 14px; padding: 7px 12px; font-size: 12.5px; color: var(--ink); line-height: 1.4;
   }
+  /* M69：说话的是右下角的咔啦——尖角指右（cream 无咔啦时指向机器侧同样成立） */
   .g-bubble::after {
-    content: ""; position: absolute; left: 22px; bottom: -8px; width: 11px; height: 11px;
+    content: ""; position: absolute; right: 22px; bottom: -8px; width: 11px; height: 11px;
     background: var(--panel-warm-bg); border-right: var(--bw-thick) solid var(--panel-warm-border);
     border-bottom: var(--bw-thick) solid var(--panel-warm-border); transform: rotate(45deg);
   }
@@ -433,7 +434,13 @@
   table.cmp { border-collapse: collapse; width: 100%; min-width: 660px; font-size: 13px; }
   table.cmp th, table.cmp td { border: var(--bw-thin) solid var(--table-border); padding: 10px 14px; text-align: left; vertical-align: top; }
   table.cmp th.rowh { font-family: var(--round); font-size: 12px; color: var(--ink-soft); background: var(--table-rowh-bg); white-space: nowrap; width: 92px; }
-  table.cmp td.cityh { font-family: var(--round); font-size: 20px; background: var(--table-cityh-bg); }
+  table.cmp td.cityh { font-family: var(--round); font-size: 20px; background: var(--table-cityh-bg); position: relative; padding-right: 34px; }
+  /* M69：对比列删除——看完详情不想比了就地移出，剩下的继续比（样式随 .ge-x 家族） */
+  .cmp-del {
+    position: absolute; right: 6px; top: 6px; width: 20px; height: 20px; padding: 0; border-radius: 50%;
+    background: var(--paper); border: var(--bw-thin) solid var(--ink); color: var(--ink);
+    font-size: 11px; line-height: 1; cursor: pointer;
+  }
   table.cmp td .sm { font-size: 11px; color: var(--ink-soft); font-weight: 400; }
 
   /* 行程规划 */

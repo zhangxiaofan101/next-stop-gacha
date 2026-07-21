@@ -97,6 +97,18 @@ describe("M63 蛋堆", () => {
     expect(document.getElementById("gachaOverlay")!.classList.contains("show")).toBe(false);
   });
 
+  it("M69：拿去对比直接覆盖非空旧池，不弹确认（confirm 不被调用）", () => {
+    setData([mkCity({ id: "a" }), mkCity({ id: "b" }), mkCity({ id: "c" }), mkCity({ id: "d" })]);
+    state.cmp = ["d"];                                        // 预置一个不同的旧池
+    const spy = vi.fn(() => false);                           // 若仍有 confirm 残留，false 会挡住覆盖 → 下方断言连带失败
+    (window as unknown as { confirm: () => boolean }).confirm = spy;
+    openGacha();
+    roll(); roll();
+    pileToCompare();
+    expect(spy).not.toHaveBeenCalled();
+    expect(state.cmp).toEqual(eggIds());                      // 旧池被整堆直接替换
+  });
+
   it("清空蛋堆：堆空、蛋堆隐藏、旋钮恢复", () => {
     setData([mkCity({ id: "a" }), mkCity({ id: "b" }), mkCity({ id: "c" })]);
     openGacha();

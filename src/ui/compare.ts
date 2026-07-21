@@ -10,7 +10,7 @@ export function openCompare() {
   const row = (label: string, fn: (d: Destination) => string) => `<tr><th class="rowh">${label}</th>${ds.map(d => `<td>${fn(d)}</td>`).join("")}</tr>`;
   $("cmpTableWrap").innerHTML = `
   <table class="cmp">
-    <tr><th class="rowh">目的地</th>${ds.map(d => `<td class="cityh">${d.emoji} ${d.name}<br><span class="sm">${d.province} · ${d.region}</span></td>`).join("")}</tr>
+    <tr><th class="rowh">目的地</th>${ds.map(d => `<td class="cityh"><button class="cmp-del" data-rmcmp="${d.id}" aria-label="移出对比：${d.name}">✕</button>${d.emoji} ${d.name}<br><span class="sm">${d.province} · ${d.region}</span></td>`).join("")}</tr>
     ${row("一句话", d => d.tagline)}
     ${row("冷热 / 花费", d => `${d.crowd} · ${d.cost}`)}
     ${row("体力", d => (d.effort.length ? d.effort.join("、") : "怎么玩都行") + (d.alt ? " · ⛰️ 高海拔" : ""))}
