@@ -64,7 +64,7 @@
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。 [cc]
 
 1. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
-2. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜2026-07-21 用户改点：提前与 M62 并行开工——原「排皮肤后避免文案二次补写」前提已失效（卡池自 M68 后稳定、皮肤批不碰数据），冲突面核查零交集（皮肤只动 src/skins/+assets，本模块动 logic/tools/data）；**并行纪律：本模块不碰 src/skins/，.agent 推送前先 pull --rebase，M66 基线与皮肤轨各自重拍**；数据批含京畿短途补卡子批（约 10~12 张，2026-07-21 密度侦查：北京 350km 内 15 张 vs 上海同径 42 张，spec 见 design M22）；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate，并试行 S3→分支+PR+Cloudflare preview 的 git 工作流映射（M65 同轮拍板，skill「Mechanical enforcement」可选条）。spec 见 design M22（已按两段式改述）。 [cc]
+2. **M22 — 自选出发城市·北京首发 [R2 · S3] → 机制段 cc in-session · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜2026-07-21 用户改点：提前与 M62 并行开工——原「排皮肤后避免文案二次补写」前提已失效（卡池自 M68 后稳定、皮肤批不碰数据），冲突面核查零交集（皮肤只动 src/skins/+assets，本模块动 logic/tools/data）；**并行纪律：本模块不碰 src/skins/，.agent 推送前先 pull --rebase，M66 基线与皮肤轨各自重拍**；🌫️ 已解（2026-07-21 四问拍板，见 📋）：schema=独立视角文件 `data/origin-beijing.json`、入口=页头出发地胶囊、本城卡对偶隐藏+**上海城市卡入库**（用户点名新增）、京畿 12 张候选全进调研批（名单可扩展）；数据批范围=全量北京视角重打 + 上海卡 + 京畿子批（2026-07-21 密度侦查：北京 350km 内 15 张 vs 上海同径 42 张）。**S3 git 流试行：`m22-beijing` 分支实施，push 开 PR、Cloudflare preview + 用户目检后才并 main**；落地后单独挂 codex 跨家族 review gate。spec 见 design M22（拍板机制已写入）。 [cc]
 
 - 六期 review gate（2026-07-21 为 loop 连跑重排——用户要求少打断、一次多落几个模块）：**代码面合并一轮**（M63+M64+M66+M67+M68+M69，排 M68 后、M61 前；原「M64 后扭蛋面一轮」并入）**已收口**（F70–F77 修复 + codex 确认轮 baseline 9322468 全关，见 Review backlog）→ 皮肤面一轮改为 **M61+M62+M71 合并、排 M62 落地后**（同 M46/M52 先例）；M22 因 S3 单独一轮。M64 的用户目检改为落地后异步（部署站上看，反馈走修缮批），不阻塞 loop 批次。 [cc]
 
@@ -87,6 +87,7 @@
 
 ## 📋 拍板档案
 
+- **2026-07-21 M22 开工四问拍板**（用户，AskUserQuestion；①③选推荐项，②④用户扩展）：①per-origin schema=**独立视角文件** `data/origin-beijing.json`（id→{transit,difficulty}，build 强校验全量覆盖+枚举+守卫互查，发布独立 chunk 按需 fetch，基座恒上海视角）；②京畿补卡名单=cc 提的 12 张候选**全进调研批**，用户明示「只是举例，可以扩展」——调研中可增删、按「值得住」红线淘汰；③切换入口=**页头出发地胶囊**（足迹胶囊同区同语言，localStorage 记忆）；④本城卡=**对偶隐藏 + 新增上海城市卡**（用户点名：出发地=北京时隐北京卡显上海卡，出发地=上海时隐上海卡显北京卡；崇明不算上海卡）。机制全文见 design M22。 [cc]
 - **2026-07-21 M22 提前并行拍板**（用户）：「61/62 先慢慢搞着不着急，我们来做 M22」——M22 与皮肤轨道并行开工；cc 核查冲突面（皮肤=src/skins/+assets，M22=logic/tools/data，零交集）确认可行，并行纪律记入 🔜 M22 条。 [cc]
 - **2026-07-21 App 化远期方向**（用户）：本站逐步变手机 App、从 PWA 起步 → goal 长期方向新增 + design M70 spec of record + P2 挂账；同轮用户要求 loop 连跑六期批次（少打断多落模块）→ 代码面 review gate 合并重排（见 review gate 行）。 [cc]
 - **2026-07-21 交互修缮六条反馈**（用户）：①「用这堆蛋替换掉它们？」类确认弹窗全站排查（仅此一处原生 confirm）并拍板「直接替换、不设确认」→ 升华 design 无 confirm 原则；②对比表要有就地删除；③蛋堆区背景须与机器面板连体；④「清空蛋堆」的「堆」字体不对（=子集缺字）；⑤气泡尖角应指向右侧咔啦——五项立 M69 当日修；⑥朋友口径京畿主题清单「山水/草原/古建筑/古城/清帝陵/海」→ 入 M22 京畿子批主题覆盖口径。 [cc]
