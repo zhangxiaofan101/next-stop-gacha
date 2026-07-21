@@ -8,7 +8,7 @@
 
 **封板（2026-07-21）**：三期（M26–M36）、四期（M37–M44，M39 未落地留 P2）、五期（M45–M60）一并封板（见 🪦）。封板核验：codex 复核链收口——89c7b04 曾以 F63–F68 明确阻板，三轮修复/复核后 2ee6223 确认「F68、F69 均已关闭；当前无 Active findings」；封板会话另实跑 `bun run verify` 全绿（217 前端 + 45 workerd，退出码 0）、`git status` 干净、main↔origin 0/0。 [cc]
 
-**六期（进行中，2026-07-21）**：执行顺序 ~~M63 扭蛋连扭备选~~ ✅落地 → ~~M64 机器/咔啦主页显性化~~ ✅落地 → ~~M66 视觉回归网~~ ✅落地 → ~~M68 搜索增强~~ ✅落地 → ~~代码面 review gate~~ ✅**F70–F77 八项已逐条修复**（codex 复核 baseline e7f0a34，见 ✅「Review 回应批」；待下一轮 codex 复核确认关闭）→ M61 青花 → M62 doodle → M22 北京首发（见 🔜）；~~M65 协议机械门禁~~ ✅先行落地；~~M67 彩蛋飞行段守卫补漏~~ ✅插队即修（用户报 bug 当日诊断+落地，见 ✅）；~~M69 扭蛋/对比交互修缮批~~ ✅插队即修（用户五项反馈当日落地，见 ✅）；远期方向=M11 海外版（P2，六期之后）。M63 首个落地（扭蛋舞台重做，双皮肤真机复验通过，见 ✅）；A9 doodle 主题层已终审、M62 资产 gating 解除；ink-mascot-cutout-v1 用户终审通过（2026-07-21），随 M64 转档消费并已接入 FAB 趴角 + 舞台操作员（见 ✅）。新编号自 M70 起。 [codex][cc]
+**六期（进行中，2026-07-21）**：执行顺序 ~~M63 扭蛋连扭备选~~ ✅落地 → ~~M64 机器/咔啦主页显性化~~ ✅落地 → ~~M66 视觉回归网~~ ✅落地 → ~~M68 搜索增强~~ ✅落地 → ~~代码面 review gate~~ ✅**通过**（F70–F77 八项修复 + codex 确认轮 baseline 9322468 全关，见 Review backlog）→ M61 青花 → M62 doodle → M22 北京首发（见 🔜）；~~M65 协议机械门禁~~ ✅先行落地；~~M67 彩蛋飞行段守卫补漏~~ ✅插队即修（用户报 bug 当日诊断+落地，见 ✅）；~~M69 扭蛋/对比交互修缮批~~ ✅插队即修（用户五项反馈当日落地，见 ✅）；远期方向=M11 海外版（P2，六期之后）。M63 首个落地（扭蛋舞台重做，双皮肤真机复验通过，见 ✅）；A9 doodle 主题层已终审、M62 资产 gating 解除；ink-mascot-cutout-v1 用户终审通过（2026-07-21），随 M64 转档消费并已接入 FAB 趴角 + 舞台操作员（见 ✅）。新编号自 M70 起。 [codex][cc]
 
 ## ✅ Implemented
 
@@ -95,7 +95,8 @@
 
 ## 📥 Review backlog（triage 结果）
 
-- **六期代码面 review gate：codex 已复核（baseline e7f0a34），F70–F77 已全部代码修复（2026-07-21，见 ✅「Review 回应批」）**——`review.md` 本身未改动（implementer 角色不拥有该文件），八条 finding 仍列在案，等下一轮 codex 针对本次修复做**确认性复核**（非从头重新审），确认后由 reviewer 自行从 review.md 删除。逐条修复对应关系：F70=gacha.ts 世代计数器+定时器取消、F71=render.ts applyIntentAction 按组类型分叉、F72=intentBox active chip+徽章+gacha scope 三处补齐、F73=waitForImages 等 fonts.ready+timeout 提到 10s、F74=bestInsertion 加 byId 参数走 tripLegs 同款 overland、F75=新增揭晓+蛋堆视觉基线（顺带修了两个真实截图 flakiness：matchMedia 覆写、scrollTop 复位）、F76=nanjing 补 aka:苏南、F77=`.cmp-del::after` 热区外扩。 [cc]
+- **六期代码面确认性复核（2026-07-21，baseline 9322468）**：Codex/GPT 独立复核 `e7f0a34..9322468`，F70–F77 全部关闭、当前无 Active findings，代码面 gate 通过；实跑 `bun run verify`（262 前端 + 45 workerd）、`bun run test:build-assets`（14/14）、视觉 12 场景连续三轮全绿，并以真实 Chromium 确认旧全国池动画结果不会污染后来打开的苏州/南京对比池。 [codex]
+- **六期代码面 review gate：codex 已复核（baseline e7f0a34），F70–F77 已全部代码修复（2026-07-21，见 ✅「Review 回应批」）**——确认性复核已通过并由 reviewer 清空 review.md（见上条 [codex] 记录）。逐条修复对应关系：F70=gacha.ts 世代计数器+定时器取消、F71=render.ts applyIntentAction 按组类型分叉、F72=intentBox active chip+徽章+gacha scope 三处补齐、F73=waitForImages 等 fonts.ready+timeout 提到 10s、F74=bestInsertion 加 byId 参数走 tripLegs 同款 overland、F75=新增揭晓+蛋堆视觉基线（顺带修了两个真实截图 flakiness：matchMedia 覆写、scrollTop 复位）、F76=nanjing 补 aka:苏南、F77=`.cmp-del::after` 热区外扩。 [cc]
 - 截至封板（2026-07-21）：历史 F 项（F14–F69）全部修复并经 codex 复核关闭，review.md 无 active findings（最新 baseline e5a6648）；M38/M41/M45/M46/M52 跨家族 gate 均正式通过。**内容批（批A/批B）「codex 跨家族抽查」gate 收口**：89c7b04 复核轮范围明确覆盖 M48/M49 内容批与 M56 交通守卫（提出的 F64/F65/F68 均属该范围且已修复关闭），gate 视为已执行并通过，原「待开」记录就此销项——内容轨道可开新批。 [cc]
 
 ## 🪦 Sealed phases
