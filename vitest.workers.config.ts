@@ -13,8 +13,8 @@ export default defineConfig({
   ],
   test: {
     include: ["tests/**/*.test.mjs"],
-    // 两者都需要真实文件系统/子进程（execSync 起 vite build / python3+cwebp），workerd 沙箱跑不了，
-    // 各自跑 `bun run test:build-assets`，见文件头注
-    exclude: ["tests/build-assets.test.mjs", "tests/build-illustrations.test.mjs"],
+    // 三者都需要真实文件系统/子进程（execSync 起 vite build / python3+cwebp / python3 build.py），
+    // workerd 沙箱跑不了，各自跑 `bun run test:build-assets`，见文件头注
+    exclude: ["tests/build-assets.test.mjs", "tests/build-illustrations.test.mjs", "tests/build-py-guards.test.mjs"],
   },
 });

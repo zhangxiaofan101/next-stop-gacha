@@ -9,8 +9,11 @@ chunk 仅作本地预览与可审计产物，不是部署真相源。
 import glob, hashlib, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(ROOT, "data")
-PUBLIC_DATA_DIR = os.path.join(ROOT, "public", "data")
+# F68：允许用环境变量指向隔离的临时目录跑真实校验逻辑，不碰仓库真实 data/public 产物——
+# 同 tools/build_illustrations.py 的 BUILD_ILLUST_PICKED_DIR/BUILD_ILLUST_OUT_DIR 先例，供
+# tests/build-py-guards.test.mjs 用真实数据副本+注入的冲突记录做自动化回归。
+DATA_DIR = os.environ.get("BUILD_DATA_DIR", os.path.join(ROOT, "data"))
+PUBLIC_DATA_DIR = os.environ.get("BUILD_PUBLIC_DATA_DIR", os.path.join(ROOT, "public", "data"))
 CHUNK_SIZE = 40  # M37：纯粹为 HTTP 并行/分块缓存服务的批大小，无语义含义——顺序才是唯一不变式
 
 REGIONS = {"江浙沪", "华东", "华北", "东北", "华中", "华南", "西南", "西北", "港澳"}
