@@ -324,6 +324,16 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 为验证目的地共享集只做整体调色是否够用，另对 picked 基准三张（杭州/敦煌/三亚）做了**仅 QA、不改母版**的瓷白→钴蓝亮度映射预演，总览=`raw/porcelain/qa/qa-dest-cobalt-map.png`。本批不转 `picked/`、不接代码；用户终审后再由 cc 转档并开青花声明/滤镜实验。第二层工艺件（texture/seal/placeholder——frame/divider 已撤出成套清单，见成套清单注）尚未开画，不阻塞本轮 dest 调色判断。
 
+### A7 工艺件与 mascot-cutout 补件（2026-07-21，待用户终审）
+
+承接用户「把剩下的组件画完」与上轮推荐方案：seal 不画（朱红印章继续归 UI chrome / CSS-SVG，资产保持钴蓝单色），frame/divider 按成套清单已撤；本批只画 texture、placeholder，并补 M64 叠放场景使用的透明 mascot-cutout。全部用 built-in imagegen，以 `style-ref-mock.png` 为画风参照；cutout 另以终审 `qh-mascot-v1.png` 锁角色，洋红键控后用官方 helper 去背。
+
+- `qh-texture-glaze-v2.png` / `v3.png`——两张合格无缝釉纹候选；2×2 拼贴无肉眼接缝。初生 v1 因横向接缝淘汰、只留 raw 取证
+- `qh-placeholder-mist-v1.png` / `v2.png`——两张 2:1 极淡图位垫底：v1=远山云水，v2=云浪浅滩；均不与正式目的地图抢视觉
+- `qh-mascot-cutout-v1.png`——只保留青花咔啦本体（帽/包/地图齐全），无瓷盘圆框、花边、地面阴影；1254×1254 RGBA，透明角与主体边界通过检查，未检出洋红残边
+
+终审总览=`raw/porcelain/qa/qa-a7-craft-v2.png`。挑版后由 cc 将 texture/placeholder 去 v 号转 q90 WebP；cutout 以 `qh-mascot-cutout.webp` 入 `picked/porcelain/` 并走同名槽位。终审前不转档、不接代码。
+
 ## A8 山水工艺件补画批（M52 后首个工艺件批；已收官——消费方 M57 已接入）
 
 > 立项背景（2026-07-20 用户拍板「工艺件入画」）：M52 已用 CSS/SVG 把印章/抖动边线/纸纹顶到代码上限，按「皮肤资产成套清单」第二层补画。风格参照照旧=`picked/ink/style-ref-mock.webp`；风格锁=A6 水墨锁（**seal 槽位对 No text 开例外**）；产出进 `raw/ink/`，新槽位 v 号自 1 起。
