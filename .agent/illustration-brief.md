@@ -1,6 +1,6 @@
 # 插画轨道工单 — 皮肤资产 & 目的地共享集
 
-> 双层结构：**常驻规矩**（皮肤资产成套清单 / 通用一致性技巧 / 初筛核对清单 / 交付规范——长期有效，规矩变了先改这里再开批）＋**批工单**（A{n}/M42/M43/M44 各节——消费完毕随阶段封板归档，已收官批只留结果记录）。规范类内容（画布契约/资产规范/回退/一致性判据）以 design.md「主题皮肤系统」为准，本文件不重复。姊妹规程：内容质检=`.agent/content-checklist.md`。
+> 双层结构：**常驻规矩**（分工 / 通用一致性技巧 / 皮肤资产成套清单 / 初筛核对清单 / 交付规范——长期有效，规矩变了先改这里再开批；本次规整后集中在前半部）＋**批工单**（M42/M43/M44/A6–A9 各节，按批次时序排在后半部——消费完毕随阶段封板归档，已收官批只留结果记录与留档 prompt）。规范类内容（画布契约/资产规范/回退/一致性判据）以 design.md「主题皮肤系统」为准，本文件不重复。姊妹规程：内容质检=`.agent/content-checklist.md`。
 
 ## 分工
 
@@ -9,18 +9,6 @@
 | **codex（文生图轨道）** | 按各批工单的风格锁+prompt 生成图像。优先用 Codex built-in imagegen；不可用时才降级为整理可逐条粘贴的 prompt 清单交用户手动生成。皮肤件每资产出 2~4 版（**dest 共享集=每城只画 1 版**，见 M44 节），按「初筛核对清单」做第一轮筛选，产出放 `assets/illustrations/raw/<目录>/`（PNG 原图，不进 git；目录结构与流转规则见 `assets/illustrations/README.md`） |
 | **用户** | 终审挑版：并排判「换画师」感、角色身份、城市辨识度；✗ 的带意见要求补画（一次补 1 版） |
 | **cc** | 终审通过版转档入 `picked/`（cwebp `-q 90`；⚠️ macOS `sips` 声称支持 webp 实则写不出，勿用）；M42 管线出装饰位小图与代码接入；初筛复核与风格锁维护（两轮跑不齐回 cc 重新定锁） |
-
-## 手帐（水彩绘本）风格锁——现仅手帐皮肤件专用（曾为全局锁；共享集用 B 锁、山水用水墨锁，正文见 design「已冻结风格锁」与各批节）
-
-```
-Children's picture-book style hand-drawn illustration. Colored pencil with soft
-watercolor wash. Warm light pastel palette: sky blue #bfe6f7, cream #fff2df,
-coral #ff8f6b, teal #43c1c1, amber #f6b93b; all outlines in soft navy ink
-#37485a (never pure black). Wobbly, uneven hand-drawn outlines of varying
-thickness. Subtle paper grain texture. Generous negative space. Flat, naive
-perspective with childlike charm. No text, no watermark, no photorealism,
-no 3D render, no gradient shading, no dark or neon colors.
-```
 
 ## 通用一致性技巧（所有批次遵守）
 
@@ -72,11 +60,44 @@ codex 整页 mock → 用户认可 → 存 `raw/<id>/style-ref-mock.png` → 风
 
 1. 批号 A{n} 顺延；产出 `raw/<皮肤id>/`、QA 进 `raw/<皮肤id>/qa/`；命名 `<皮肤id>-<slot>-v{n}.png`；
 2. 风格锁前缀批内一字不改；首张通过图作 image reference 传染全批；
-3. 初筛=文末「初筛核对清单」+ 该皮肤加严条款（各批自定）；**工艺件另过两项**：texture 2×2 拼贴自检无缝、seal 逐字核对（frame/divider 撤出成套清单后，拉伸预演项随之退役）；
+3. 初筛=「初筛核对清单」+ 该皮肤加严条款（各批自定）；**工艺件另过两项**：texture 2×2 拼贴自检无缝、seal 逐字核对（frame/divider 撤出成套清单后，拉伸预演项随之退役）；
 4. 用户终审 → cc 转 q90 webp 入 `picked/<皮肤id>/` → M42 管线出装饰位小图（≤60KB）；**画不等接入**，接入随代码小项按批换上；
 5. 目的地共享集（dest）皮肤无关，不在本清单内（见 M44 节）。
 
+## 初筛核对清单（codex 每张图过一遍）
+
+- [ ] 无任何文字/水印/签名
+- [ ] 轮廓/笔触色符合该批风格锁（水彩=柔和藏蓝 ≈#37485a 非纯黑；水墨=炭黑墨；青花=钴蓝单色）
+- [ ] 无照片感/3D 渲染感/渐变高光
+- [ ] 饱和度与色相落在该批风格锁色板附近
+- [ ] 底色干净（奶油底均匀 / 透明底无杂边），主体居中完整不出血
+- [ ] 与基准图并排看，笔触密度接近
+- [ ] 吉祥物类资产：无头顶柑橘/叼草/温泉毛巾等既有水豚 IP 标志元素；辨识三件套（黄渔夫帽/红背包/纸地图）齐全
+- [ ] 横幅资产（题头/装饰）：主体集中在垂直中央约 2/3——接入位可能比生成画布更浅，上下各 1/6 须经得起裁切（构图安全区，2026-07-20 起全皮肤生效）
+
+## 交付规范
+
+- 文件名：皮肤批=`<皮肤id>-<slot>-v{n}.png`（开批规矩①；历史水彩首批 A1–A4 为无前缀命名，收官记录不回改）；目的地共享集=`dest-<cityid>-v{n}.png`（cityid 与 data 记录一字不差）；共享九区题头=`region-<slug>` 系 A6 水墨版转档产物（M60 后不再按皮肤新画）
+- 原图 PNG ≥1024px 放 `assets/illustrations/raw/<皮肤id>/`（不进 git；水彩批=`raw/journal/`，山水批=`raw/ink/`）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/<皮肤id>/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
+- **picked/ 纪律：只收用户终审定案**——终审前不转档、不接入（曾有一次抢跑转档被回滚的先例）；转 picked 时命名去 `-v{n}` 后缀；比稿/复议期间相应 picked 目录保持原状不动
+
+---
+
+# 批工单 / 批记录（时序）
+
 ## M42 装饰位资产 · 水彩首批 A1–A4（已生成初筛完毕，归手帐皮肤素材库，终审挂 P2 M39；prompts 留档供补画）
+
+### 手帐（水彩绘本）风格锁——现仅手帐皮肤件专用（曾为全局锁；共享集用 B 锁、山水用水墨锁，正文见 design「已冻结风格锁」与各批节）
+
+```
+Children's picture-book style hand-drawn illustration. Colored pencil with soft
+watercolor wash. Warm light pastel palette: sky blue #bfe6f7, cream #fff2df,
+coral #ff8f6b, teal #43c1c1, amber #f6b93b; all outlines in soft navy ink
+#37485a (never pure black). Wobbly, uneven hand-drawn outlines of varying
+thickness. Subtle paper grain texture. Generous negative space. Flat, naive
+perspective with childlike charm. No text, no watermark, no photorealism,
+no 3D render, no gradient shading, no dark or neon colors.
+```
 
 ### A1 扭蛋机主视觉 `gacha-machine`（1024×1024，奶油底）
 
@@ -125,7 +146,7 @@ no grass in the mouth, no towel, no hot-spring elements, and no resemblance
 to any existing mascot or brand character.
 ```
 
-### A4 九大区题头涂鸦（第二批，吉祥物与样张定稿后再开；1024×512 横幅，透明底优先）
+### A4 九大区题头涂鸦（第二批；1024×512 横幅。九区题头已 M60 晋升共享层不再按皮肤画——本节九区主体描述表仍是共享九张日后返工/补画时的母题源，留档）
 
 实际生成统一引用 `dest-hangzhou-v1.png` **只作画风参照**，并在风格锁后追加以下公共 prompt；本批为避免水彩细枝叶抠图杂边，采用 design 允许的均匀奶油底而非透明底：
 
@@ -209,7 +230,7 @@ cartoon outlines.
 
 **恒定规则（每张都适用）**：
 
-- **风格锁**：「墨线淡彩旅行速写」锁（B 胜出已冻结，正文见 design「已冻结风格锁·目的地共享集」，与下方候选 B 原文同文）一字不改；每张生成以 `picked/dest/` 基准三张为 image reference。⚠️ 本文件顶部的水彩绘本锁自此只属手帐皮肤件，与共享集无关
+- **风格锁**：「墨线淡彩旅行速写」锁（B 胜出已冻结，正文见 design「已冻结风格锁·目的地共享集」，与下方候选 B 原文同文）一字不改；每张生成以 `picked/dest/` 基准三张为 image reference。⚠️ 手帐水彩绘本锁自此只属手帐皮肤件（正文见 M42 节），与共享集无关
 - **画布**：1536×1024（3:2 横图，卡片顶部横幅比例）；**构图安全区=垂直中央约 2/3**（接入位可能裁浅）
 - **命名**：`dest-<cityid>-v{n}.png`，cityid=data 六区文件里该城市记录的 `id`，一字不差（cc 接入按 id 对号）
 - **每城一句 subject**：由该城数据卡的景观意象自拟（参照 M43 三句的句式：场景 + 2~3 个具体元素 + 构图提示），画**标志景观**不画美食/人物近景（远景点缀小人/小船可以）；地标做手绘意象化，不照片复刻
@@ -258,7 +279,7 @@ cartoon outlines.
 - `ink-decor-{willow|bamboo|hill}-v{n}.png`（横幅或方形，各 2 版）——页面装饰件：柳桥小景 / 竹枝 / 淡墨远山；透明底优先，杂边明显则宣纸底
 - 印章、朱红点缀、抖动分隔线由 cc 侧 CSS/SVG 自绘，不占本批
 
-初筛照用下方核对清单，另加三条：①**墨为骨、淡彩为饰**（靛蓝/茶绿/赭黄/朱红点缀），第一眼仍读作水墨而非水彩；②与 `style-ref-mock` 并排看笔触/留白/色量一致，无「换画师」感；③吉祥物必须是水豚咔啦，不得跟着 mock 跑成猪/熊脸。
+初筛照用「初筛核对清单」，另加三条：①**墨为骨、淡彩为饰**（靛蓝/茶绿/赭黄/朱红点缀），第一眼仍读作水墨而非水彩；②与 `style-ref-mock` 并排看笔触/留白/色量一致，无「换画师」感；③吉祥物必须是水豚咔啦，不得跟着 mock 跑成猪/熊脸。
 
 标题字不出图像资产：山水皮肤标题用毛笔字体（Ma Shan Zheng 档，可商用开源），保持文字可选中可访问。
 
@@ -301,9 +322,9 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 为验证目的地共享集只做整体调色是否够用，另对 picked 基准三张（杭州/敦煌/三亚）做了**仅 QA、不改母版**的瓷白→钴蓝亮度映射预演，总览=`raw/porcelain/qa/qa-dest-cobalt-map.png`。本批不转 `picked/`、不接代码；用户终审后再由 cc 转档并开青花声明/滤镜实验。第二层工艺件（texture/seal/placeholder——frame/divider 已撤出成套清单，见成套清单注）尚未开画，不阻塞本轮 dest 调色判断。
 
-## A8 山水工艺件补画批（M52 后首个工艺件批；消费方=M57 接入项）
+## A8 山水工艺件补画批（M52 后首个工艺件批；已收官——消费方 M57 已接入）
 
-> 立项背景（2026-07-20 用户拍板「工艺件入画」）：M52 已用 CSS/SVG 把印章/抖动边线/纸纹顶到代码上限，按「皮肤资产成套清单」第二层补画。风格参照照旧=`picked/ink/style-ref-mock.webp`；风格锁=A6 水墨锁（**seal 槽位对 No text 开例外**）；产出进 `raw/ink/`，新槽位 v 号自 1 起。**画不等接入**：挑版后 cc 转 `picked/ink/`，接入等 M57（gated：M45/M46/M52 review 关闸）。
+> 立项背景（2026-07-20 用户拍板「工艺件入画」）：M52 已用 CSS/SVG 把印章/抖动边线/纸纹顶到代码上限，按「皮肤资产成套清单」第二层补画。风格参照照旧=`picked/ink/style-ref-mock.webp`；风格锁=A6 水墨锁（**seal 槽位对 No text 开例外**）；产出进 `raw/ink/`，新槽位 v 号自 1 起。
 
 - `ink-texture-paper-v{n}.png`（512×512 无缝，2 版）——宣纸纤维 tile：帘纹+细纤维絮，近 `#faf3e3` 低对比，**无墨点/母题**（它是纸不是画）；2×2 拼贴自检无缝
 - `ink-frame-brush-v{n}.png`（1024×1024 空心矩形框，3 版）——手描墨线容器框：单线细墨、微起伏、干笔但**四边粗细均匀**、四角自然搭接不闭死；透明底，框线贴边 32~48px 内
@@ -311,9 +332,9 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 - `ink-seal-nextstop-v{n}.png` / `ink-seal-wheretoplay-v{n}.png`（256×256，各 3+ 版）——白文印「下一站」/「去哪玩」：朱底白文（印泥色 `#c1502f` 家族）、篆意可放宽到隶意但**逐字可辨无错字缺笔**、边缘残破感、微不对称；垫真实印蜕做 image reference；连抽保不住字形即弃该槽位，保留现 SVG 代码版（M52 产物）
 - `ink-placeholder-mist-v{n}.png`（960×480，2 版）——极淡墨远山霭：比 `ink-decor-hill` 更淡更空（墨量约其一半以内），无前景母题；作卡图/详情头图加载垫底
 
-初筛：文末核对清单 + A6 三条加严照旧 + 成套清单「工艺件三项」（无缝自检/拉伸预演/逐字核对）。
+初筛：「初筛核对清单」 + A6 三条加严照旧 + 成套清单工艺件专项（当时为三项：无缝自检/拉伸预演/逐字核对）。
 
-终审结果（2026-07-20 用户拍板）：`ink-texture-paper-v2` / `ink-frame-brush-v2` / `ink-divider-brush-v2` / `ink-seal-nextstop-v2` / `ink-seal-wheretoplay-v4` / `ink-placeholder-mist-v1`。A8 生成与挑版收官；按职责边界待 cc 转 q90 webp 入 `picked/ink/`，随后 M57 仍受 review 闸门约束。
+终审结果（2026-07-20 用户拍板）：`ink-texture-paper-v2` / `ink-frame-brush-v2` / `ink-divider-brush-v2` / `ink-seal-nextstop-v2` / `ink-seal-wheretoplay-v4` / `ink-placeholder-mist-v1`。六件已由 cc 转 q90 webp 入 `picked/ink/` 并经 M57 全部接入生产（frame/divider 后经 M59 ②⑧ 渲染参数校准）。**后记（2026-07-21 拍板）**：frame/divider 两槽位因隐形实证撤出成套清单——本批已画两件留用不删、消费点照旧，新皮肤不再画（详见成套清单注与 design「工艺件画布契约」）。
 
 ## A9 Doodle 皮肤主题层（2026-07-21，等待用户终审）
 
@@ -334,20 +355,3 @@ no screen-print halftone, no photorealism, no 3D render, no text, no watermark.
 主题层首轮共 12 张：`doodle-mascot-v1/v2`、`doodle-gacha-v1/v2`、`doodle-empty-v1/v2`、`doodle-decor-{town|plants|travel}-v1/v2`。empty 各自引用同版 mascot；全批用 built-in imagegen 生成，原图均为 1254×1254 RGB PNG。QA 总览=`raw/doodle/qa/qa-doodle-theme-v2.png`。
 
 初筛：12/12 无文字、水印、照片感或 3D 感；墨线、纸色与稀疏芥末黄/砖红点缀一致，无「换画师」漂移；两版咔啦均保住方吻、小圆耳、黄帽/红包/纸地图且未跑成猪熊；两版扭蛋机均为非对称层叠山景，不是孤立对称锥体。版型差异：v1 组整体更紧凑安静，v2 组动作/横向延展更强。codex 初选=`mascot v1 + gacha v1 + empty v2 + town v1 + plants v2 + travel v1`；所有候选留 raw 等用户直接看 QA 终审。
-
-## 初筛核对清单（codex 每张图过一遍）
-
-- [ ] 无任何文字/水印/签名
-- [ ] 轮廓/笔触色符合该批风格锁（水彩=柔和藏蓝 ≈#37485a 非纯黑；水墨=炭黑墨；青花=钴蓝单色）
-- [ ] 无照片感/3D 渲染感/渐变高光
-- [ ] 饱和度与色相落在该批风格锁色板附近
-- [ ] 底色干净（奶油底均匀 / 透明底无杂边），主体居中完整不出血
-- [ ] 与基准图并排看，笔触密度接近
-- [ ] 吉祥物类资产：无头顶柑橘/叼草/温泉毛巾等既有水豚 IP 标志元素；辨识三件套（黄渔夫帽/红背包/纸地图）齐全
-- [ ] 横幅资产（题头/装饰）：主体集中在垂直中央约 2/3——接入位可能比生成画布更浅，上下各 1/6 须经得起裁切（构图安全区，2026-07-20 起全皮肤生效）
-
-## 交付规范
-
-- 文件名：`gacha-machine-v{n}.png` / `mascot-capybara-v{n}.png` / `empty-state-v{n}.png` / `region-{jzh|huadong|huabei|dongbei|xibei|huazhong|huanan|xinan|gangao}-v{n}.png` / `dest-{hangzhou|dunhuang|sanya}-v{n}.png`
-- 原图 PNG ≥1024px 放 `assets/illustrations/raw/<皮肤id>/`（不进 git；水彩批=`raw/journal/`，山水批=`raw/ink/`）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/<皮肤id>/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
-- **picked/ 纪律：只收用户终审定案**——终审前不转档、不接入（曾有一次抢跑转档被回滚的先例）；转 picked 时命名去 `-v{n}` 后缀；比稿/复议期间相应 picked 目录保持原状不动
