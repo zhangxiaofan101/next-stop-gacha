@@ -69,7 +69,7 @@
 
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。 [cc]
 
-1. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
+1. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；透明 `mascot-cutout v1` 于 2026-07-22 用户终审通过并已转 `picked/doodle/doodle-mascot-cutout.webp`（q90、alpha 保留）；九区随 M60 共享层不画。下一步由 cc 转档其余通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
 2. **M22 — 自选出发城市·北京首发 [R2 · S3] → 机制段 cc in-session · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜2026-07-21 用户改点：提前与 M62 并行开工——原「排皮肤后避免文案二次补写」前提已失效（卡池自 M68 后稳定、皮肤批不碰数据），冲突面核查零交集（皮肤只动 src/skins/+assets，本模块动 logic/tools/data）；**并行纪律：本模块不碰 src/skins/，.agent 推送前先 pull --rebase，M66 基线与皮肤轨各自重拍**；🌫️ 已解（2026-07-21 四问拍板，见 📋）：schema=独立视角文件 `data/origin-beijing.json`、入口=页头出发地胶囊、本城卡对偶隐藏+**上海城市卡入库**（用户点名新增）、京畿 12 张候选全进调研批（名单可扩展）；数据批范围=全量北京视角重打 + 上海卡 + 京畿子批（2026-07-21 密度侦查：北京 350km 内 15 张 vs 上海同径 42 张）。**S3 git 流试行：`m22-beijing` 分支实施，push 开 PR、Cloudflare preview + 用户目检后才并 main**；落地后单独挂 codex 跨家族 review gate。spec 见 design M22（拍板机制已写入）。 [cc]
 
 - 六期 review gate（2026-07-21 为 loop 连跑重排——用户要求少打断、一次多落几个模块）：**代码面合并一轮**（M63+M64+M66+M67+M68+M69，排 M68 后、M61 前；原「M64 后扭蛋面一轮」并入）**已收口**（F70–F77 修复 + codex 确认轮 baseline 9322468 全关，见 Review backlog）→ 皮肤面一轮改为 **M61+M62+M71 合并、排 M62 落地后**（同 M46/M52 先例）；M22 因 S3 单独一轮。M64 的用户目检改为落地后异步（部署站上看，反馈走修缮批），不阻塞 loop 批次。 [cc]

@@ -373,3 +373,5 @@ no screen-print halftone, no photorealism, no 3D render, no text, no watermark.
 初筛：12/12 无文字、水印、照片感或 3D 感；墨线、纸色与稀疏芥末黄/砖红点缀一致，无「换画师」漂移；两版咔啦均保住方吻、小圆耳、黄帽/红包/纸地图且未跑成猪熊；两版扭蛋机均为非对称层叠山景，不是孤立对称锥体。版型差异：v1 组整体更紧凑安静，v2 组动作/横向延展更强。
 
 **用户终审拍板（2026-07-21）**：`mascot v2` / `gacha v1` / `empty v2`；三组 decor 明确评价「都很好」，故 `town v1/v2 + plants v1/v2 + travel v1/v2` 六张全部通过，作为可组合自由装饰保留。按职责边界待 cc 转 q90 WebP 入 `picked/doodle/` 并接入 M62；未选的 `mascot v1` / `gacha v2` / `empty v1` 已按用户指示从 raw 删除。
+
+**mascot-cutout 补画与终审（2026-07-22）**：按常驻双版规矩，以终审 `doodle-mascot-v2.png` 锁角色生成 `doodle-mascot-cutout-v1.png`；只保留咔啦本体与黄帽/红包/纸地图，无框、装饰、地面线或阴影。1254×1254 RGBA，四角透明、未检出键控绿边；用户终审通过后已转 q90 WebP 为 `picked/doodle/doodle-mascot-cutout.webp`，alpha 保留，待 M62 消费。
