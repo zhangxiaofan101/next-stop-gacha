@@ -64,6 +64,20 @@ describe("顺路彩蛋（M28 二~四轮语义）", () => {
     const noAlt = onwaySuggestions(data, mkState({ trip: [{ id: "lijiang", days: 2 }], noAlt: true }), byId, 99);
     expect(noAlt.some(x => x.d.alt)).toBe(false);
   });
+  it("M67：行程含 noair 远站（飞机+包车段）时，近沪城市不得以廊道涌入", () => {
+    // 上海→若尔盖=「飞机+包车」，mode 字符串守卫曾漏掉组合档 → 无锡/苏州/信阳 +绕0km 胡说
+    const s = mkState({ trip: [{ id: "lijiang", days: 3 }, { id: "ruoergai", days: 2 }] });
+    const all = onwaySuggestions(data, s, byId, 99);
+    for (const bad of ["wuxi", "suzhou", "nanjing"]) expect(all.some(x => x.d.id === bad)).toBe(false);
+    expect(all.length).toBeGreaterThan(0); // 丽江锚定的落脚顺游仍在（沙溪/泸沽湖一类）
+    expect(all.some(x => x.d.id === "shaxi")).toBe(true);
+  });
+  it("M67：新疆自驾（独库公路整条装入）不推近沪「顺路」——进出疆大交通是飞行段", () => {
+    const duku = byId("route-duku-highway")!;
+    const s = mkState({ trip: tripOfRoute(duku) });
+    const all = onwaySuggestions(data, s, byId, 99);
+    for (const bad of ["wuxi", "suzhou", "zhouzhuang-jinxi"]) expect(all.some(x => x.d.id === bad)).toBe(false);
+  });
   it("尊重「隐藏去过的」开关（四轮）：打卡都江堰后不再被推", () => {
     const trip: TripItem[] = [{ id: "chengdu", days: 3 }];
     const base = onwaySuggestions(data, mkState({ trip }), byId, 99);

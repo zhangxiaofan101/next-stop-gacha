@@ -103,13 +103,16 @@ export function bestInsertion(c: Destination, stops: TripStopX[]): Insertion {
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i], b = pts[i + 1];
     const extra = havRaw(a.coords, c.coords) + havRaw(c.coords, b.coords) - havRaw(a.coords, b.coords);
-    const anyFly = legInfo(a, b).mode === "飞机" || legInfo(a, c).mode === "飞机" || legInfo(c, b).mode === "飞机";
+    // M67：判飞用 air 布尔而非 mode==="飞机"——「飞机+包车」（noair 站的组合档）同样是飞行段，
+    // 地面包车只是末程接驳，不构成廊道顺路语义；字符串比较曾漏掉组合档，行程含 noair 远站时
+    // 近沪城市以「+绕0km」涌入（budget 侧 M56 已用 air，此处同规）。
+    const anyFly = legInfo(a, b).air || legInfo(a, c).air || legInfo(c, b).air;
     let m: number | null = null, anch: Place | null = null;
     if (!anyFly) m = extra; // 廊道顺路：段与两子段全陆路，度量=绕路增量
     else for (const e of [a, b]) { // 落脚顺游：只认贴着本段非上海端点的候选
       if (e === SH) continue;
       const dk = havRaw(e.coords, c.coords);
-      if (dk <= NEAR_KM && legInfo(e, c).mode !== "飞机" && (m === null || dk < m)) { m = dk; anch = e; }
+      if (dk <= NEAR_KM && !legInfo(e, c).air && (m === null || dk < m)) { m = dk; anch = e; }
     }
     if (m === null) continue;
     // F34：单站行程时「锚点前」「锚点后」两个缺口对同一候选给出完全相同的 m/extra（对称算式），
