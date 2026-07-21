@@ -34,6 +34,7 @@ const GACHA_DOM = `
     <canvas id="confettiCanvas"></canvas>
   </div>
   <div class="grid" id="grid"></div>
+  <div id="intentBox"></div>
   <div id="empty" style="display:none"><div id="relaxBox"></div></div>
   <div id="hitCount"></div>
   <div class="dock" id="dock">

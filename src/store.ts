@@ -13,6 +13,7 @@ export const CUR_SEASON = seasonForMonth(new Date().getMonth());
 export const state: FilterState = {
   region: new Set(), season: new Set(), days: new Set(),
   crowd: new Set(), cost: new Set(), difficulty: new Set(), effort: new Set(), companions: new Set(), tags: new Set(), q: "", sort: "default", onlyFav: false, noAlt: false, hideVisited: false,
+  distMode: null, // M68：搜「短途/长途」命中概念词后设置，非离散筛选组
   favs: [], cmp: [], trip: [], // trip: [{id, days}]
   visited: [], // 已打卡的城市 id
   tripStart: "", // M29 出发日期（"YYYY-MM-DD"，空=不标日期，路书退回 D1/D2 记法）

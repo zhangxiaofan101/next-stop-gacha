@@ -330,6 +330,7 @@
   {
     "id": "daocheng-yading",
     "name": "稻城亚丁",
+    "aka": ["川西"],
     "emoji": "⛰️",
     "province": "四川",
     "region": "西南",
@@ -437,6 +438,7 @@
   {
     "id": "siguniangshan-danba",
     "name": "四姑娘山·丹巴",
+    "aka": ["川西"],
     "emoji": "🏔️",
     "province": "四川",
     "region": "西南",
@@ -563,6 +565,7 @@
   {
     "id": "dali",
     "name": "大理",
+    "aka": ["滇西北"],
     "emoji": "🚲",
     "province": "云南",
     "region": "西南",
@@ -629,6 +632,7 @@
   {
     "id": "lijiang",
     "name": "丽江",
+    "aka": ["滇西北"],
     "emoji": "🏮",
     "province": "云南",
     "region": "西南",
@@ -693,6 +697,7 @@
   {
     "id": "shaxi",
     "name": "沙溪古镇",
+    "aka": ["滇西北"],
     "emoji": "🐎",
     "province": "云南",
     "region": "西南",
@@ -756,6 +761,7 @@
   {
     "id": "jianshui-mengzi",
     "name": "建水·蒙自",
+    "aka": ["滇南"],
     "emoji": "🚂",
     "province": "云南",
     "region": "西南",
@@ -821,6 +827,7 @@
   {
     "id": "tengchong-heshun",
     "name": "腾冲·和顺",
+    "aka": ["滇西"],
     "emoji": "♨️",
     "province": "云南",
     "region": "西南",
@@ -947,6 +954,7 @@
   {
     "id": "shangrila",
     "name": "香格里拉",
+    "aka": ["滇西北"],
     "emoji": "🌄",
     "province": "云南",
     "region": "西南",
@@ -1126,6 +1134,7 @@
   {
     "id": "zhenyuan",
     "name": "镇远古城",
+    "aka": ["黔东南"],
     "emoji": "🛶",
     "province": "贵州",
     "region": "西南",
@@ -1310,6 +1319,7 @@
   {
     "id": "linzhi",
     "name": "林芝",
+    "aka": ["藏东南"],
     "emoji": "🌸",
     "province": "西藏",
     "region": "西南",
@@ -1363,6 +1373,7 @@
   {
     "id": "luguhu",
     "name": "泸沽湖",
+    "aka": ["滇西北"],
     "emoji": "🚣",
     "province": "云南·四川交界",
     "region": "西南",
@@ -1531,6 +1542,7 @@
   {
     "id": "yuanyang-terrace",
     "name": "元阳 · 哈尼梯田",
+    "aka": ["滇南"],
     "emoji": "🌾",
     "province": "云南",
     "region": "西南",
@@ -2253,6 +2265,7 @@
   {
     "id": "mangshi",
     "name": "芒市",
+    "aka": ["滇西"],
     "emoji": "🛕",
     "province": "云南",
     "region": "西南",
@@ -2331,6 +2344,7 @@
   {
     "id": "ruili",
     "name": "瑞丽",
+    "aka": ["滇西"],
     "emoji": "🦚",
     "province": "云南",
     "region": "西南",
@@ -2484,6 +2498,7 @@
   {
     "id": "shigatse",
     "name": "日喀则",
+    "aka": ["后藏"],
     "emoji": "🕍",
     "province": "西藏",
     "region": "西南",
@@ -2566,6 +2581,7 @@
   {
     "id": "pulan",
     "name": "普兰·冈仁波齐玛旁雍错",
+    "aka": ["阿里"],
     "emoji": "🏔️",
     "province": "西藏",
     "region": "西南",
@@ -2646,6 +2662,7 @@
   {
     "id": "zanda",
     "name": "札达·土林古格",
+    "aka": ["阿里"],
     "emoji": "🏜️",
     "province": "西藏",
     "region": "西南",
@@ -2862,6 +2879,7 @@
   {
     "id": "rongjiang-cunchao",
     "name": "榕江·村超",
+    "aka": ["黔东南"],
     "emoji": "⚽",
     "province": "贵州",
     "region": "西南",

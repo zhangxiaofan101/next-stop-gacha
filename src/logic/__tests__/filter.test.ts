@@ -42,6 +42,49 @@ describe("偏好型语义", () => {
   });
 });
 
+describe("M68：aka 地理别名只进搜索 hay", () => {
+  it("搜索命中 aka 但字面卡面字段里没有这个词", () => {
+    const s = mkState({ q: "川西" });
+    const hit = mkCity({ id: "daocheng-yading", name: "稻城亚丁", aka: ["川西"] });
+    const miss = mkCity({ id: "hangzhou", name: "杭州" });
+    expect(matchOne(hit, s)).toBe(true);
+    expect(matchOne(miss, s)).toBe(false);
+  });
+  it("缺 aka 字段的记录不受影响（可选字段）", () => {
+    const s = mkState({ q: "杭州" });
+    expect(matchOne(mkCity({ id: "hangzhou", name: "杭州" }), s)).toBe(true);
+  });
+});
+
+describe("M68：distMode 按距出发地（SH）直线距离派生", () => {
+  // SH 坐标 [31.23, 121.47]（constants.ts），havRaw 实算：near ≈165km（短途阈值内）、
+  // far ≈2905km（拉萨附近，远超长途阈值）
+  const near = mkCity({ id: "near", coords: [30.25, 120.17] });
+  const far = mkCity({ id: "far", coords: [29.65, 91.13] });
+  it("短途只留距出发地 ≤500km 的记录", () => {
+    const s = mkState({ distMode: "short" });
+    expect(matchOne(near, s)).toBe(true);
+    expect(matchOne(far, s)).toBe(false);
+  });
+  it("长途只留距出发地 >1000km 的记录", () => {
+    const s = mkState({ distMode: "long" });
+    expect(matchOne(near, s)).toBe(false);
+    expect(matchOne(far, s)).toBe(true);
+  });
+  it("distMode=null（默认）不参与过滤", () => {
+    const s = mkState();
+    expect(matchOne(near, s)).toBe(true);
+    expect(matchOne(far, s)).toBe(true);
+  });
+  it("relaxCandidates 在 distMode 命中空池时给「不限短途/长途」候选", () => {
+    const data = [near];
+    const s = mkState({ distMode: "long" });
+    expect(filtered(data, s, "春")).toHaveLength(0);
+    const cands = relaxCandidates(data, s);
+    expect(cands.find(c => c.action.type === "clearDistMode")).toMatchObject({ label: "不限长途", n: 1 });
+  });
+});
+
 describe("空池定向放宽（relaxCandidates）", () => {
   const data = [
     mkCity({ id: "a1", crowd: "小众", tags: ["美食"] }),

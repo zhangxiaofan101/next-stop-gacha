@@ -136,6 +136,10 @@
   .btn.on { background: var(--btn-on-bg); color: var(--btn-on-text); border-color: var(--btn-on-border); }
   .hit { margin-left: auto; font-family: var(--round); font-size: 14px; color: var(--blue-deep); font-variant-numeric: tabular-nums; }
 
+  /* M68：概念词一键筛选 chip——空 innerHTML 时零占位（不占一整行的固定高度） */
+  #intentBox:not(:empty) { margin-top: 14px; }
+  #intentBox .intent { background: var(--btn-on-bg); color: var(--btn-on-text); border-color: var(--btn-on-border); }
+
   /* ---- 卡片 ---- */
   .grid { margin-top: 22px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
   .card {

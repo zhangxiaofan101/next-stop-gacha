@@ -118,6 +118,14 @@ for src, d in all_rows:
         errors.append(f"{tag} norail 与 slowrail 不能同时为 true（互斥：前者=无轨道客运，后者=仅普速现役）")
     cp = d.get("companions")
     if not isinstance(cp, list) or any(x not in COMPANIONS for x in cp) or len(set(cp)) != len(cp) or len(cp) >= 4: errors.append(f"{tag} companions 非法(四档全打应留空): {cp}")
+    # M68：aka 可选地理别名数组（川西/滇西北一类，只进搜索 hay 不参与展示）——收录口径从严
+    # （只收地图/攻略语境通行的地理称谓，不收营销词），schema 层只把关结构，口径靠内容质检清单
+    if "aka" in d:
+        ak = d["aka"]
+        if not isinstance(ak, list) or not ak or any(not isinstance(x, str) or not x.strip() for x in ak):
+            errors.append(f"{tag} aka 非法(需非空字符串数组): {ak}")
+        elif len(set(ak)) != len(ak):
+            errors.append(f"{tag} aka 有重复项: {ak}")
     for k in ["food", "museums", "architecture", "highlights"]:
         if not isinstance(d.get(k), list): errors.append(f"{tag} {k} 不是数组")
     pl = d.get("plans")

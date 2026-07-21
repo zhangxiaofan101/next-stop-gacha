@@ -1,11 +1,18 @@
 // 过滤/排序/chip 语义/空池治理（design「决策机制·过滤」「空池治理」）。
 // 全部纯函数：data 与 state 显式传入，DOM 副作用（清搜索框/按钮高亮）由 UI 层按 action 描述符执行。
-import { CEIL_GROUPS, DAY_BUCKETS, GROUP_NAMES } from "./constants";
+import { CEIL_GROUPS, DAY_BUCKETS, GROUP_NAMES, SH } from "./constants";
+import { hav } from "./geo";
 import type { Destination, FilterState, GroupKey } from "./types";
 
 const group = (state: FilterState, k: GroupKey) => state[k];
 
-// 单条记录是否命中；okey/oset 可临时覆盖某一组条件（okey="q"/"onlyFav"/"noAlt"/"hideVisited" 时表示清掉该项），
+// M68：「短途/长途」概念词的距离派生阈值——按距出发地（SH，M22 参数化后自动跟随）直线距离，
+// 不是筛选组的离散枚举。短途口径对齐 goal「短途默认江浙沪一带」（江浙沪腹地距上海多在此内）；
+// 长途取需要飞机的量级（同 logic/transport.ts 的 950km 飞行分界附近，留round数余量）。
+export const SHORT_TRIP_KM = 500;
+export const LONG_TRIP_KM = 1000;
+
+// 单条记录是否命中；okey/oset 可临时覆盖某一组条件（okey="q"/"onlyFav"/"noAlt"/"hideVisited"/"distMode" 时表示清掉该项），
 // 供 chip 实时计数与空态定向放宽做"如果改这一个条件会怎样"的假设计算。
 export function matchOne(d: Destination, state: FilterState, okey: string | null = null, oset: Set<string> | null = null): boolean {
   const g = (k: GroupKey) => (k === okey ? oset! : group(state, k));
@@ -13,9 +20,15 @@ export function matchOne(d: Destination, state: FilterState, okey: string | null
   const fav = okey === "onlyFav" ? false : state.onlyFav;
   const noAlt = okey === "noAlt" ? false : state.noAlt;
   const hideV = okey === "hideVisited" ? false : state.hideVisited;
+  const distMode = okey === "distMode" ? null : state.distMode;
   if (fav && !state.favs.includes(d.id)) return false;
   if (noAlt && d.alt) return false;
   if (hideV && state.visited.includes(d.id)) return false;
+  if (distMode) {
+    const km = hav(SH.coords, d.coords);
+    if (distMode === "short" && km > SHORT_TRIP_KM) return false;
+    if (distMode === "long" && km <= LONG_TRIP_KM) return false;
+  }
   if (g("region").size && !(d.regions || [d.region]).some(r => g("region").has(r))) return false;
   if (g("season").size && !d.seasons.some(s => g("season").has(s))) return false;
   if (g("days").size && !DAY_BUCKETS.some(b => g("days").has(b.key) && b.test(d.days))) return false;
@@ -28,7 +41,8 @@ export function matchOne(d: Destination, state: FilterState, okey: string | null
   if (g("companions").size && d.companions.length && !d.companions.some(x => g("companions").has(x))) return false;
   if (g("tags").size && ![...g("tags")].every(t => d.tags.includes(t))) return false;
   if (q) {
-    const hay = [d.name, d.province, d.tagline, ...d.tags, ...d.food, ...d.highlights, ...d.architecture, ...d.museums].join(" ").toLowerCase();
+    // M68：aka（地理别名，如「川西」「胶东」）只进搜索 hay，不参与任何展示
+    const hay = [d.name, d.province, d.tagline, ...d.tags, ...d.food, ...d.highlights, ...d.architecture, ...d.museums, ...(d.aka || [])].join(" ").toLowerCase();
     if (!hay.includes(q.toLowerCase())) return false;
   }
   return true;
@@ -62,7 +76,8 @@ export type RelaxAction =
   | { type: "clearQ" }
   | { type: "clearOnlyFav" }
   | { type: "clearNoAlt" }
-  | { type: "clearHideVisited" };
+  | { type: "clearHideVisited" }
+  | { type: "clearDistMode" };
 
 export interface RelaxCandidate { label: string; n: number; action: RelaxAction; }
 
@@ -76,6 +91,7 @@ export function relaxCandidates(data: Destination[], state: FilterState): RelaxC
     if (state[k].size) cands.push({ label: `不限${GROUP_NAMES[k]}`, n: countWith(data, state, k, new Set()), action: { type: "clearGroup", key: k } });
   });
   if (state.q) cands.push({ label: `清掉搜索「${state.q}」`, n: countWith(data, state, "q", null), action: { type: "clearQ" } });
+  if (state.distMode) cands.push({ label: `不限${state.distMode === "short" ? "短途" : "长途"}`, n: countWith(data, state, "distMode", null), action: { type: "clearDistMode" } });
   if (state.onlyFav) cands.push({ label: "不只看收藏", n: countWith(data, state, "onlyFav", null), action: { type: "clearOnlyFav" } });
   if (state.noAlt) cands.push({ label: "不避开高海拔", n: countWith(data, state, "noAlt", null), action: { type: "clearNoAlt" } });
   if (state.hideVisited) cands.push({ label: "不隐藏去过的", n: countWith(data, state, "hideVisited", null), action: { type: "clearHideVisited" } });

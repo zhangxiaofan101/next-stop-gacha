@@ -63,6 +63,8 @@ export interface Destination {
   noair?: boolean;
   norail?: boolean;
   slowrail?: boolean;
+  /** M68：地图/攻略语境通行的地理别名（川西/滇西北/北疆一类），只进搜索 hay，不参与展示 */
+  aka?: string[];
 }
 
 /** 行程单条目；r=装入来源线路 id（既是装入标记，也供路书回查 leg——F18） */
@@ -133,6 +135,9 @@ export interface FilterState {
   onlyFav: boolean;
   noAlt: boolean;
   hideVisited: boolean;
+  /** M68：搜「短途/长途」概念词点击 chip 后设置——距出发地（constants.SH，M22 参数化后自动跟随）
+   * 直线距离派生，不是离散筛选组，见 logic/filter.ts matchOne */
+  distMode: "short" | "long" | null;
   favs: string[];
   cmp: string[];
   trip: TripItem[];

@@ -17,7 +17,7 @@ export function buildConsole() {
     </div>`;
   el.innerHTML =
     `<div class="console-bar">
-      <input class="search" id="searchBox" type="search" placeholder="搜城市 / 美食 / 关键词，比如「牛肉火锅」「石窟」…">
+      <input class="search" id="searchBox" type="search" placeholder="搜城市 / 美食 / 关键词，比如「牛肉火锅」「短途」…">
       <button class="btn" id="filterToggle" aria-expanded="false" aria-controls="consoleBody">筛选<i id="filterBadge"></i><span class="fcaret" aria-hidden="true">▼</span></button>
     </div>
     <div class="console-body" id="consoleBody">` +
@@ -96,7 +96,7 @@ export function buildConsole() {
 
 export function resetFilters() {
   (["region", "season", "days", "crowd", "cost", "difficulty", "effort", "companions", "tags"] as GroupKey[]).forEach(k => state[k].clear());
-  state.q = ""; state.onlyFav = false; state.noAlt = false; state.hideVisited = false;
+  state.q = ""; state.onlyFav = false; state.noAlt = false; state.hideVisited = false; state.distMode = null;
   $<HTMLInputElement>("searchBox").value = "";
   document.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"));
   render();

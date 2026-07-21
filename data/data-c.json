@@ -352,6 +352,7 @@
   {
     "id": "datong",
     "name": "大同",
+    "aka": ["晋北"],
     "emoji": "🗿",
     "province": "山西",
     "region": "华北",
@@ -419,6 +420,7 @@
   {
     "id": "pingyao",
     "name": "平遥",
+    "aka": ["晋中"],
     "emoji": "🏮",
     "province": "山西",
     "region": "华北",
@@ -542,6 +544,7 @@
   {
     "id": "wutaishan",
     "name": "五台山",
+    "aka": ["晋北"],
     "emoji": "🙏",
     "province": "山西",
     "region": "华北",
@@ -763,6 +766,7 @@
   {
     "id": "yanji",
     "name": "延吉",
+    "aka": ["延边"],
     "emoji": "🍲",
     "province": "吉林",
     "region": "东北",
@@ -819,6 +823,7 @@
   {
     "id": "dandong",
     "name": "丹东",
+    "aka": ["辽东"],
     "emoji": "🌉",
     "province": "辽宁",
     "region": "东北",
@@ -996,6 +1001,7 @@
   {
     "id": "mohe",
     "name": "漠河",
+    "aka": ["大兴安岭"],
     "emoji": "🧊",
     "province": "黑龙江",
     "region": "东北",
@@ -1619,6 +1625,7 @@
   {
     "id": "benxi-guanmenshan",
     "name": "本溪 · 关门山",
+    "aka": ["辽东"],
     "emoji": "🍁",
     "province": "辽宁",
     "region": "东北",
@@ -1734,6 +1741,7 @@
   {
     "id": "xingcheng",
     "name": "葫芦岛 · 兴城古城",
+    "aka": ["辽西"],
     "emoji": "🏯",
     "province": "辽宁",
     "region": "东北",
@@ -1797,6 +1805,7 @@
   {
     "id": "yingxian-muta",
     "name": "朔州 · 应县木塔",
+    "aka": ["晋北"],
     "emoji": "🗼",
     "province": "山西",
     "region": "华北",
@@ -1854,6 +1863,7 @@
   {
     "id": "hengshan-xuankongsi",
     "name": "浑源 · 恒山悬空寺",
+    "aka": ["晋北"],
     "emoji": "⛩️",
     "province": "山西",
     "region": "华北",
@@ -1914,6 +1924,7 @@
   {
     "id": "wangjia-dayuan",
     "name": "灵石 · 王家大院",
+    "aka": ["晋中"],
     "emoji": "🏯",
     "province": "山西",
     "region": "华北",
@@ -1973,6 +1984,7 @@
   {
     "id": "yuncheng",
     "name": "运城 · 关公故里",
+    "aka": ["晋南", "河东"],
     "emoji": "⚔️",
     "province": "山西",
     "region": "华北",
@@ -2037,6 +2049,7 @@
   {
     "id": "yanmenguan",
     "name": "忻州 · 雁门关",
+    "aka": ["晋北"],
     "emoji": "🛡️",
     "province": "山西",
     "region": "华北",
@@ -2096,6 +2109,7 @@
   {
     "id": "hukou-waterfall",
     "name": "临汾 · 壶口瀑布",
+    "aka": ["晋南"],
     "emoji": "🌊",
     "province": "山西",
     "region": "华北",
@@ -2155,6 +2169,7 @@
   {
     "id": "zhangbi-mianshan",
     "name": "介休 · 张壁古堡",
+    "aka": ["晋中"],
     "emoji": "🏰",
     "province": "山西",
     "region": "华北",
@@ -2216,6 +2231,7 @@
   {
     "id": "hongtong-guangshengsi",
     "name": "洪洞 · 广胜寺",
+    "aka": ["晋南"],
     "emoji": "🌳",
     "province": "山西",
     "region": "华北",
@@ -2638,6 +2654,7 @@
   {
     "id": "pianguan-laoniuwan",
     "name": "偏关·老牛湾",
+    "aka": ["晋北"],
     "emoji": "🌊",
     "province": "山西",
     "region": "华北",
@@ -2876,6 +2893,7 @@
   {
     "id": "benxi-shuidong",
     "name": "本溪·水洞",
+    "aka": ["辽东"],
     "emoji": "🛶",
     "province": "辽宁",
     "region": "东北",
@@ -2995,6 +3013,7 @@
   {
     "id": "jinzhou",
     "name": "锦州",
+    "aka": ["辽西"],
     "emoji": "🍢",
     "province": "辽宁",
     "region": "东北",
@@ -3177,6 +3196,7 @@
   {
     "id": "hunchun",
     "name": "珲春 · 防川",
+    "aka": ["延边"],
     "emoji": "🧭",
     "province": "吉林",
     "region": "东北",

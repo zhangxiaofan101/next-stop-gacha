@@ -2,6 +2,7 @@
   {
     "id": "hangzhou",
     "name": "杭州",
+    "aka": ["江南"],
     "emoji": "🍵",
     "province": "浙江",
     "region": "江浙沪",
@@ -72,6 +73,7 @@
   {
     "id": "suzhou",
     "name": "苏州",
+    "aka": ["江南", "苏南"],
     "emoji": "🪷",
     "province": "江苏",
     "region": "江浙沪",
@@ -268,6 +270,7 @@
   {
     "id": "shaoxing",
     "name": "绍兴",
+    "aka": ["江南"],
     "emoji": "🍶",
     "province": "浙江",
     "region": "江浙沪",
@@ -450,6 +453,7 @@
   {
     "id": "wuzhen-xitang",
     "name": "嘉兴 · 乌镇西塘",
+    "aka": ["江南"],
     "emoji": "🏮",
     "province": "浙江",
     "region": "江浙沪",
@@ -795,6 +799,7 @@
   {
     "id": "nanxijiang",
     "name": "温州 · 楠溪江",
+    "aka": ["浙南"],
     "emoji": "🛶",
     "province": "浙江",
     "region": "江浙沪",
@@ -854,6 +859,7 @@
   {
     "id": "songyang",
     "name": "丽水 · 松阳",
+    "aka": ["浙南"],
     "emoji": "🌄",
     "province": "浙江",
     "region": "江浙沪",
@@ -913,6 +919,7 @@
   {
     "id": "xiandu",
     "name": "缙云 · 仙都",
+    "aka": ["浙南"],
     "emoji": "🗻",
     "province": "浙江",
     "region": "江浙沪",
@@ -1256,6 +1263,7 @@
   {
     "id": "zhenjiang",
     "name": "镇江",
+    "aka": ["苏南"],
     "emoji": "🍜",
     "province": "江苏",
     "region": "江浙沪",
@@ -1315,6 +1323,7 @@
   {
     "id": "wuxi",
     "name": "无锡",
+    "aka": ["江南", "苏南"],
     "emoji": "🌸",
     "province": "江苏",
     "region": "江浙沪",
@@ -1376,6 +1385,7 @@
   {
     "id": "xuzhou",
     "name": "徐州",
+    "aka": ["苏北"],
     "emoji": "🍢",
     "province": "江苏",
     "region": "江浙沪",
@@ -1438,6 +1448,7 @@
   {
     "id": "huaian",
     "name": "淮安",
+    "aka": ["苏北"],
     "emoji": "🦞",
     "province": "江苏",
     "region": "江浙沪",
@@ -1500,6 +1511,7 @@
   {
     "id": "tiaozini",
     "name": "盐城 · 条子泥",
+    "aka": ["苏北"],
     "emoji": "🐦",
     "province": "江苏",
     "region": "江浙沪",
@@ -1611,6 +1623,7 @@
   {
     "id": "nanxun",
     "name": "湖州 · 南浔",
+    "aka": ["江南"],
     "emoji": "🌉",
     "province": "浙江",
     "region": "江浙沪",
@@ -1764,6 +1777,7 @@
   {
     "id": "liyang-tianmuhu",
     "name": "溧阳 · 天目湖",
+    "aka": ["苏南"],
     "emoji": "🎋",
     "province": "江苏",
     "region": "江浙沪",
@@ -1828,6 +1842,7 @@
   {
     "id": "yixing-shanjuandong",
     "name": "宜兴 · 善卷洞竹海",
+    "aka": ["苏南"],
     "emoji": "🫖",
     "province": "江苏",
     "region": "江浙沪",
@@ -1892,6 +1907,7 @@
   {
     "id": "changshu-yushan",
     "name": "常熟 · 虞山沙家浜",
+    "aka": ["苏南"],
     "emoji": "🍜",
     "province": "江苏",
     "region": "江浙沪",
@@ -1958,6 +1974,7 @@
   {
     "id": "zhouzhuang-jinxi",
     "name": "昆山 · 周庄锦溪",
+    "aka": ["江南", "苏南"],
     "emoji": "🛶",
     "province": "江苏",
     "region": "江浙沪",
@@ -2090,6 +2107,7 @@
   {
     "id": "lianyungang-huaguoshan",
     "name": "连云港 · 花果山连岛",
+    "aka": ["苏北"],
     "emoji": "🐒",
     "province": "江苏",
     "region": "江浙沪",
@@ -2277,6 +2295,7 @@
   {
     "id": "dongtou-island",
     "name": "温州 · 洞头岛",
+    "aka": ["浙南"],
     "emoji": "🐠",
     "province": "浙江",
     "region": "江浙沪",
@@ -2656,6 +2675,7 @@
   {
     "id": "longquan",
     "name": "龙泉",
+    "aka": ["浙南"],
     "emoji": "🗡️",
     "province": "浙江",
     "region": "江浙沪",

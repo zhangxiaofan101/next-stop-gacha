@@ -23,6 +23,7 @@ describe("M54 行程站数上限 TRIP_MAX", () => {
     expect(TRIP_MAX).toBe(10); // 锁住本模块的目标值，防止常量被误改回 6 或改成别的数
     document.body.innerHTML = `
       <div class="grid" id="grid"></div>
+  <div id="intentBox"></div>
       <div id="empty" style="display:none"><div id="relaxBox"></div></div>
       <div id="hitCount"></div>
       <div class="dock" id="dock">

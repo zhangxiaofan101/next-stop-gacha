@@ -9,7 +9,7 @@ import { openDetail } from "./detail";
 import { $ } from "./dom";
 import { clearPile, getLastPick, openGacha, pileToCompare, roll, tossEgg } from "./gacha";
 import { openMap } from "./mapview";
-import { applyRelax, render } from "./render";
+import { applyIntent, applyRelax, render } from "./render";
 import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
 import { forgetSync, generateShareCode, importJSON, openShare, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
 import { openSkin, selectSkin } from "./skin";
@@ -106,6 +106,7 @@ export function wireEvents() {
     if (b) applyRelax(+b.dataset.relax!);
   });
   $("emptyResetBtn").addEventListener("click", resetFilters);
+  $("intentBox").addEventListener("click", e => { if ((e.target as HTMLElement).closest("[data-intent]")) applyIntent(); });
   $("gRelaxBtn").addEventListener("click", () => { applyRelax(0); openGacha(); });
   $("gPileCmp").addEventListener("click", pileToCompare);   // 整堆拿去对比
   $("gPileClear").addEventListener("click", clearPile);

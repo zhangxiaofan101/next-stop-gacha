@@ -2,6 +2,9 @@
   {
     "id": "xian",
     "name": "西安",
+    "aka": [
+      "关中"
+    ],
     "emoji": "🏮",
     "province": "陕西",
     "region": "西北",
@@ -78,6 +81,9 @@
   {
     "id": "hanzhong",
     "name": "汉中",
+    "aka": [
+      "陕南"
+    ],
     "emoji": "🌼",
     "province": "陕西",
     "region": "西北",
@@ -260,6 +266,9 @@
   {
     "id": "dunhuang",
     "name": "敦煌",
+    "aka": [
+      "河西走廊"
+    ],
     "emoji": "🐪",
     "province": "甘肃",
     "region": "西北",
@@ -329,6 +338,9 @@
   {
     "id": "zhangye",
     "name": "张掖",
+    "aka": [
+      "河西走廊"
+    ],
     "emoji": "🌈",
     "province": "甘肃",
     "region": "西北",
@@ -389,6 +401,9 @@
   {
     "id": "jiayuguan",
     "name": "嘉峪关",
+    "aka": [
+      "河西走廊"
+    ],
     "emoji": "🏰",
     "province": "甘肃",
     "region": "西北",
@@ -621,6 +636,9 @@
   {
     "id": "ejina-huyanglin",
     "name": "额济纳·胡杨林",
+    "aka": [
+      "阿拉善"
+    ],
     "emoji": "🍂",
     "province": "内蒙古",
     "region": "西北",
@@ -676,6 +694,9 @@
   {
     "id": "yili",
     "name": "伊犁（伊宁·赛里木湖·那拉提）",
+    "aka": [
+      "北疆"
+    ],
     "emoji": "🪻",
     "province": "新疆",
     "region": "西北",
@@ -773,6 +794,9 @@
   {
     "id": "kashgar",
     "name": "喀什",
+    "aka": [
+      "南疆"
+    ],
     "emoji": "🕌",
     "province": "新疆",
     "region": "西北",
@@ -842,6 +866,10 @@
   {
     "id": "altay",
     "name": "布尔津·喀纳斯禾木",
+    "aka": [
+      "北疆",
+      "阿勒泰"
+    ],
     "emoji": "🏔️",
     "province": "新疆",
     "region": "西北",
@@ -977,6 +1005,9 @@
   {
     "id": "kuqa",
     "name": "库车（龟兹）",
+    "aka": [
+      "南疆"
+    ],
     "emoji": "🫓",
     "province": "新疆",
     "region": "西北",
@@ -1123,6 +1154,9 @@
   {
     "id": "tashkurgan-pamir",
     "name": "塔什库尔干 · 帕米尔高原",
+    "aka": [
+      "南疆"
+    ],
     "emoji": "🏔️",
     "province": "新疆",
     "region": "西北",
@@ -1242,6 +1276,10 @@
   {
     "id": "koktokay",
     "name": "富蕴 · 可可托海",
+    "aka": [
+      "北疆",
+      "阿勒泰"
+    ],
     "emoji": "⛰️",
     "province": "新疆",
     "region": "西北",
@@ -1366,6 +1404,10 @@
   {
     "id": "tekes-kalajun",
     "name": "特克斯 · 八卦城与喀拉峻",
+    "aka": [
+      "北疆",
+      "伊犁"
+    ],
     "emoji": "🌀",
     "province": "新疆",
     "region": "西北",
@@ -1540,6 +1582,9 @@
   {
     "id": "daqaidam-emerald-lake",
     "name": "大柴旦 · 翡翠湖",
+    "aka": [
+      "柴达木"
+    ],
     "emoji": "💎",
     "province": "青海",
     "region": "西北",
@@ -1714,6 +1759,9 @@
   {
     "id": "pingliang-kongtong",
     "name": "平凉 · 崆峒山",
+    "aka": [
+      "陇东"
+    ],
     "emoji": "⛩️",
     "province": "甘肃",
     "region": "西北",
@@ -1777,6 +1825,9 @@
   {
     "id": "yan-an",
     "name": "延安",
+    "aka": [
+      "陕北"
+    ],
     "emoji": "⭐",
     "province": "陕西",
     "region": "西北",
@@ -1857,6 +1908,9 @@
   {
     "id": "yulin",
     "name": "榆林 · 镇北台红石峡",
+    "aka": [
+      "陕北"
+    ],
     "emoji": "🧱",
     "province": "陕西",
     "region": "西北",
@@ -1935,6 +1989,9 @@
   {
     "id": "hotan",
     "name": "和田",
+    "aka": [
+      "南疆"
+    ],
     "emoji": "🧶",
     "province": "新疆",
     "region": "西北",
@@ -2010,6 +2067,9 @@
   {
     "id": "luntai",
     "name": "轮台 · 塔里木胡杨林",
+    "aka": [
+      "南疆"
+    ],
     "emoji": "🍂",
     "province": "新疆",
     "region": "西北",
@@ -2078,6 +2138,9 @@
   {
     "id": "wuwei",
     "name": "武威 · 凉州",
+    "aka": [
+      "河西走廊"
+    ],
     "emoji": "🐎",
     "province": "甘肃",
     "region": "西北",
@@ -2159,6 +2222,9 @@
   {
     "id": "lenghu",
     "name": "冷湖",
+    "aka": [
+      "柴达木"
+    ],
     "emoji": "🔭",
     "province": "青海",
     "region": "西北",

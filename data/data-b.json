@@ -2,6 +2,7 @@
   {
     "id": "huangshan",
     "name": "黄山风景区（含汤口）",
+    "aka": ["皖南"],
     "emoji": "🏔️",
     "province": "安徽",
     "region": "华东",
@@ -59,6 +60,7 @@
   {
     "id": "yixian",
     "name": "黟县（宏村·西递）",
+    "aka": ["皖南", "徽州"],
     "emoji": "🎨",
     "province": "安徽",
     "region": "华东",
@@ -119,6 +121,7 @@
   {
     "id": "shexian",
     "name": "歙县·徽州古城",
+    "aka": ["皖南"],
     "emoji": "🖌️",
     "province": "安徽",
     "region": "华东",
@@ -238,6 +241,7 @@
   {
     "id": "wuyuan",
     "name": "婺源",
+    "aka": ["徽州"],
     "emoji": "🌼",
     "province": "江西",
     "region": "华东",
@@ -481,6 +485,7 @@
   {
     "id": "xiamen",
     "name": "厦门",
+    "aka": ["闽南"],
     "emoji": "🌴",
     "province": "福建",
     "region": "华东",
@@ -545,6 +550,7 @@
   {
     "id": "quanzhou",
     "name": "泉州",
+    "aka": ["闽南"],
     "emoji": "🏮",
     "province": "福建",
     "region": "华东",
@@ -675,6 +681,7 @@
   {
     "id": "wuyishan",
     "name": "武夷山",
+    "aka": ["闽北"],
     "emoji": "🍵",
     "province": "福建",
     "region": "华东",
@@ -734,6 +741,7 @@
   {
     "id": "xiapu",
     "name": "霞浦",
+    "aka": ["闽东"],
     "emoji": "📷",
     "province": "福建",
     "region": "华东",
@@ -844,6 +852,7 @@
   {
     "id": "dongshandao",
     "name": "东山岛",
+    "aka": ["闽南"],
     "emoji": "🐚",
     "province": "福建",
     "region": "华东",
@@ -967,6 +976,7 @@
   {
     "id": "qingdao",
     "name": "青岛",
+    "aka": ["胶东"],
     "emoji": "🍺",
     "province": "山东",
     "region": "华东",
@@ -1033,6 +1043,7 @@
   {
     "id": "weihai",
     "name": "威海",
+    "aka": ["胶东"],
     "emoji": "🏖️",
     "province": "山东",
     "region": "华东",
@@ -1098,6 +1109,7 @@
   {
     "id": "yantai",
     "name": "烟台·蓬莱",
+    "aka": ["胶东"],
     "emoji": "🍷",
     "province": "山东",
     "region": "华东",
@@ -1501,6 +1513,7 @@
   {
     "id": "qiyunshan",
     "name": "休宁 · 齐云山",
+    "aka": ["皖南", "徽州"],
     "emoji": "☯️",
     "province": "安徽",
     "region": "华东",
@@ -1562,6 +1575,7 @@
   {
     "id": "huihang-ancient-trail",
     "name": "绩溪 · 徽杭古道",
+    "aka": ["皖南", "徽州"],
     "emoji": "🥾",
     "province": "安徽",
     "region": "华东",
@@ -1940,6 +1954,7 @@
   {
     "id": "chongwu-ancient-city",
     "name": "惠安 · 崇武古城",
+    "aka": ["闽南"],
     "emoji": "🪨",
     "province": "福建",
     "region": "华东",
@@ -2065,6 +2080,7 @@
   {
     "id": "changting",
     "name": "龙岩 · 长汀古城",
+    "aka": ["闽西"],
     "emoji": "🏮",
     "province": "福建",
     "region": "华东",

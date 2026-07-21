@@ -20,7 +20,7 @@ export function mkState(over: Partial<FilterState> = {}): FilterState {
     region: new Set(), season: new Set(), days: new Set(),
     crowd: new Set(), cost: new Set(), difficulty: new Set(), effort: new Set(),
     companions: new Set(), tags: new Set(), q: "", sort: "default",
-    onlyFav: false, noAlt: false, hideVisited: false,
+    onlyFav: false, noAlt: false, hideVisited: false, distMode: null,
     favs: [], cmp: [], trip: [], visited: [], tripStart: "",
     ...over,
   };

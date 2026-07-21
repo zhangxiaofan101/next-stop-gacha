@@ -8,7 +8,7 @@
 
 **封板（2026-07-21）**：三期（M26–M36）、四期（M37–M44，M39 未落地留 P2）、五期（M45–M60）一并封板（见 🪦）。封板核验：codex 复核链收口——89c7b04 曾以 F63–F68 明确阻板，三轮修复/复核后 2ee6223 确认「F68、F69 均已关闭；当前无 Active findings」；封板会话另实跑 `bun run verify` 全绿（217 前端 + 45 workerd，退出码 0）、`git status` 干净、main↔origin 0/0。 [cc]
 
-**六期（进行中，2026-07-21）**：执行顺序 ~~M63 扭蛋连扭备选~~ ✅落地 → ~~M64 机器/咔啦主页显性化~~ ✅落地 → ~~M66 视觉回归网~~ ✅落地 → **M68 搜索增强（下一个）** → M61 青花 → M62 doodle → M22 北京首发（见 🔜）；~~M65 协议机械门禁~~ ✅先行落地；~~M67 彩蛋飞行段守卫补漏~~ ✅插队即修（用户报 bug 当日诊断+落地，见 ✅）；~~M69 扭蛋/对比交互修缮批~~ ✅插队即修（用户五项反馈当日落地，见 ✅）；远期方向=M11 海外版（P2，六期之后）。M63 首个落地（扭蛋舞台重做，双皮肤真机复验通过，见 ✅）；A9 doodle 主题层已终审、M62 资产 gating 解除；ink-mascot-cutout-v1 用户终审通过（2026-07-21），随 M64 转档消费并已接入 FAB 趴角 + 舞台操作员（见 ✅）。新编号自 M70 起。 [codex][cc]
+**六期（进行中，2026-07-21）**：执行顺序 ~~M63 扭蛋连扭备选~~ ✅落地 → ~~M64 机器/咔啦主页显性化~~ ✅落地 → ~~M66 视觉回归网~~ ✅落地 → ~~M68 搜索增强~~ ✅落地 → **代码面 review gate（待办，见 review backlog）** → M61 青花 → M62 doodle → M22 北京首发（见 🔜）；~~M65 协议机械门禁~~ ✅先行落地；~~M67 彩蛋飞行段守卫补漏~~ ✅插队即修（用户报 bug 当日诊断+落地，见 ✅）；~~M69 扭蛋/对比交互修缮批~~ ✅插队即修（用户五项反馈当日落地，见 ✅）；远期方向=M11 海外版（P2，六期之后）。M63 首个落地（扭蛋舞台重做，双皮肤真机复验通过，见 ✅）；A9 doodle 主题层已终审、M62 资产 gating 解除；ink-mascot-cutout-v1 用户终审通过（2026-07-21），随 M64 转档消费并已接入 FAB 趴角 + 舞台操作员（见 ✅）。新编号自 M70 起。 [codex][cc]
 
 ## ✅ Implemented
 
@@ -33,17 +33,20 @@
   **调试记出的三条截图 flakiness 根因（均已系统性修掉，非本模块遗留债）**：①`.overlay` 的 `backdrop-filter:blur(5px)` GPU 合成模糊本身跑不出两次逐像素一致结果，叠加 `.38` 透明度会让背后页面（点「加入行程」「排行程」时对应卡片滚动进视口，落点逐次不同）透出来——测试环境把背板换成各皮肤 `--paper` 纯色不透明；②`store.ts` 的 `CUR_SEASON`（卡片「当季」徽章）与 `roadbook.ts` 「生成于 YYYY.M.D」文案都读真实 `new Date()`，不冻结基线会随日历天然漂移——`page.clock.setFixedTime` 冻结；③`toHaveScreenshot` 的「连续两帧一致」判定保证不了图片真解码完成——截图前显式等**视口内**的 `<img>` 落定（不能等全部 `document.images`，主页网格 267+ 城市卡多数 `loading=lazy` 且在首屏外，等全部会挂到超时）。
   Verified（2026-07-21）：10 例（2 皮肤 × 5 视图）本地连跑 5+ 轮零 flaky；验收标准（design 原话）实测通过——故意改坏 `src/skins/ink.css` 的 `--ink` token、`vite build` 后 `test:visual` 亮红（`ink-home` diff 命中），改回后重跑转绿；`bun run verify`（231 前端 + 45 workerd）与 `bun run test:build-assets`（14/14）同轮全绿。基线截图对 Chromium 版本/系统字体渲染敏感，本机（macOS/arm64）拍摄——环境依赖诚实记录在 README，非本模块遗留 bug（同 build_fonts.py/build_illustrations.py 本地工具先例）。 [cc]
 
+- **M68 — 搜索增强：地理别名 + 概念词筛选映射 [R2 · S2]（used: 机制段 sonnet·high 会话内直落 + aka 数据批 6 个自包含 opus 子代理分片，按 data-a~f.json 各一个，互不接触对方文件）**｜双层：①`Destination.aka?: string[]` 可选地理别名字段，只进 `matchOne` 搜索 hay（`filter.ts`），不参与任何展示；`tools/build.py` schema 校验（非空唯一字符串数组）；②`src/logic/searchIntent.ts` 概念词表（短途/周边/长途/避暑/海岛/古镇/亲子/冬天）精确匹配整条搜索词（非子串，避免「承德避暑山庄」这类字面搜索误判），命中后结果区顶部给「按筛选看：××」一键 chip（`#intentBox`，`render.ts` 的 `applyIntent`）——除「短途/长途」外均 merge 进既有筛选组既有选中（`setGroup` action，不清空该组其余值）；「短途/长途」是唯一例外，不复用离散筛选组，走 `FilterState.distMode`（`"short"|"long"|null`，纯会话态、不持久化）+ `filter.ts` 新增 `SHORT_TRIP_KM=500`/`LONG_TRIP_KM=1000` 常量，按距 `constants.SH`（当前=上海，M22 参数化后自动跟随）直线距离（`geo.ts` `hav`）派生，AND 叠加于其余筛选条件之上；`relaxCandidates`/`resetFilters`/`applyRelaxAction` 同步接入 `clearDistMode`。spec 见 design M68。
+  **aka 数据批**（6 个 opus 子代理并行，各自读 `.agent/content-checklist.md` 新增「四、地理别名 aka」节后独立判断+编辑+本地跑 `python3 tools/build.py` 自验）：data-a(20)/b(16)/c(20)/d(21)/e(24)/f(18)，共 **119 城**（估「百余城」达标）打上 aka，覆盖苏南/苏北/浙南/江南/皖南/徽州/闽南/闽北/闽东/闽西/胶东/晋北/晋中/晋南/河东/辽东/辽西/延边/大兴安岭/关中/陕南/陕北/河西走廊/北疆/南疆/阿勒泰/伊犁/柴达木/陇东/豫西/豫南/南太行/鄂西/湘西/湘南/潮汕/五邑/粤北/粤西/桂北/北部湾/桂西南/海南西线/川西/滇西北/滇南/滇西/黔东南/藏东南/后藏/阿里等 50+ 组地理称谓；口径从严——每份报告均列出「刻意跳过」的候选与理由（宁缺毋编：营销词/城市自身昵称/归属模糊/大众心智弱一律不打），六份报告合计跳过约 90+ 城无强别名。
+  Verified（2026-07-21）：6 个子代理各自 `python3 tools/build.py` 独立通过后，central 侧再跑一次全量 `python3 tools/build.py` 确认合并无冲突（282+53=335 条不变，id 唯一性天然保证互不冲突——各代理只碰自己的 data-X.json）；`bun run verify` 全绿（**247 前端**（+16：filter.test aka/distMode 6 例 + relax 候选 1 例、searchIntent.test 6 例、search-intent-ui.test 5 例——原 230 基础上 M64/M66 期间已增至 231，本模块净增 16）+ 45 workerd）；`bun run test:build-assets` 14/14；真实浏览器（Chrome + dev server）：搜「川西」5 命中（含仅靠 aka 命中的 daocheng-yading/siguniangshan-danba，字面均不含"川西"二字）、搜「滇西北」5 命中（大理/丽江/沙溪/香格里拉/泸沽湖）；搜「短途」给 chip 且点击后命中 60/335、搜「亲子」给 chip 且点击后从字面 64 命中扩至 111（companions=带娃 生效）；控制台无报错。手动 schema 校验冒烟（临时目录）：重复 aka 值、空白字符串均被正确拒绝。搜索框 placeholder 示例由「石窟」换成「短途」（展示新能力）——M66 视觉基线复验 10/10 仍绿（该文字改动落在 2% 像素容差内，未触发基线更新）。 [cc]
+
 ## 🔜 Next batch（六期，2026-07-21 规划；spec 见 design 注册表 M61/M62 与 M22）
 
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。 [cc]
 
-1. **M68 — 搜索增强：地理别名 + 概念词筛选映射 [R2 · S2] → 机制段 sonnet · high（cc）· aka 数据批 opus 分片（自包含子代理，sonnet loop 会话可编排）（下一个）**｜2026-07-21 用户报「搜川西/搜短途搜不到很尬」，三答拍板（见 📋）：双层方案、排 M66 后皮肤前。aka 批过 content-checklist；「短途」距离派生逻辑与 M22 出发地参数化共用（先按上海写、M22 换起点自动跟随）。spec 见 design M68。 [cc]
-2. **M61 — 皮肤：青花（porcelain）[R2 · S2] → sonnet · high（cc）+ 用户终审**｜就绪度最高、排首位：A7 主题层 6 张已终审（mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1，empty v1 问号随选择接受）。步骤：①cc 转档 6 张 q90 WebP 入 `picked/porcelain/`，M42 管线出装饰位产物；②porcelain 声明 + token 批（白瓷底/钴蓝；朱红只许出现在 UI chrome 语义色，资产内无红——A7 工单红线）；③共享集钴蓝滤镜首次真实消费（M51 机制）；④cardPhotos 开关按滤镜后目检拍定；⑤工艺件批（texture/seal/placeholder，frame/divider 已撤出成套清单）codex 另开、不阻塞 chrome。 [cc]
+1. **M61 — 皮肤：青花（porcelain）[R2 · S2] → sonnet · high（cc）+ 用户终审**｜就绪度最高、排首位：A7 主题层 6 张已终审（mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1，empty v1 问号随选择接受）。步骤：①cc 转档 6 张 q90 WebP 入 `picked/porcelain/`，M42 管线出装饰位产物；②porcelain 声明 + token 批（白瓷底/钴蓝；朱红只许出现在 UI chrome 语义色，资产内无红——A7 工单红线）；③共享集钴蓝滤镜首次真实消费（M51 机制）；④cardPhotos 开关按滤镜后目检拍定；⑤工艺件批（texture/seal/placeholder，frame/divider 已撤出成套清单）codex 另开、不阻塞 chrome。 [cc]
    - **A7 工艺件 + mascot-cutout 补件 [R1 · S2] → codex · high（in-session：imagegen 连续目检）**：texture 合格候选 v2/v3（v1 接缝淘汰）、placeholder v1/v2、透明 `qh-mascot-cutout-v1` 已生成，QA=`raw/porcelain/qa/qa-a7-craft-v2.png`；seal 按 A7 红线继续由 UI chrome/CSS-SVG 承担，不画红色资产。待用户终审 texture/placeholder；cutout 同批确认后交 cc 转档接入。 [codex]
-3. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
-4. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜排两套皮肤之后——卡池/皮肤稳定后再写北京视角文案，避免二次补写；数据批含京畿短途补卡子批（约 10~12 张，2026-07-21 密度侦查：北京 350km 内 15 张 vs 上海同径 42 张，spec 见 design M22）；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate，并试行 S3→分支+PR+Cloudflare preview 的 git 工作流映射（M65 同轮拍板，skill「Mechanical enforcement」可选条）。spec 见 design M22（已按两段式改述）。 [cc]
+2. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
+3. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜排两套皮肤之后——卡池/皮肤稳定后再写北京视角文案，避免二次补写；数据批含京畿短途补卡子批（约 10~12 张，2026-07-21 密度侦查：北京 350km 内 15 张 vs 上海同径 42 张，spec 见 design M22）；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate，并试行 S3→分支+PR+Cloudflare preview 的 git 工作流映射（M65 同轮拍板，skill「Mechanical enforcement」可选条）。spec 见 design M22（已按两段式改述）。 [cc]
 
-- 六期 review gate（2026-07-21 为 loop 连跑重排——用户要求少打断、一次多落几个模块）：**代码面合并一轮**（M63+M64+M66+M67+M68+M69，排 M68 后、M61 前；原「M64 后扭蛋面一轮」并入）codex 跨家族复核 → M61+M62 皮肤面合并一轮（同 M46/M52 先例）；M22 因 S3 单独一轮。M64 的用户目检改为落地后异步（部署站上看，反馈走修缮批），不阻塞 loop 批次。 [cc]
+- 六期 review gate（2026-07-21 为 loop 连跑重排——用户要求少打断、一次多落几个模块）：**代码面合并一轮**（M63+M64+M66+M67+M68+M69，排 M68 后、M61 前；原「M64 后扭蛋面一轮」并入）**M68 已落地（2026-07-21），gate 现已就绪待开**——codex 跨家族复核 → M61+M62 皮肤面合并一轮（同 M46/M52 先例）；M22 因 S3 单独一轮。M64 的用户目检改为落地后异步（部署站上看，反馈走修缮批），不阻塞 loop 批次。 [cc]
 
 ## ⏭ P2
 
@@ -81,7 +84,13 @@
 
 ## 📥 Review backlog（triage 结果）
 
-- **M63 扭蛋主舞台重做已落地（2026-07-21），待 codex 跨家族复核**：按六期 review gate 代码面合并一轮（M68 落地后开，含 M64/M66/M67/M68/M69）。复核关注点建议：连扭排除/容量的池语义边界（对比池覆盖 × 蛋堆排除叠加）、揭晓卡与蛋堆同源 `currentPick=堆尾` 单一真相是否漏态、`.deco-emoji` 纪律是否有遗漏的裸 emoji、reduced-motion 与缺资产皮肤回退。改动面：`src/ui/gacha.ts` 重写、`index.html` 弹层重构、`src/style.css` 舞台/开壳卡/蛋堆 + 移除 `#gachaTicket`/`.ticket-ambience`、`src/skins/{cream,ink}.css` 新增 `--cap-*`、`src/ui/events.ts` 委托、gacha 三测迁移。 [cc]
+- **六期代码面 review gate 已就绪待开（2026-07-21，M63+M64+M66+M67+M68+M69 均已落地）**：codex 跨家族复核范围——
+  - **M63**：连扭排除/容量的池语义边界（对比池覆盖 × 蛋堆排除叠加）、揭晓卡与蛋堆同源 `currentPick=堆尾` 单一真相是否漏态、`.deco-emoji` 纪律是否有遗漏的裸 emoji、reduced-motion 与缺资产皮肤回退。改动面：`src/ui/gacha.ts` 重写、`index.html` 弹层重构、`src/style.css` 舞台/开壳卡/蛋堆 + 移除 `#gachaTicket`/`.ticket-ambience`、`src/skins/{cream,ink}.css` 新增 `--cap-*`、`src/ui/events.ts` 委托、gacha 三测迁移。
+  - **M64**：FAB/探头/toast 三处显性化与 mascot-cutout 消费；顺手修的 `.mascot-decor`/`.toast-kara` `[hidden]` 覆盖缺口是否还有其余遗漏点（如 `.g-illust`——本模块判定该处从未被 hide 路径实际触发，未同步修，建议复核确认判断成立）。
+  - **M66**：Playwright 基线本身不是「产品代码」，复核关注点主要是三条 flakiness 修法是否会掩盖真回归（如纯色不透明背板是否可能让某皮肤 token 改动恰好只影响透明度/blur 本身而被基线漏检——目前无此类 token，风险低）。
+  - **M67/M69**：小范围插队修复，改动面小，常规复核。
+  - **M68**：`distMode` 与既有 9 个筛选组的组合语义（AND 叠加、relax 候选、resetFilters 清空）是否有遗漏边界；`setGroup` merge-in-not-replace 的语义选择是否符合直觉；119 城 aka 数据的抽样真实性核查（宁缺毋编红线，6 个子代理独立产出，跨代理一致性未做交叉复核）。
+  - 改动面总览见 git log（cc13665/dee156a/待提交的 M68 commit）。 [cc]
 - 截至封板（2026-07-21）：历史 F 项（F14–F69）全部修复并经 codex 复核关闭，review.md 无 active findings（最新 baseline e5a6648）；M38/M41/M45/M46/M52 跨家族 gate 均正式通过。**内容批（批A/批B）「codex 跨家族抽查」gate 收口**：89c7b04 复核轮范围明确覆盖 M48/M49 内容批与 M56 交通守卫（提出的 F64/F65/F68 均属该范围且已修复关闭），gate 视为已执行并通过，原「待开」记录就此销项——内容轨道可开新批。 [cc]
 
 ## 🪦 Sealed phases

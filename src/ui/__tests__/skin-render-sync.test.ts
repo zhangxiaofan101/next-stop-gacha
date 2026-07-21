@@ -14,6 +14,7 @@ describe("F63 皮肤切换同步刷新网格 cardPhotos", () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <div class="grid" id="grid"></div>
+  <div id="intentBox"></div>
       <div id="empty" style="display:none"><div id="relaxBox"></div></div>
       <div id="hitCount"></div>
       <div class="dock" id="dock">
