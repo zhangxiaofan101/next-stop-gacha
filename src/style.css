@@ -883,6 +883,17 @@
   [data-theme="porcelain"] .gr-photo-emoji, [data-theme="porcelain"] .ge-photo-emoji {
     filter: grayscale(1) brightness(.7) sepia(.3) hue-rotate(180deg) saturate(1.8);
   }
+  /* 用户三轮反馈：详情页（单城深读场景，design M58「详情位全」）不要青花滤镜——①页面下段本就有
+     食物/博物馆/古建三色 chip 家族等多彩元素，头图/emoji 单独收成瓷白钴蓝反而突兀；②双色映射
+     丢了色彩线索，头图看不清主体、代表 emoji 认不出城市，削弱而非强化"想去"的冲动。滤镜定位是
+     「卡片流/扭蛋揭晓等一览场景」的调和层（design「共享集皮肤适配滤镜」），详情深读场景优先级
+     不同，整体退出改回原色。#detailOverlay 是 headerBannerHTML 头图与 dt-emoji/途经站点 emoji
+     的公共祖先，一条选择器覆盖两类消费点；id 选择器的高特异性天然压过上方两条通用滤镜规则，
+     不必逐个消费点排除。 */
+  [data-theme="porcelain"] #detailOverlay .illust,
+  [data-theme="porcelain"] #detailOverlay .emo {
+    filter: none;
+  }
   /* 扭蛋旋钮：彩色 🎯 emoji 换白「扭」字圆形朱印，同 ink 处理——瓷器语境同样不接受塑料贴纸感 emoji */
   [data-theme="porcelain"] .g-knob { font-size: 0; border-color: transparent; filter: url(#sealRough); }
   [data-theme="porcelain"] .g-knob::after { content: "扭"; font-size: 26px; font-family: var(--round); color: var(--on-color); }
