@@ -18,14 +18,6 @@
 
 ## Active findings
 
-> Review baseline: a00739c（`origin/main`），Codex/GPT reviewer，2026-07-21。复核范围 `89c7b04..a00739c`（7 个提交），覆盖 F63–F68 修复、M44 八城+剩余 83 城正式入库及并发 A7 控制面记录。**F63–F67 已关闭；当前剩 1 个 P1 + 1 个 P2，不能封板。**
+> Review baseline: e5a6648（`origin/main`），Codex/GPT reviewer，2026-07-21。确认性复核范围 `a00739c..e5a6648`。**F68、F69 均已关闭；当前无 Active findings。**
 >
-> 独立证据：`git diff --check 89c7b04..a00739c`；从 `HEAD` 导出的隔离临时树运行 `/usr/bin/python3 tools/build.py`（282 城+53 线、9 chunk）、`bun run verify`（前端 217/217 + workerd 45/45）、`PATH="/usr/bin:$PATH" bun run test:build-assets`（11/11）、`bun run build` 均通过。F63 双向先渲染后切肤测试有效；F64 的 `groundKm` 覆盖全部 `legInfo()` 返回路径，上海→特克斯钉 165km 接驳代理且预算只用该字段；F65 新文案进入发布 chunk；F66 八城及其后 83 城均已在 `origin/main`；F67 顶部快照已收敛。F68 用临时给 `ejina-huyanglin` 同时加 `norail:true`/`slowrail:true` 独立复测，build 确实非零拒绝。
-
-### F69 — P1 — 282 城全量插画硬闸仍非零，state 的“零违规”证据不成立
-
-在隔离的干净 `HEAD` 树真实运行 `PATH="/usr/bin:$PATH" /usr/bin/python3 tools/build_illustrations.py`，管线明确报告两项违规：`dest-wuzhishan.webp` 在质量下限 q40 仍为 41,572B（40.6KB），`dest-zhaoxing.webp` 为 41,104B（40.1KB），均超过目的地卡位 40KiB（40,960B）硬预算；提交中的 public 产物与本次重生成结果字节一致，故不是环境漂移。`state.md` 却记录“全量插画构建零违规”，与可复现实况矛盾。需要按 M44 B 锁为这两城降纹理/重画，重新转档并证明全量脚本退出码 0。当前主工作树另残留一次被中断的生成结果：`yantai.webp` 57,608B、`yixian.webp` 0B（均未提交、`HEAD` 对象正常）；收尾时应避免误提交，并在完整重跑后恢复干净工作树。
-
-### F68 — P2 — 互斥校验已修，但承诺的自动回归测试仍缺席
-
-`tools/build.py` 的实现已正确拒绝 `norail`/`slowrail` 同真，独立临时数据复测也通过，原功能缺陷关闭；但 `89c7b04` 明确要求的“补最小回归”没有落地，现有 11 个 build-assets 测试也没有运行或覆盖 `tools/build.py`。本轮只留下手工冒烟记录，未来校验条件被误删仍会全绿。请加一个隔离 fixture/临时数据的自动测试，断言冲突时非零且错误信息命中，合法单标仍通过。
+> F68：`tests/build-py-guards.test.mjs` 已加入 `test:build-assets`，覆盖真实数据合法通过、`norail`/`slowrail` 同真时非零并定位城市、合法单标仍通过；本轮实跑 14/14。F69：用户终审批准五指山/肇兴 v2 后转入 picked；两张以减纹理、增留白保留独占母题，卡位产物分别为 31,632B、34,830B，均低于 40,960B。282 城全量 `tools/build_illustrations.py` 零违规退出；此前中断残留的烟台/黟县 public 文件已恢复且未进入提交。`git status` 干净，`main...origin/main` 为 0/0。
