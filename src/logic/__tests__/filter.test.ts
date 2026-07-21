@@ -115,11 +115,11 @@ describe("空池定向放宽（relaxCandidates）", () => {
 
 describe("真实数据回归", () => {
   const data = loadRealData();
-  it("全量 335 条（282 城 + 53 线）", () => {
-    expect(data).toHaveLength(335);
-    expect(data.filter(d => !d.stops)).toHaveLength(282);
+  it("全量 348 条（295 城 + 53 线，M22 批：+12 京畿 +1 上海）", () => {
+    expect(data).toHaveLength(348);
+    expect(data.filter(d => !d.stops)).toHaveLength(295);
   });
-  it("「江浙沪」chip 命中 49（M37 浏览器复验口径；线路按 regions 多选 OR）", () => {
+  it("「江浙沪」chip 命中 49（M37 浏览器复验口径；线路按 regions 多选 OR。M22 后江浙沪 50 条，但基座出发地=上海时上海卡对偶隐藏，可见仍 49）", () => {
     const s = mkState({ region: new Set(["江浙沪"]) });
     expect(filtered(data, s, "夏")).toHaveLength(49);
   });
