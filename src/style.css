@@ -326,27 +326,87 @@
     background: var(--grad-machine); border: var(--bw-xthick) solid var(--ink); border-radius: var(--radius-machine);
     padding: 26px 24px; box-shadow: var(--shadow-machine);
   }
-  .g-scope { font-size: 12px; color: var(--ink-soft); margin-bottom: 14px; }
+  .g-scope { font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; }
   .g-scope b { color: var(--orange-deep); }
+
+  /* M63 舞台：机器 hero + 咔啦操作员 + 气泡（气泡是唯一的人格/状态频道：揭晓/满堆/空池都走它） */
+  .g-bubble {
+    position: relative; max-width: 84%; margin: 0 auto 6px; text-align: left;
+    background: var(--panel-warm-bg); border: var(--bw-thick) solid var(--panel-warm-border);
+    border-radius: 14px 14px 14px 4px; padding: 7px 12px; font-size: 12.5px; color: var(--ink); line-height: 1.4;
+  }
+  .g-bubble::after {
+    content: ""; position: absolute; left: 22px; bottom: -8px; width: 11px; height: 11px;
+    background: var(--panel-warm-bg); border-right: var(--bw-thick) solid var(--panel-warm-border);
+    border-bottom: var(--bw-thick) solid var(--panel-warm-border); transform: rotate(45deg);
+  }
+  .g-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; min-height: 148px; }
+  .g-scene .g-illust { display: flex; justify-content: center; }
+  .g-scene .illust-fallback { display: grid; place-items: center; width: 180px; height: 180px; font-size: 82px; } /* cream: 🎰 */
+  .g-machine { width: 180px; height: 180px; object-fit: contain; transition: width .25s ease, height .25s ease; }
+  .g-kara { position: absolute; right: 2px; bottom: -4px; width: 100px; line-height: 0; }
+  .g-kara .illust { width: 100%; height: auto; object-fit: contain; transform: scaleX(-1); }
+  /* 有蛋堆时机器收窄给蛋堆让位（design M63 拍板） */
+  .machine.has-pile .g-scene { min-height: 118px; }
+  .machine.has-pile .g-machine, .machine.has-pile .g-scene .illust-fallback { width: 138px; height: 138px; }
+  .machine.has-pile .g-kara { width: 82px; }
+
   .g-window {
     background: var(--grad-window); border: var(--bw-xthick) solid var(--ink); border-radius: var(--radius-window);
-    padding: 18px 14px; position: relative; overflow: hidden;
+    padding: 12px; margin-top: 10px; position: relative; overflow: hidden;
   }
-  .g-city { font-family: var(--round); font-size: clamp(24px, 5.5vw, 36px); letter-spacing: 3px; line-height: 1.2; min-height: 1.2em; }
+  .g-city { font-family: var(--round); font-size: clamp(20px, 4.6vw, 30px); letter-spacing: 3px; line-height: 1.2; min-height: 1.2em; }
+  .g-city.dim { color: var(--ink-soft); opacity: .72; }
   .g-city.spin { animation: gspin .1s linear infinite; }
   @keyframes gspin { 0% { opacity: .4; transform: translateY(-4px); } 100% { opacity: 1; transform: translateY(3px); } }
-  .g-sub { font-size: 13px; color: var(--ink-soft); margin-top: 8px; min-height: 1.4em; }
   .g-knob {
-    margin: 20px auto 0; width: 74px; height: 74px; border-radius: 50%;
-    background: var(--grad-knob);
-    border: var(--bw-xthick) solid var(--ink); cursor: pointer; font-size: 26px;
+    margin: 14px auto 0; width: 72px; height: 72px; border-radius: 50%; color: var(--on-color);
+    background: var(--grad-knob); border: var(--bw-xthick) solid var(--ink); cursor: pointer; font-size: 25px;
     box-shadow: var(--shadow-knob); transition: transform .5s ease;
   }
   .g-knob.turn { transform: rotate(200deg); }
-  .g-knob:disabled { opacity: .6; cursor: wait; }
-  .g-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
-  #gachaTicket { margin-top: 20px; text-align: left; display: none; animation: pop .4s cubic-bezier(.2, .9, .3, 1.3) backwards; }
-  #gachaTicket.show { display: block; }
+  .g-knob:disabled, .g-knob.off { opacity: .5; cursor: default; }
+
+  /* M63 揭晓：轻量开壳卡（大票券退役，完整信息进详情） */
+  .g-reveal { display: none; }
+  .g-reveal.show {
+    display: grid; grid-template-columns: 92px 1fr; margin-top: 16px; text-align: left;
+    border: var(--bw-xthick) solid var(--ink); border-radius: var(--radius-card); background: var(--paper);
+    box-shadow: var(--shadow-card); overflow: hidden;
+    animation: gpop .34s cubic-bezier(.2, .9, .3, 1.3) backwards;
+  }
+  @keyframes gpop { from { opacity: 0; transform: translateY(10px) scale(.96); } }
+  .gr-shell { position: relative; background: var(--grad-window); display: grid; place-items: center; }
+  .gr-badge { position: absolute; left: 4px; top: 4px; width: 32px; height: 32px; z-index: 2; }
+  .gr-photo { width: 92px; height: 100%; min-height: 92px; object-fit: cover; filter: var(--dest-filter); display: block; }
+  .gr-photo-emoji { display: grid; place-items: center; font-size: 40px; filter: none; }
+  .gr-body { padding: 11px 14px 12px; min-width: 0; }
+  .gr-name { font-family: var(--round); font-size: 21px; letter-spacing: 1px; line-height: 1.15; }
+  .gr-em { margin-right: 4px; }
+  .gr-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .gr-hook { font-size: 12.5px; color: var(--text-mid); margin-top: 6px; line-height: 1.45; }
+  .gr-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+  .gr-actions .btn { font-size: 12.5px; padding: 6px 12px; }
+  .gr-actions .btn.pri { background: var(--red); color: var(--on-color); }
+  .gr-actions .btn:disabled { opacity: .5; cursor: default; }
+
+  /* M63 蛋堆条：半开蛋壳小卡，轻微倾角错落（如打开后扔在地上的扭蛋）；0 颗不显（扭出第一颗才冒出来） */
+  .g-pile { margin-top: 16px; border-top: var(--bw-thin) dashed var(--ink-soft); padding-top: 12px; text-align: left; }
+  .g-pile-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .g-pile-title { font-size: 13px; font-weight: 700; }
+  .g-pile-count { font-size: 11.5px; color: var(--ink-soft); border: var(--bw-thin) solid var(--ink-soft); border-radius: var(--radius-pill); padding: 1px 8px; font-variant-numeric: tabular-nums; }
+  .g-pile-count.full { color: var(--red); border-color: var(--red); }
+  .g-pile-strip { display: flex; gap: 6px; overflow-x: auto; padding: 8px 2px 12px; }
+  .g-pile-actions { display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap; }
+  .cmp-take { background: var(--grad-btn-blue); color: var(--on-color); }
+  .ge { flex: 0 0 auto; width: 78px; text-align: center; position: relative; transform: rotate(var(--rot, 0deg)); transform-origin: bottom center; }
+  .ge-shell { position: relative; width: 78px; height: 60px; cursor: pointer; }
+  .ge-bowl { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ge-photo { position: absolute; left: 15px; top: 6px; width: 48px; height: 40px; object-fit: cover; border: var(--bw-thin) solid var(--cap-line); border-bottom: none; border-radius: 6px 6px 3px 3px; filter: var(--dest-filter); }
+  .ge-photo-emoji { display: grid; place-items: center; font-size: 26px; border: none; filter: none; }
+  .ge-name { font-family: var(--round); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ge-x { position: absolute; right: 3px; top: -4px; width: 18px; height: 18px; padding: 0; border-radius: 50%; background: var(--paper); border: var(--bw-thin) solid var(--ink); color: var(--ink); font-size: 10px; line-height: 1; cursor: pointer; z-index: 3; }
+  .ge-shell:focus-visible { outline: 2px solid var(--blue-deep); outline-offset: 2px; border-radius: 6px; }
 
   /* 对比表 */
   .cmp-sheet { max-width: 1120px; margin: 0 auto; position: relative; }
@@ -515,11 +575,8 @@
     object-fit: contain; object-position: left; opacity: .5;
   }
 
-  /* M59 ⑦：机器插画 hero 化——此前 92px 小图 + 巨大的 ??? 结果窗是「无图时代遗留布局」（当年
-     没有插画，视觉重心只能落在文字上）；扭蛋机画面现在才是这台机器的看点，结果窗降级配合。
-     DOM 冻结点按用户本人点名视为已授权修订，落地后重新冻结（design「新皮肤诞生流程」冻结点）。 */
-  .g-illust { display: flex; justify-content: center; margin-bottom: 4px; }
-  .g-illust .illust { width: 190px; height: 190px; object-fit: contain; }
+  /* M63：机器 hero 尺寸/收窄逻辑挪去上方 .g-machine（含 .has-pile 蛋堆让位）；此处不再单列
+     .g-illust 规则（.g-scene .g-illust 已接管居中）。M59⑦ hero 化的初衷延续，DOM 已按 M63 重构。 */
 
   /* 卡片顶部目的地照片（M44 共享集，皮肤无关）：card 本身已有描边，贴边铺满不再叠白框。
      M58：卡片流是快速下滑的浏览流，2:1 扁条只求看个意思、不抢文字（安全区「主体压垂直
@@ -542,16 +599,8 @@
      「滤镜失败优雅回退原图」不需要额外代码兜底。 */
   .c-photo .illust, .dt-banner.photo .illust { filter: var(--dest-filter, none); }
 
-  /* 扭蛋票券氛围带（M59 ⑪ 重做）：该目的地所属大区的题头图垫底（design M46），现为独立条带盒
-     ——固定高度 + 自己的 cover/居中定位，卡片在其下方正常渲染，不再靠整券背景 + 皮肤专属 padding
-     去露出一条被卡片遮住大半的顶缘（此前城市券完全遮住、线路券勉强可见且位置不可控）。边框语言
-     与 .card 同款 token（--bw-thick/--ink/--radius-card），跟着皮肤走、不需要额外覆写。随 ⑨ 卡位
-     开关生成（cardPhotosEnabled()===false 时 gacha.ts 整条不产出，不留空盒）。 */
-  #gachaTicket { border-radius: var(--radius-card); }
-  .ticket-ambience {
-    height: 90px; margin-bottom: 10px; border-radius: var(--radius-card);
-    border: var(--bw-thick) solid var(--ink); background-size: cover; background-position: center;
-  }
+  /* M63：大票券（#gachaTicket）与其氛围带（.ticket-ambience）随「大票券退役」一并移除——揭晓
+     改为轻量开壳卡 .g-reveal（上方），卡内小图即视觉，不再另起一条题头氛围带。 */
 
   @media (max-width: 680px) {
     .mascot-decor { display: none; } /* 手机头部寸土寸金，纯装饰的吉祥物让位（同 M50 纪律：低频/纯氛围入口不占首屏行） */
@@ -603,6 +652,9 @@
   /* M52 丁B：飘动小飞机是奶油卡通物件，水墨页头留白（mock 标题旁没有物件） */
   [data-theme="ink"] .plane { display: none; }
   [data-theme="ink"] .fab-emoji { display: none; }
+  /* M63：水墨风按钮/标签去装饰 emoji（🆚/🥚/🎉 一类），只留代表城市的小 emoji（用户拍板）——
+     装饰 emoji 一律包 .deco-emoji，ink 隐藏、cream 原样保留（同 .fab-emoji 包 span 习语） */
+  [data-theme="ink"] .deco-emoji { display: none; }
   /* 扭蛋旋钮：彩色 🎯 emoji 在朱红底上是塑料贴纸——藏掉 emoji，换白「扭」字成一枚圆形朱印 */
   [data-theme="ink"] .g-knob { font-size: 0; border-color: transparent; filter: url(#sealRough); }
   [data-theme="ink"] .g-knob::after { content: "扭"; font-size: 26px; font-family: var(--round); color: var(--on-color); }

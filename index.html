@@ -101,25 +101,40 @@
   </div>
 </div>
 
+<!-- M63 扭蛋主舞台重做：舞台（机器 hero + 咔啦操作员气泡）→ 揭晓（开壳卡 #gReveal）→ 蛋堆（#gPile）。
+     一套 DOM 双皮肤 token；机器 data-illust="gacha" 缺图退 🎰、咔啦 data-illust="mascot" 缺图退隐藏
+     （气泡承担其声音）。DOM 冻结点经用户点名授权修订（design M63），落地重新冻结。 -->
 <div class="overlay" id="gachaOverlay">
   <div class="gacha-box">
     <button class="sheet-close" data-close>✕</button>
-    <div class="machine">
-      <div class="g-illust" data-illust-frame>
-        <img class="illust" data-illust="gacha" alt="" loading="lazy" data-fallback="hide">
+    <div class="g-scope" id="gachaScope"></div>
+    <div class="machine" id="gStage">
+      <div class="g-bubble" id="gBubble">转一下旋钮，命运发货～</div>
+      <div class="g-scene">
+        <div class="g-illust" data-illust-frame>
+          <img class="illust g-machine" data-illust="gacha" alt="" loading="lazy" data-fallback="🎰">
+        </div>
+        <span class="g-kara" data-illust-frame>
+          <img class="illust" data-illust="mascot" alt="" loading="lazy" data-fallback="hide">
+        </span>
       </div>
-      <div class="g-scope" id="gachaScope"></div>
       <div class="g-window">
-        <div class="g-city" id="gCity">？？？</div>
-        <div class="g-sub" id="gSub">转一下旋钮，命运发货</div>
+        <div class="g-city dim" id="gCity">？ ？ ？</div>
       </div>
       <button class="g-knob" id="gKnob" title="扭一下">🎯</button>
       <button class="btn" id="gRelaxBtn" style="display:none">松一个条件，再扭</button>
-      <div class="g-actions">
-        <button class="btn" id="gDetailBtn" style="display:none">看看这里 →</button>
-        <button class="btn" id="gTripBtn" style="display:none">＋加入行程</button>
+      <div class="g-reveal" id="gReveal"></div>
+    </div>
+    <div class="g-pile" id="gPile" style="display:none">
+      <div class="g-pile-head">
+        <span class="g-pile-title"><span class="deco-emoji">🥚 </span>蛋堆 · 备选</span>
+        <span class="g-pile-count" id="gPileCount"></span>
       </div>
-      <div id="gachaTicket"></div>
+      <div class="g-pile-strip" id="gPileStrip"></div>
+      <div class="g-pile-actions">
+        <button class="btn cmp-take" id="gPileCmp"><span class="deco-emoji">🆚 </span>拿去对比</button>
+        <button class="btn" id="gPileClear">清空蛋堆</button>
+      </div>
     </div>
   </div>
 </div>

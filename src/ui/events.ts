@@ -7,7 +7,7 @@ import { openCompare } from "./compare";
 import { resetFilters } from "./console";
 import { openDetail } from "./detail";
 import { $ } from "./dom";
-import { getLastPick, openGacha, roll } from "./gacha";
+import { clearPile, getLastPick, openGacha, pileToCompare, roll, tossEgg } from "./gacha";
 import { openMap } from "./mapview";
 import { applyRelax, render } from "./render";
 import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
@@ -15,6 +15,14 @@ import { forgetSync, generateShareCode, importJSON, openShare, renderShareQR, sh
 import { openSkin, selectSkin } from "./skin";
 import { toast } from "./toast";
 import { autoOrder, insertOnWay, openTrip, renderTrip } from "./trip";
+
+// M63 揭晓卡「加入行程」：线路卡整条展开装入，城市卡去重加入（承接退役的 gTripBtn 逻辑）
+function gachaAddTrip() {
+  const p = getLastPick();
+  if (!p) return;
+  if (p.stops) { addRouteToTrip(p.id); return; }
+  if (!state.trip.some(t => t.id === p.id)) toggleTrip(p.id); else toast("已经在行程里啦");
+}
 
 export function wireEvents() {
   document.addEventListener("click", e => {
@@ -48,6 +56,20 @@ export function wireEvents() {
     if (mapDot) { e.stopPropagation(); openDetail(mapDot.dataset.mapdot!); return; }
     const skin = t.closest<HTMLElement>("[data-skin]");
     if (skin) { selectSkin(skin.dataset.skin!); return; }
+    // M63 揭晓卡动作（#gReveal 每次重生成，走委托）：继续扭 / 看详情 / 加入行程
+    const gact = t.closest<HTMLElement>("[data-gact]");
+    if (gact) {
+      const a = gact.dataset.gact;
+      if (a === "roll") roll();
+      else if (a === "detail") { const p = getLastPick(); if (p) openDetail(p.id); }
+      else if (a === "trip") gachaAddTrip();
+      return;
+    }
+    // M63 蛋堆小卡：× 扔回池（先判，避免被壳体的开详情吞掉）；壳体点按 = 开详情
+    const gtoss = t.closest<HTMLElement>("[data-gtoss]");
+    if (gtoss) { tossEgg(gtoss.dataset.gtoss!); return; }
+    const gegg = t.closest<HTMLElement>("[data-gegg]");
+    if (gegg) { openDetail(gegg.dataset.gegg!); return; }
     const card = t.closest<HTMLElement>(".card");
     if (card && !t.closest(".act")) openDetail(card.dataset.id!);
   });
@@ -77,13 +99,8 @@ export function wireEvents() {
   });
   $("emptyResetBtn").addEventListener("click", resetFilters);
   $("gRelaxBtn").addEventListener("click", () => { applyRelax(0); openGacha(); });
-  $("gDetailBtn").addEventListener("click", () => { const p = getLastPick(); if (p) openDetail(p.id); });
-  $("gTripBtn").addEventListener("click", () => {
-    const lastPick = getLastPick();
-    if (!lastPick) return;
-    if (lastPick.stops) { addRouteToTrip(lastPick.id); return; } // 线路卡：整条展开装入
-    if (!state.trip.some(t => t.id === lastPick.id)) toggleTrip(lastPick.id); else toast("已经在行程里啦");
-  });
+  $("gPileCmp").addEventListener("click", pileToCompare);   // 整堆拿去对比
+  $("gPileClear").addEventListener("click", clearPile);
   $("shareLinkBtn").addEventListener("click", () => copyText(shareLink()));
   $("shareQrBtn").addEventListener("click", renderShareQR);
   $("shareJsonBtn").addEventListener("click", () => copyText(shareJSON()));
@@ -105,6 +122,11 @@ export function wireEvents() {
     });
   });
   addEventListener("keydown", e => {
-    if (e.key === "Escape") document.querySelectorAll(".overlay.show").forEach(o => o.classList.remove("show"));
+    if (e.key === "Escape") { document.querySelectorAll(".overlay.show").forEach(o => o.classList.remove("show")); return; }
+    // M63 蛋堆小卡 role=button：Enter/空格开详情（键盘可达）
+    if (e.key === "Enter" || e.key === " ") {
+      const egg = (e.target as HTMLElement).closest<HTMLElement>("[data-gegg]");
+      if (egg) { e.preventDefault(); openDetail(egg.dataset.gegg!); }
+    }
   });
 }
