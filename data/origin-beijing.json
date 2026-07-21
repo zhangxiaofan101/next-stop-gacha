@@ -220,7 +220,7 @@
   "difficulty": "直达"
  },
  "fujian-tulou": {
-  "transit": "直飞厦门约3h，转长途车约2h到土楼；另有夕发朝至动车约16h直达龙岩再转车1h",
+  "transit": "直飞厦门约3h，转长途车约2h到土楼；另有夕发朝至动车约16h直达龙岩再转车约1h",
   "difficulty": "一次中转"
  },
  "fuyuan-heixiazi": {
@@ -320,7 +320,7 @@
   "difficulty": "一次中转"
  },
  "huangshan": {
-  "transit": "直飞约2.5h / 高铁约6.5h至黄山北，转车1h到汤口",
+  "transit": "直飞约2.5h / 高铁约6.5h至黄山北，转车约1h到汤口",
   "difficulty": "直达"
  },
  "huangshi-daye": {
@@ -464,7 +464,7 @@
   "difficulty": "一次中转"
  },
  "lenghu": {
-  "transit": "无直达；飞敦煌（旺季或有直飞、平季经西安/兰州/西宁中转）再包车/自驾沿G215约250km/4h进冷湖，或并入青甘大环线自驾",
+  "transit": "无直达；飞敦煌（旺季或有直飞、平季经西安/兰州/西宁中转）再包车/自驾沿G215约250km/约4h进冷湖，或并入青甘大环线自驾",
   "difficulty": "折腾"
  },
  "leshan-emeishan": {
