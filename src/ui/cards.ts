@@ -42,7 +42,7 @@ export function cardHTML(d: Destination, i: number): string {
     </div>
     <div class="c-body">
       <div class="c-name-row">
-        <span class="c-emoji">${d.emoji}</span>
+        <span class="c-emoji"><span class="emo">${d.emoji}</span></span>
         <span>
           <span class="c-name">${d.name}</span>
           <div class="c-prov">${isRoute ? routeLine : `${d.province} · ${d.cost} · ${d.transit}（${d.difficulty}）`}</div>

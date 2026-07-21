@@ -47,7 +47,7 @@ function detailHTML(d: Destination): string {
   return `
     ${headerBannerHTML(d, isRoute)}
     <div class="dt-head">
-      <span class="c-emoji dt-emoji" style="--rs:${rs};background:${rs}">${d.emoji}</span>
+      <span class="c-emoji dt-emoji" style="--rs:${rs};background:${rs}"><span class="emo">${d.emoji}</span></span>
       <div>
         <h2 class="dt-name">${d.name}</h2>
         <div class="dt-sub">${isRoute ? `🎫 联程线路 · ${d.province}` : `${d.province} · ${d.region} · ${d.crowd} · ${d.cost}`}</div>

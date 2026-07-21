@@ -865,18 +865,23 @@
   [data-theme="porcelain"] .plane { display: none; }
   [data-theme="porcelain"] .fab-emoji { display: none; }
   [data-theme="porcelain"] .deco-emoji { display: none; }
-  /* F78：城市代表 emoji（M63 用户拍板保留，唯一没跟着 M63/本皮肤退场的彩色物件）全彩系统表情，
+  /* F78/F80：城市代表 emoji（M63 用户拍板保留，唯一没跟着 M63/本皮肤退场的彩色物件）全彩系统表情，
      在青花语境里跳色——用户终审点出。不摘掉（是「一眼认城市」的可用性，非装饰），改用滤镜套色：
-     grayscale 先去底色，再 sepia+hue-rotate+saturate 转描到 --dest-filter 同一套瓷白～钴蓝双色映射
-     （同 porcelainDuotone 风格锁冻结的两端点），跟目的地照片走同一套色语言（浏览器实测见 A7 终审记录）。
-     .emo 是各处内联 emoji 的通用包裹 span（卡片/详情/对比/行程/路书/dock 等纯文本拼接处，见
-     src/ui/{cards,detail,compare,trip,roadbook,dock}.ts）；.c-emoji/.gr-em 是已有的专属容器类；
-     .gr-photo-emoji/.ge-photo-emoji 是扭蛋大图/蛋堆关图开关下的应急兜底（style.css 顶部对它们
-     统一 filter:none 是給前两套皮肤重置继承自 .gr-photo/.ge-photo 的 --dest-filter，这里按皮肤
-     选择器覆盖优先级更高，只在瓷器语境下重新点亮）。 */
-  [data-theme="porcelain"] .emo, [data-theme="porcelain"] .c-emoji, [data-theme="porcelain"] .gr-em,
+     grayscale 先去底色，再 sepia+hue-rotate+saturate 转描到瓷白～钴蓝色系（同 porcelainDuotone 风格锁
+     冻结的两端点方向），跟目的地照片走同一套色语言（浏览器实测见 A7 终审记录）。**F80 用户二轮反馈**：
+     初版 saturate(4) 太艳、且滤镜曾直接套在 .c-emoji 容器本身——容器的白底（--region-fallback，本就
+     等于 --paper）跟着 grayscale→sepia→hue-rotate 链一起走样，被染出一圈偏蓝，看起来像徽章底色没对齐
+     卡片底色（其实卡片底色从没变过，是滤镜把徽章底「画」蓝了）。改两点：①滤镜只套非空图标的 `.emo`
+     内层 span（各处内联 emoji 的通用包裹，见 src/ui/{cards,detail,compare,trip,roadbook,dock}.ts；
+     .c-emoji/.dt-emoji/.stop 的容器本身——含背景色、边框——不再進滤镜链，天然保持 --region-fallback
+     原色=--paper，与卡片白底同源同色）；②整条链降调更沉更灰（brightness 先压暗、saturate 由 4 降到
+     1.8，grayscale 打底比例更重），比初版更接近纯灰度、只留淡淡蓝调，不再像"上色贴纸"。
+     .gr-photo-emoji/.ge-photo-emoji 是扭蛋大图/蛋堆关图开关下的应急兜底（style.css 顶部对它们统一
+     filter:none 是給前两套皮肤重置继承自 .gr-photo/.ge-photo 的 --dest-filter，这里按皮肤选择器覆盖
+     优先级更高，只在瓷器语境下重新点亮，两者本身是纯文本无背景框，不受①影响）。 */
+  [data-theme="porcelain"] .emo, [data-theme="porcelain"] .gr-em,
   [data-theme="porcelain"] .gr-photo-emoji, [data-theme="porcelain"] .ge-photo-emoji {
-    filter: grayscale(1) sepia(1) saturate(4) hue-rotate(182deg) brightness(.92);
+    filter: grayscale(1) brightness(.7) sepia(.3) hue-rotate(180deg) saturate(1.8);
   }
   /* 扭蛋旋钮：彩色 🎯 emoji 换白「扭」字圆形朱印，同 ink 处理——瓷器语境同样不接受塑料贴纸感 emoji */
   [data-theme="porcelain"] .g-knob { font-size: 0; border-color: transparent; filter: url(#sealRough); }

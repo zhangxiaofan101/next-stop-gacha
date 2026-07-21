@@ -30,7 +30,7 @@ export function renderTrip() {
     html += `
     <div class="stop" data-idx="${i}">
       <span class="stop-idx">${i + 1}</span>
-      <span class="c-emoji" style="width:36px;height:36px;font-size:18px;--rs:${REGION_COLOR[d.region]};background:${REGION_COLOR[d.region]}">${d.emoji}</span>
+      <span class="c-emoji" style="width:36px;height:36px;font-size:18px;--rs:${REGION_COLOR[d.region]};background:${REGION_COLOR[d.region]}"><span class="emo">${d.emoji}</span></span>
       <span class="stop-name">${d.name}<br><span class="sm">${d.province} · ${d.crowd}</span></span>
       <span class="stop-ctrl">
         <select data-days="${i}" title="这一站玩几天">
