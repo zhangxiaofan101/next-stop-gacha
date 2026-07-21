@@ -19,7 +19,8 @@
     "test:unit": "vitest run",
     "test:build-assets": "bun test tests/build-assets.test.mjs tests/build-illustrations.test.mjs tests/build-py-guards.test.mjs",
     "typecheck": "tsc --noEmit",
-    "verify": "tsc --noEmit && vitest run && vitest run --config vitest.workers.config.ts"
+    "lint:agent": "bun tools/lint-agent.mjs",
+    "verify": "bun run lint:agent && tsc --noEmit && vitest run && vitest run --config vitest.workers.config.ts"
   },
   "type": "module"
 }

@@ -1,8 +1,10 @@
 # 🎰 Next Stop Gacha · 下一站，去哪玩
 
+[![verify](https://github.com/zhangxiaofan101/next-stop-gacha/actions/workflows/verify.yml/badge.svg)](https://github.com/zhangxiaofan101/next-stop-gacha/actions/workflows/verify.yml)
+
 > 选择困难症旅行救星：267 个中国目的地 + 53 条多城联游线路，筛一筛慢慢比，扭一个听天由命，串几站直接出路书。
 
-**Vite + TypeScript 工程化（零运行时框架），构建产物为纯静态资产** —— `bun install && bun run dev` 本地跑，`bun run build` 出 `dist/`（构建前自动过 `tsc` 类型检查 + 决策层单测门禁）。
+**Vite + TypeScript 工程化（零运行时框架），构建产物为纯静态资产** —— `bun install && bun run dev` 本地跑，`bun run build` 出 `dist/`（构建前自动过 `.agent` 协议 lint + `tsc` 类型检查 + 决策层单测门禁；同一门禁在 GitHub Actions 对每次 push/PR 跑红绿灯）。
 
 ## 能干什么
 

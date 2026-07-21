@@ -1,0 +1,19 @@
+# M65：CI 红绿灯——verify 必须跑在会话跳不过的地方。会话内跑证明意图，CI 跑证明推送树；
+# 红 X 主动通知，而不是 Cloudflare 构建静默失败、站点默默不更新。
+# test:build-assets 不进本工作流：需要 python3+cwebp+真实子进程起 vite build（见 README），
+# 按需手跑；这里与部署门禁（bun run build 里的 verify）保持同一口径。
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run verify
