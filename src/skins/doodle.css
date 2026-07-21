@@ -1,0 +1,208 @@
+/* doodle 皮肤（M62）——童趣线描涂鸦 token 集，挂 :root[data-theme="doodle"]。与 cream.css/ink.css/
+   porcelain.css 结构对齐：同一套 token 名，只换值；新增 token 的皮肤只需在四个文件里各加一行，
+   不改任何视图 CSS。气质对照 assets/illustrations/picked/doodle/style-ref-mock.webp：暖象牙纸底
+   （#f6eedb，四批母版四角背景色实测均值，无渐变/无纹理叠层——刻意保持页面纯色以承接 A9 母版
+   非透明底，见下方装饰件注释）+ 深炭黑钢笔线描（风格锁「fountain-pen linework」，非纯黑，暖调
+   炭黑）+ 芥末黄/砖红两枚稀疏点缀（风格锁「under 10%」，mock 帽子/背包实物取样）。区域九色与
+   sky/hill 卡通山丘随 ink/porcelain 先例整体退场——mock 是纯色速写页，无区域色块也无云朵山丘小
+   组件。fonts=null（无专属字体对，A9 未画字体，同 cream/porcelain 先例，--round 用近似手写感的
+   圆体栈）。不改 cream.css/ink.css/porcelain.css 任何一行、任何一个值——四套皮肤零共享可变状态，
+   只共享变量名契约。 */
+
+:root[data-theme="doodle"] {
+  --sky: #f6eedb;
+  --sky-deep: #ecdfc0;
+  --sky-top: #f8f1e2;
+  --sky-mid: #f7efdd;
+  --sky-bot: #f6eedb;
+  --hill-1: #e8ddc0;
+  --hill-2: #d9c8a0;
+  --hill-3: #c7b180;
+  --a1: #d98a52;
+  --a1b: #e8b27a;
+  --a2: #7aab7c;
+  --a3: #d9a545;
+  --paper: #f6eedb;
+  --ink: #2b2520;
+  --ink-soft: #6e6252;
+  --blue: #5b8fc0;
+  --blue-deep: #3d6d9c;
+  --orange: #c47f3d;
+  --orange-deep: #a8641f;
+  --green: #6a9c5e;
+  --pink: #c47a94;
+  --yellow: #d9a545;
+  --purple: #8b7aa8;
+  --red: #b8613f;
+  --spring: #6a9c5e;
+  --summer: #5b8fc0;
+  --autumn: #c47f3d;
+  --winter: #8ea3b8;
+  --round: "Yuanti SC", "STYuanti-SC", "YouYuan", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, sans-serif;
+
+  --on-color: #fdf8ec;
+  --panel-warm-bg: #f2e6cb;
+  --panel-warm-border: #d3a355;
+  --info-blue-bg: #eaf1f8;
+  --info-blue-border: #bcd3e6;
+  --info-blue-text: #3d6d9c;
+  --food-chip-bg: #f5e6d3;
+  --food-chip-border: #dbb583;
+  --food-chip-text: #8a5a2a;
+  --note-green-bg: #eef4e9;
+  --note-green-border: #b7d1a8;
+  --note-green-text: #4a6b3f;
+  --note-hotel-bg: #f5ecd8;
+  --note-hotel-border: #d9be8a;
+  --note-hotel-text: #7a5a26;
+  --arch-chip-bg: #e9f0ea;
+  --arch-chip-border: #a9c4ab;
+  --arch-chip-text: #47694a;
+  --highlight-accent: #c47a94;
+  --panel-cool-bg: #eef2f6;
+  --panel-cool-border: #c8d6e2;
+  --field-bg: #f4efe0;
+  --chip-hover-bg: #efe2c4;
+  --dock-box-bg: #f2e6cc;
+  --dock-chip-hover-bg: #f0d5c5;
+  --dot-off-bg: #ece5d5;
+  --season-default-bg: #e2d9c4;
+  --badge-alt-bg: #e6dfef;
+  --badge-alt-text: #5f4f7d;
+  --badge-visited-bg: #dfeed9;
+  --badge-visited-text: #3d6b34;
+  --tag-bg: #eaf1f8;
+  --tag-text: #3d6d9c;
+  --tag-border: #bcd3e6;
+  --table-border: #ddd0b2;
+  --table-rowh-bg: #f2ead6;
+  --table-cityh-bg: #f5e6c8;
+  --rb-skel-bg: #f5efe0;
+  --rb-day-num-text: #3d6d9c;
+  --divider-console: #ddcfa8;
+  --divider-cover: #d6c79c;
+  --divider-leg: #cdbf9c;
+  --divider-skrow: #e0d3ac;
+
+  --text-mid: #4a4032;
+  --text-body: #3d3628;
+  --text-subtle: #5c5140;
+  --text-faint: #9c907a;
+  --text-footer: #96896f;
+  --season-off-text: #96896f;
+  --placeholder-text: #a0937a;
+
+  /* 钢笔线描比水墨更纤细多变——风格锁明确排除「thick uniform cartoon outlines」，整体收细，
+     贴近 ink 的克制而非 cream 的粗描边贴纸感 */
+  --bw-thin: 1px;
+  --bw-md: 1.25px;
+  --bw-thick: 1.5px;
+  --bw-xthick: 2px;
+
+  /* 圆角：mock 的卡片/chip 是自然圆润的手绘轮廓（歪扭但饱满），介于水墨的收窄与奶油的贴纸感之
+     间，比青花瓷面更松弛一档 */
+  --radius-qr: 8px;
+  --radius-icon-btn: 10px;
+  --radius-field: 12px;
+  --radius-control: 12px;
+  --radius-panel-sm: 14px;
+  --radius-panel: 16px;
+  --radius-window: 18px;
+  --radius-card: 20px;
+  --radius-panel-lg: 20px;
+  --radius-sheet: 22px;
+  --radius-machine: 24px;
+  --radius-pill: 999px;
+
+  --shadow-ink-rgb: 43, 37, 32;
+  --ink-rgb: 43, 37, 32;
+  --glow-sun-rgb: 217, 165, 69;
+  --shine-rgb: 253, 248, 236;
+  --blue-rgb: 91, 143, 192;
+  --blue-deep-rgb: 61, 109, 156;
+  --orange-rgb: 196, 127, 61;
+  --orange-deep-rgb: 168, 100, 31;
+  --purple-rgb: 139, 122, 168;
+  --overlay-tint-rgb: 58, 50, 40;
+
+  --grad-sun: radial-gradient(circle at 38% 34%, #f0d9a0 30%, var(--yellow) 78%);
+  --grad-console: linear-gradient(180deg, var(--paper), #f2e8d0);
+  --grad-paper: linear-gradient(180deg, var(--paper), #f4ecd6);
+  --grad-machine: linear-gradient(180deg, var(--paper), #f1e6cc);
+  --grad-window: linear-gradient(#f4ecd6, var(--paper));
+  /* mock 的「抽一个」CTA 与 chip 选中态都是扁平色块，无渐变高光——同 ink/porcelain 扁平色印语言 */
+  --grad-fab: var(--red);
+  --grad-knob: var(--red);
+  --grad-btn-primary: var(--red);
+  --grad-btn-blue: var(--blue-deep);
+  --grad-btn-green: #5c8a52;
+
+  /* 区域九色整体退场=全部纸色（同 ink/porcelain 先例）：mock 没有区域色块概念，卡片是纸面+细墨
+     框，区域归属交给条带文字表达 */
+  --region-jzh: #f6eedb;
+  --region-huadong: #f6eedb;
+  --region-huabei: #f6eedb;
+  --region-dongbei: #f6eedb;
+  --region-huazhong: #f6eedb;
+  --region-huanan: #f6eedb;
+  --region-xinan: #f6eedb;
+  --region-xibei: #f6eedb;
+  --region-gangao: #f6eedb;
+  --region-fallback: #f6eedb;
+
+  /* ---- 形态 token：mock 通篇无硬偏移贴纸投影，扁平色块+纤细线描才是「涂鸦本」的质感——同
+     ink/porcelain 走「小面积交互件无影、大面积悬浮件极淡雾晕」，按压反馈用透明度而非位移
+     （见 style.css 装饰块的 :active 规则）。 ---- */
+  --shadow-logo: none;
+  --shadow-pill: none;
+  --shadow-panel: 0 5px 16px -6px rgba(var(--ink-rgb), .14);
+  --shadow-chip: none;
+  --shadow-chip-on: none;
+  --shadow-btn: none;
+  --shadow-act: none;
+  --shadow-card: 0 2px 8px rgba(var(--ink-rgb), .10);
+  --shadow-card-hover: 0 5px 14px rgba(var(--ink-rgb), .16);
+  --shadow-fab: 0 3px 9px rgba(var(--ink-rgb), .18);
+  --shadow-dock: 0 3px 10px rgba(var(--ink-rgb), .14);
+  --shadow-go: none;
+  --shadow-close: none;
+  --shadow-sheet: 0 7px 22px rgba(var(--ink-rgb), .18);
+  --shadow-machine: 0 7px 22px rgba(var(--ink-rgb), .18);
+  --shadow-knob: 0 3px 7px rgba(var(--ink-rgb), .2);
+  --shadow-cmp: 0 7px 22px rgba(var(--ink-rgb), .18);
+  --shadow-mini: none;
+  --shadow-bigbtn: 0 3px 9px rgba(var(--ink-rgb), .16);
+  --shadow-bigbtn-active: none;
+  --shadow-bigbtn-ghost: none;
+  --shadow-share: 0 7px 22px rgba(var(--ink-rgb), .18);
+  --press-shift: none;
+  --press-shift-sm: none;
+
+  /* ---- 选中态：实心芥末黄填充+墨字（mock「江浙沪/夏」已选 chip 实证），与 ink 的浅底朱红描边、
+     porcelain 的实心钴蓝+白字都不同——按本皮肤两枚风格锁强调色之一（芥末黄）取样 ---- */
+  --chip-on-bg: var(--yellow);
+  --chip-on-text: var(--ink);
+  --chip-on-border: var(--ink);
+  --btn-on-bg: var(--yellow);
+  --btn-on-text: var(--ink);
+  --btn-on-border: var(--ink);
+
+  --map-prov: #f1ead9;
+  --map-prov-lit: #dcefd6;
+  --map-stroke: #c9bb9c;
+  --map-stroke-lit: #6a9c5e;
+  --map-dot-idle: #c9bb9c;
+  --map-dot-visited: #4a6b3f;
+  --map-heart: #b8613f;
+
+  /* ---- 共享集皮肤适配滤镜（M51）：灰度线稿化（design 已定方向）——grayscale 去色+contrast
+     提升，贴近「钢笔线描」的黑白速写质感，比青花的双色映射更简单直接（不做色相映射）；色调
+     映射改的是色不是笔触，局限见 design「共享集皮肤适配滤镜」诚实记录。 ---- */
+  --dest-filter: grayscale(1) contrast(1.15);
+
+  /* ---- M63 扭蛋壳件（SVG + 皮肤取色）：芥末黄上盖 + 暖纸下碗 + 炭黑描边 ---- */
+  --cap-top: #d9a545;
+  --cap-bot: #f4ecd6;
+  --cap-line: #2b2520;
+}

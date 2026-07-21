@@ -82,6 +82,7 @@ codex 整页 mock → 用户认可 → 存 `raw/<id>/style-ref-mock.png` → 风
 - 文件名：皮肤批=`<皮肤id>-<slot>-v{n}.png`（开批规矩①；历史水彩首批 A1–A4 为无前缀命名，收官记录不回改）；raw 批允许简写前缀（如青花批 `qh-`），**转 picked 时统一为 `<皮肤id>-<slot>.webp`**（如 `qh-mascot-cutout-v1.png` → `porcelain-mascot-cutout.webp`）；目的地共享集=`dest-<cityid>-v{n}.png`（cityid 与 data 记录一字不差）；共享九区题头=`region-<slug>` 系 A6 水墨版转档产物（M60 后不再按皮肤新画）
 - 原图 PNG ≥1024px 放 `assets/illustrations/raw/<皮肤id>/`（不进 git；水彩批=`raw/journal/`，山水批=`raw/ink/`）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/<皮肤id>/`（进 git 的压缩母版），**cutout 等透明底槽位转档保留 alpha**；接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
 - **picked/ 纪律：只收用户终审定案**——终审前不转档、不接入（曾有一次抢跑转档被回滚的先例）；转 picked 时命名去 `-v{n}` 后缀；比稿/复议期间相应 picked 目录保持原状不动
+- **同一母题双版都通过时**（如 M62 doodle 的 decor town/plants/travel 各出两版、六张全部终审通过，非「挑一留一」）：转 picked 不再是单纯去 `-v{n}`，改**去 `v` 前缀留数字**（`doodle-decor-town-v1.png`/`-v2.png` → `doodle-decor-town-1.webp`/`-2.webp`），两版作为两个独立槽位永久共存，接入时按需挑选启用哪个/哪几个（build_illustrations.py 的 `decor-<name>` 归类对任意后缀通用，不用改代码）
 
 ---
 
@@ -372,6 +373,6 @@ no screen-print halftone, no photorealism, no 3D render, no text, no watermark.
 
 初筛：12/12 无文字、水印、照片感或 3D 感；墨线、纸色与稀疏芥末黄/砖红点缀一致，无「换画师」漂移；两版咔啦均保住方吻、小圆耳、黄帽/红包/纸地图且未跑成猪熊；两版扭蛋机均为非对称层叠山景，不是孤立对称锥体。版型差异：v1 组整体更紧凑安静，v2 组动作/横向延展更强。
 
-**用户终审拍板（2026-07-21）**：`mascot v2` / `gacha v1` / `empty v2`；三组 decor 明确评价「都很好」，故 `town v1/v2 + plants v1/v2 + travel v1/v2` 六张全部通过，作为可组合自由装饰保留。按职责边界待 cc 转 q90 WebP 入 `picked/doodle/` 并接入 M62；未选的 `mascot v1` / `gacha v2` / `empty v1` 已按用户指示从 raw 删除。
+**用户终审拍板（2026-07-21）**：`mascot v2` / `gacha v1` / `empty v2`；三组 decor 明确评价「都很好」，故 `town v1/v2 + plants v1/v2 + travel v1/v2` 六张全部通过，作为可组合自由装饰保留。未选的 `mascot v1` / `gacha v2` / `empty v1` 已按用户指示从 raw 删除。cc 已转 q90 WebP 入 `picked/doodle/`（decor 双版命名规则见「交付规范」新增条）并随 M62 接入生产——克制铺量只挂 town-1/plants-1/travel-1 三件，-2 版留档候补。
 
 **mascot-cutout 补画与终审（2026-07-22）**：按常驻双版规矩，以终审 `doodle-mascot-v2.png` 锁角色生成 `doodle-mascot-cutout-v1.png`；只保留咔啦本体与黄帽/红包/纸地图，无框、装饰、地面线或阴影。1254×1254 RGBA，四角透明、未检出键控绿边；用户终审通过后已转 q90 WebP 为 `picked/doodle/doodle-mascot-cutout.webp`，alpha 保留，待 M62 消费。

@@ -1,6 +1,7 @@
 @import "./skins/cream.css";
 @import "./skins/ink.css";
 @import "./skins/porcelain.css";
+@import "./skins/doodle.css";
 
   * { box-sizing: border-box; }
   body {
@@ -644,6 +645,9 @@
     .deco-lotus { width: 90px; height: 90px; }
     .deco-cloud { width: 130px; height: 68px; }
     .deco-wave { max-height: 160px; }
+    .deco-plants { width: 100px; height: 100px; }
+    .deco-travel { width: 130px; height: 82px; }
+    .deco-town { max-height: 150px; }
   }
 
   /* ---- M46 山水皮肤装饰块（style.css 是「装饰块」的家，见 design 部件清单表；ink.css 只放
@@ -986,6 +990,92 @@
     opacity: .55;
   }
 
+  /* ---- M62 doodle 皮肤装饰块（style.css 是「装饰块」的家，同 ink/porcelain 先例；doodle.css
+     只放 token）。doodle 与 ink/porcelain 同属「素」形态语言（design「三素一甜」）——无奶油贴纸
+     硬投影/位移反馈，但保留 emoji 装饰（🎯/✈️/🥚/🆚）不退场：本皮肤没有印章/craft 资产可替换
+     它们，且「童趣涂鸦」本就比水墨/瓷器更接近手账速写的随性感，emoji 与钢笔线描共存不违和
+     （与 ink/porcelain 的克制判断不同源，按本皮肤自身语言取值，非套用先例）。 ---- */
+  [data-theme="doodle"] .sky, [data-theme="doodle"] .hills { display: none; }
+
+  /* M52 乙同款：涂鸦本没有「按下贴纸」位移，改短促透明度变化（呼应 --press-shift:none） */
+  [data-theme="doodle"] .chip:active, [data-theme="doodle"] .btn:active, [data-theme="doodle"] .act:active,
+  [data-theme="doodle"] .fab:active, [data-theme="doodle"] .big-btn:active, [data-theme="doodle"] .dock-go:active,
+  [data-theme="doodle"] .stop .mini:active, [data-theme="doodle"] button.count-pill:active { opacity: .8; }
+
+  /* F80 同款处理（M71 教训直接抄卷）：城市代表 emoji 灰度线稿化套色，滤镜只挂非空图标的 `.emo`
+     内层 span，含背景/边框的容器（.c-emoji/.dt-emoji/.stop）不进滤镜链，天然保持 --region-fallback
+     原色=--paper，不会被染出一圈色差。.gr-photo-emoji/.ge-photo-emoji 是扭蛋大图/蛋堆关图开关下
+     的应急兜底，同 porcelain 处理——纯文本无背景框，直接整个进滤镜链。 */
+  [data-theme="doodle"] .emo, [data-theme="doodle"] .gr-em,
+  [data-theme="doodle"] .gr-photo-emoji, [data-theme="doodle"] .ge-photo-emoji {
+    filter: var(--dest-filter);
+  }
+  /* 详情页深读场景整体退出滤镜（design「共享集皮肤适配滤镜」分层口径，M71 三轮用户反馈定案）——
+     doodle 的全灰度同样会丢色彩线索、削弱头图可辨度，比照 porcelain 从落地起就应用同一条退出
+     规则，不必等用户在本皮肤上重新报一遍。#detailOverlay 是头图与 dt-emoji/途经站点 emoji 的
+     公共祖先，id 选择器特异性天然压过上方两条通用滤镜规则。 */
+  [data-theme="doodle"] #detailOverlay .illust,
+  [data-theme="doodle"] #detailOverlay .emo {
+    filter: none;
+  }
+
+  /* 迷你扭蛋机 FAB——机器插画钮（约 80px 待机呼吸动画）+ 趴角咔啦（透明底 die-cut），同 M64 结构；
+     一旦机器徽章显形，🎰 文字兜底须让位（同 ink/porcelain 道理，避免图文重叠）。 */
+  [data-theme="doodle"] .fab-emoji { display: none; }
+  [data-theme="doodle"] .fab {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    background: none; border: none; box-shadow: none; filter: none; padding: 0; animation: none;
+  }
+  [data-theme="doodle"] .fab-scene { position: relative; width: 80px; height: 80px; }
+  [data-theme="doodle"] .fab-machine {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    border: var(--bw-md) solid var(--ink); box-shadow: var(--shadow-act);
+    animation: fabBreathe 3.4s ease-in-out infinite;
+  }
+  [data-theme="doodle"] .fab-kara {
+    position: absolute; left: -12px; bottom: -6px; width: 38px; line-height: 0; pointer-events: none;
+  }
+  [data-theme="doodle"] .fab-kara .illust { width: 100%; height: auto; object-fit: contain; }
+  [data-theme="doodle"] .fab-label {
+    color: var(--on-color); background: var(--grad-fab);
+    letter-spacing: 3px; border-radius: 14px 8px 16px 9px / 9px 15px 8px 14px;
+    padding: 4px 14px; font-size: 13px;
+  }
+
+  /* 咔啦头像圈：doodle mascot 母版是自由站立的角色、无自带圆框构图（不同于 ink/porcelain 母版
+     自带墨圈/瓷盘边饰），保留 .mascot-decor 默认硬边框把角色框起来，不需要清透明。 */
+
+  /* toast 咔啦头像+说话气泡，同 M64/M69⑤结构 */
+  [data-theme="doodle"] .toast-kara {
+    display: inline-flex; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
+  }
+  [data-theme="doodle"] .toast-kara[hidden] { display: none; }
+  [data-theme="doodle"] .toast-kara .illust { width: 100%; height: 100%; object-fit: cover; }
+  [data-theme="doodle"] .toast { border-radius: 4px 18px 18px 18px; }
+  [data-theme="doodle"] .toast::after {
+    content: ""; position: absolute; left: 20px; bottom: -6px; width: 10px; height: 10px;
+    background: var(--ink); transform: rotate(45deg);
+  }
+
+  /* 自由浮动装饰件（小镇屋顶/盆栽/旅行小物，A9 工单）：不参与布局流，同 design「装饰位画布契约」
+     判断——三张母版画幅一致（1254×1254 方图，decor 槽位保留原生比例），容器盒各自按需要展示的
+     子区域用 object-position 裁切（母版留白充裕，裁切只截负空间，不伤主体）。位置呼应 ink 的
+     willow/bamboo/hill 三件套布局（左上角/右上角/底部通栏）：小镇屋顶担任「地平线」在底部通栏，
+     盆栽/旅行小物是左右角落点缀——克制铺量只挂三件，六张全部通过的另外三版（-2 后缀）留作候补，
+     系统化多件编排是七期 M72 的事（design M72）。母版非透明底（webpinfo 无 alpha）——doodle 页面
+     刻意维持纯色 --paper 无渐变/无纹理叠层（同 ink 的「宣纸底」处理，M71 教训：只有当页面底色
+     与母版底色不同源才会露硬边框，两者都取样自同一张 A9 母版族群、数值上已对齐，不需要重出真
+     透明底）。 */
+  [data-theme="doodle"] .deco-town, [data-theme="doodle"] .deco-plants, [data-theme="doodle"] .deco-travel {
+    position: fixed; z-index: 0; pointer-events: none; object-fit: cover;
+  }
+  [data-theme="doodle"] .deco-town {
+    left: 0; right: 0; bottom: 0; width: 100%; aspect-ratio: 2.4 / 1; height: auto; max-height: 220px;
+    object-position: 50% 62%; opacity: .5;
+  }
+  [data-theme="doodle"] .deco-plants { top: 4px; left: 0; width: 150px; height: 150px; object-position: 50% 68%; opacity: .88; }
+  [data-theme="doodle"] .deco-travel { top: 0; right: 0; width: 190px; height: 120px; object-position: 78% 22%; opacity: .85; }
+
   @media (max-width: 680px) {
     h1.logo { font-size: 34px; }
     /* M47：窄屏筛选台默认收纳成一行，点「筛选」就地展开，语义不变、只切呈现 */
@@ -1002,6 +1092,8 @@
     [data-theme="ink"] .fab-kara { width: 30px; left: -9px; bottom: -5px; }
     [data-theme="porcelain"] .fab-scene { width: 64px; height: 64px; }
     [data-theme="porcelain"] .fab-kara { width: 30px; left: -9px; bottom: -5px; }
+    [data-theme="doodle"] .fab-scene { width: 64px; height: 64px; }
+    [data-theme="doodle"] .fab-kara { width: 30px; left: -9px; bottom: -5px; }
     .dock { left: 12px; right: 12px; transform: none; bottom: 76px; max-width: none; }
     .paper { padding: 20px 16px; }
     .dt-name { font-size: 27px; }

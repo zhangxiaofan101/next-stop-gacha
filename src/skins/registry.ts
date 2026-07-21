@@ -49,6 +49,18 @@ export const SKINS: SkinDeclaration[] = [
     decorations: { lotus: true, cloud: true, wave: true },
     cardPhotos: true, // 灰度→钴蓝滤镜下目的地共享集与青花瓷面气质相容（qa-dest-cobalt-map 预演），M61 验收目检确认
   },
+  {
+    id: "doodle", label: "涂鸦",
+    fonts: null, // 无专属字体对（A9 未画字体，同 cream/porcelain 先例），--round/--sans 走系统字体栈，见 doodle.css
+    assetDir: "doodle",
+    // 自由浮动装饰件——A9 六张全部终审通过（town/plants/travel 各两版，见 illustration-brief），
+    // 本批克制铺量只挂三件（每个母题选一版，同 ink/porcelain 三件套先例）：town-1 全宽压底
+    // （呼应 ink 的 distantHill/porcelain 的 wave 角色）、plants-1 左上角、travel-1 右上角；
+    // 其余三版（town-2/plants-2/travel-2）已转档 picked/doodle/ 留作候补，系统化多件编排是
+    // 七期 M72 的事，本模块不提前造机制。键名与 index.html 对应 img 的 data-deco 值一一对应。
+    decorations: { town: true, plants: true, travel: true },
+    cardPhotos: true, // 灰度线稿滤镜下目的地共享集与钢笔速写气质相容（M62 验收目检确认）
+  },
 ];
 
 export const SKIN_IDS = SKINS.map(s => s.id);
