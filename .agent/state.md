@@ -15,7 +15,7 @@
 （三期–五期已封板 → 见 🪦 墓碑；M26–M60 全部条目与 Verified 证据明细在 git 历史（至 9298442）；M61–M66 已指配六期，新编号自 M67 起。） [cc]
 
 - **M63 — 扭蛋主舞台重做：连扭备选（蛋堆）[R2 · S2]（used: opus·high，cc 主 session 直落——核心 feature 视觉门槛 + 与用户拍板紧耦合，in-session 合理）**｜舞台（机器 hero + 咔啦操作员气泡）→ 揭晓开壳卡（大票券退役）→ 蛋堆压底（半开蛋壳小卡，SVG + `--cap-*` token 取色）。连扭按 id 排除、上限 CMP_MAX 单点、满堆停旋钮、× 扔回池、整堆拿去对比、机器有蛋堆时收窄、蛋堆扭出第一颗才显、页内会话存续（不进 localStorage）。ink 去装饰 emoji（`.deco-emoji`）/ cream 保留。spec 见 design M63。
-  Verified（2026-07-21）：`npm run verify` 全绿（tsc + **223 前端** + **45 workerd**，退出码 0）；gacha 三测迁移不丢断言——compare-pool 保留「对比池覆盖复位」并把结果断言改看开壳卡 `#gReveal`；ticket-eager→reveal 小图 eager；ambience 随大票券退役删除——另新增 `gacha-pile`（排除不重复/容量/toss 恢复/拿去对比/清空/跨 open 存续，6 例）、`gacha-reveal`（开壳卡信息+eager+无 `#gachaTicket`，3 例）。真实浏览器复验（Chrome + dev server）：ink 连扭→开壳卡（城市卡「＋加入行程」/线路卡「整条装入」两形态）→蛋堆 2 颗（半开蛋壳 cradle 小图）→机器收窄→「拿去对比」关弹层开对比表（两城并排）；cream 回退 🎰 机器 + 无咔啦（气泡承担其声）+ emoji 开壳/蛋堆；emoji 纪律 ink 隐 🥚🆚 / cream 显；352px 容器零横向溢出；reduced-motion 同步揭晓（单测跑的正是该路径）。**待办：咔啦透明底重画（🟡，插画轨道，不阻塞）；codex 跨家族 review gate 待与 M64 合并一轮（见 review backlog）。** [cc]
+  Verified（2026-07-21）：`npm run verify` 全绿（tsc + **223 前端** + **45 workerd**，退出码 0）；gacha 三测迁移不丢断言——compare-pool 保留「对比池覆盖复位」并把结果断言改看开壳卡 `#gReveal`；ticket-eager→reveal 小图 eager；ambience 随大票券退役删除——另新增 `gacha-pile`（排除不重复/容量/toss 恢复/拿去对比/清空/跨 open 存续，6 例）、`gacha-reveal`（开壳卡信息+eager+无 `#gachaTicket`，3 例）。真实浏览器复验（Chrome + dev server）：ink 连扭→开壳卡（城市卡「＋加入行程」/线路卡「整条装入」两形态）→蛋堆 2 颗（半开蛋壳 cradle 小图）→机器收窄→「拿去对比」关弹层开对比表（两城并排）；cream 回退 🎰 机器 + 无咔啦（气泡承担其声）+ emoji 开壳/蛋堆；emoji 纪律 ink 隐 🥚🆚 / cream 显；352px 容器零横向溢出；reduced-motion 同步揭晓（单测跑的正是该路径）。**咔啦透明底候选已补画，待用户目检；codex 跨家族 review gate 待与 M64 合并一轮（见 review backlog）。** [cc][codex]
 
 - **M65 — 协议机械门禁 [R1 · S2]（used: fable——in-session 直落：规则与本会话刚升级的 skill 文本同源，委派要搬运的上下文超过 diff 本身）**｜2026-07-21 用户采纳 cc 工作流评估后立项即落地：`tools/lint-agent.mjs` 六规则（design 无状态 emoji/无时代标记日期/无 F 编号、state 条目署名（缩进续行归条目）、tag 语法、`.agent` 编外文件须经 design 申报）+ `lint:agent` 挂 verify 链首位 fail-fast + `.github/workflows/verify.yml`（push/PR 红绿灯）+ README 徽章；design.md 同步清掉存量违例（4 处时代日期、3 处 F 编号、1 处代码位——内容并入机制行文，出处归 git blame）。skill 侧同步增设「Mechanical enforcement」节 + 第五类常驻领域文件条款 + bootstrap 接线步（codex 经 `~/.codex/skills` 软链自动同步，无需另发）。spec 见 design M65。
   Verified（2026-07-21）：`bun run lint:agent` 真实目录绿；scratchpad fixture 注入六类违例全数红（7 项，退出码 1）；多行条目署名规则在 M63 落地后的真实 state 上实测跑通；`bun run verify` 全链（lint + tsc + 223 前端 + 45 workerd）本地全绿；CI 首跑绿（Actions run 29804811988，22s）。 [cc]
@@ -45,7 +45,7 @@
 
 - **手帐水彩 19 张用户终审**：M39（P2）gating，不急；九区 9 张已随 M60 退出待审转素材库 [cc]
 - **奶油皮肤缺 mascot/gacha 插画**（2026-07-21 用户外观反馈批发现 mascot 缺口；M64 立项后 gacha 缺口同框）：`illustrations/cream/` 从未画过 mascot 与 gacha 母版，咔啦头像在奶油下恒空白（缺图隐藏是既有设计，非 bug）；用户拍板先放着——M63/M64 落地后奶油的舞台操作员/FAB 机器/趴机/toast 气泡均走回退形态；若要补齐需奶油卡通风 mascot+gacha 两件母版一并立批（不能直接复用水墨版，风格家族不同） [cc]
-- **咔啦透明底重画（M63 舞台操作员用）**（2026-07-21 用户拍板 M63 构图时提出）：M63 让咔啦叠站在扭蛋机旁当操作员，需要 die-cut **透明底** mascot（当前 `picked/ink/mascot.webp` 自带圆形墨晕/纸块，44px 头像圈里没问题、但叠机器旁像贴一块）；属插画轨道（codex/用户重画），**不阻塞 M63 代码**（mascot 槽位消费现有资产、换图即生效）。ink 先行；其余带 mascot 皮肤（doodle 等）接入舞台时同样以透明底为准。cream 无 mascot 资产，舞台咔啦位走机器 🎰 回退、气泡承担其声音 [cc]
+- **咔啦透明底候选（M63 舞台操作员用）**（2026-07-21 已生成，待用户目检）：新增 `raw/ink/ink-mascot-cutout-v1.png`（1024×1024 RGBA），只留咔啦本体及黄帽/红背包/纸地图，原 `ink-mascot-v1.png` 与 `picked/ink/mascot.webp` 均未覆盖；三底色边缘 QA=`raw/ink/qa/qa-mascot-cutout-v1.png`。用户通过后由 cc 转档并按 M63/M64 消费；其余皮肤仍按各自画风另出透明本体，cream 缺资产继续走回退。 [codex]
 - 插画轨道执行细节：codex 若无图像 API 可用，降级为「整理批量 prompt 清单交用户手动生成」（工单已写明两种模式）；用哪个图像模型由 codex/用户按可用性定，cc 不锁定 [cc]
 
 ## 📋 拍板档案
