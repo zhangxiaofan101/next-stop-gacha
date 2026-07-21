@@ -865,6 +865,19 @@
   [data-theme="porcelain"] .plane { display: none; }
   [data-theme="porcelain"] .fab-emoji { display: none; }
   [data-theme="porcelain"] .deco-emoji { display: none; }
+  /* F78：城市代表 emoji（M63 用户拍板保留，唯一没跟着 M63/本皮肤退场的彩色物件）全彩系统表情，
+     在青花语境里跳色——用户终审点出。不摘掉（是「一眼认城市」的可用性，非装饰），改用滤镜套色：
+     grayscale 先去底色，再 sepia+hue-rotate+saturate 转描到 --dest-filter 同一套瓷白～钴蓝双色映射
+     （同 porcelainDuotone 风格锁冻结的两端点），跟目的地照片走同一套色语言（浏览器实测见 A7 终审记录）。
+     .emo 是各处内联 emoji 的通用包裹 span（卡片/详情/对比/行程/路书/dock 等纯文本拼接处，见
+     src/ui/{cards,detail,compare,trip,roadbook,dock}.ts）；.c-emoji/.gr-em 是已有的专属容器类；
+     .gr-photo-emoji/.ge-photo-emoji 是扭蛋大图/蛋堆关图开关下的应急兜底（style.css 顶部对它们
+     统一 filter:none 是給前两套皮肤重置继承自 .gr-photo/.ge-photo 的 --dest-filter，这里按皮肤
+     选择器覆盖优先级更高，只在瓷器语境下重新点亮）。 */
+  [data-theme="porcelain"] .emo, [data-theme="porcelain"] .c-emoji, [data-theme="porcelain"] .gr-em,
+  [data-theme="porcelain"] .gr-photo-emoji, [data-theme="porcelain"] .ge-photo-emoji {
+    filter: grayscale(1) sepia(1) saturate(4) hue-rotate(182deg) brightness(.92);
+  }
   /* 扭蛋旋钮：彩色 🎯 emoji 换白「扭」字圆形朱印，同 ink 处理——瓷器语境同样不接受塑料贴纸感 emoji */
   [data-theme="porcelain"] .g-knob { font-size: 0; border-color: transparent; filter: url(#sealRough); }
   [data-theme="porcelain"] .g-knob::after { content: "扭"; font-size: 26px; font-family: var(--round); color: var(--on-color); }
@@ -934,6 +947,15 @@
      容器盒各自按公开产物真实比例定制，避免 object-fit:cover 大幅裁切主体。位置呼应 ink 的
      willow/bamboo/hill 三件套布局（左下角/右上角/底部通栏），语义对应 mock 副标题「山海入瓷」
      ——浪纹担任「海」在底部，缠枝莲/云纹是角落点缀。 */
+  /* F78：三张装饰母版是不透明画布（cwebp 无 alpha，webpinfo 实测 Alpha:0），底色是暖调瓷白
+     （近 --paper），跟页面实际背景（--grad-paper 渐至一个更冷的浅蓝白 + body::after 釉面颗粒纹理）
+     不完全同色，硬边框在肉眼下可见——用户终审点出。抠透明重出图要碰资产+管线，成本更高；这里选纯 CSS
+     的正片叠底：母版底色本就是接近纯白的浅色，multiply 对浅色背景实质等同「白色部分完全透传」，
+     蓝色线描部分正常透出，与是否精确匹配底层色号无关，不管压到渐变的哪一段、纹理颗粒多浓都天然
+     贴合，且不改一个像素资产、随时可回退（浏览器实测见 A7 终审记录）。 */
+  [data-theme="porcelain"] .deco-lotus, [data-theme="porcelain"] .deco-cloud, [data-theme="porcelain"] .deco-wave {
+    mix-blend-mode: multiply;
+  }
   [data-theme="porcelain"] .deco-lotus, [data-theme="porcelain"] .deco-cloud {
     position: fixed; z-index: 0; pointer-events: none; object-fit: cover;
   }

@@ -49,7 +49,7 @@ function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): s
     ${legLine(it.legIn, i === 0 ? "上海 → " + (it.legIn.gwName || it.d.name) : m.items[i - 1].d.name + " → " + it.d.name)}
     <div class="rb-day"><span class="rb-dtag">${dayRange(it)}</span></div>
     <div class="rb-stop">
-      <h4>${it.d.emoji} ${it.d.name} <span style="font-size:12px;color:var(--ink-soft);font-family:var(--sans)">（${it.d.chosenDays}天 · 方案「${it.plan.title}」${it.plan.days !== it.d.chosenDays ? "，按" + it.plan.days + "天版改编" : ""}）</span></h4>
+      <h4><span class="emo">${it.d.emoji}</span> ${it.d.name} <span style="font-size:12px;color:var(--ink-soft);font-family:var(--sans)">（${it.d.chosenDays}天 · 方案「${it.plan.title}」${it.plan.days !== it.d.chosenDays ? "，按" + it.plan.days + "天版改编" : ""}）</span></h4>
       <div class="rb-plan">${remapDayCodes(it.plan.route, it.start)}</div>
       <div class="rb-facts">
         <span><b>🍜 别错过：</b>${it.d.food.slice(0, 4).join("、")}</span>

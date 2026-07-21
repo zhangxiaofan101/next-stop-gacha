@@ -8,9 +8,9 @@ export function renderDock() {
   $("cmpBox").style.display = hasCmp ? "flex" : "none";
   $("tripBox").style.display = hasTrip ? "flex" : "none";
   $("cmpItems").innerHTML = state.cmp.map(id => {
-    const d = byId(id)!; return `<button class="dock-chip" data-rmcmp="${id}" aria-label="从对比中移除${d.name}">${d.emoji}${d.name} ✕</button>`;
+    const d = byId(id)!; return `<button class="dock-chip" data-rmcmp="${id}" aria-label="从对比中移除${d.name}"><span class="emo">${d.emoji}</span>${d.name} ✕</button>`;
   }).join("");
   $("tripItems").innerHTML = state.trip.map(t => {
-    const d = byId(t.id)!; return `<button class="dock-chip" data-rmtrip="${t.id}" aria-label="从行程中移除${d.name}">${d.emoji}${d.name} ✕</button>`;
+    const d = byId(t.id)!; return `<button class="dock-chip" data-rmtrip="${t.id}" aria-label="从行程中移除${d.name}"><span class="emo">${d.emoji}</span>${d.name} ✕</button>`;
   }).join("");
 }

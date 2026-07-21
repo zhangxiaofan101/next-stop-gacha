@@ -55,7 +55,7 @@ function detailHTML(d: Destination): string {
     </div>
     <div class="dt-tagline">${d.tagline}</div>
     ${isRoute ? sec("🗺 途经站点", `<ol class="dt-list">${d.stops!.map(s => {
-      const city = byId(s.id); return `<li>${city ? `${city.emoji} ${city.name}` : s.id} · 建议 ${s.days} 天</li>`;
+      const city = byId(s.id); return `<li>${city ? `<span class="emo">${city.emoji}</span> ${city.name}` : s.id} · 建议 ${s.days} 天</li>`;
     }).join("")}</ol>`) : ""}
     <div class="dt-meta">
       ${seasonsHTML(d)}

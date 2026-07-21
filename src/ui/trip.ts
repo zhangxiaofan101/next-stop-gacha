@@ -56,7 +56,7 @@ export function renderTrip() {
   const near = onwaySuggestions(DATA, state, byId);
   $("tripSugg").innerHTML = near.length
     ? `💡 顺路彩蛋（顺路捡一站 / 到站顺游）：` + near.map(x =>
-      `<button class="chip" data-onway="${x.d.id}" style="margin-left:6px">${x.d.emoji} ${x.d.name} · ${x.near ? `距${x.near.name.split(" · ")[0]}约${Math.max(1, Math.round(x.add))}km` : `+绕${Math.max(1, Math.round(x.add))}km`} ＋</button>`).join("")
+      `<button class="chip" data-onway="${x.d.id}" style="margin-left:6px"><span class="emo">${x.d.emoji}</span> ${x.d.name} · ${x.near ? `距${x.near.name.split(" · ")[0]}约${Math.max(1, Math.round(x.add))}km` : `+绕${Math.max(1, Math.round(x.add))}km`} ＋</button>`).join("")
     : "";
 }
 
