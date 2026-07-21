@@ -315,6 +315,26 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 终审结果（2026-07-20 用户拍板）：`ink-texture-paper-v2` / `ink-frame-brush-v2` / `ink-divider-brush-v2` / `ink-seal-nextstop-v2` / `ink-seal-wheretoplay-v4` / `ink-placeholder-mist-v1`。A8 生成与挑版收官；按职责边界待 cc 转 q90 webp 入 `picked/ink/`，随后 M57 仍受 review 闸门约束。
 
+## A9 Doodle 皮肤主题层（2026-07-21，等待用户终审）
+
+> 用户直接启动「画一下 doodle 的皮肤组件」。画风基准=`raw/doodle/style-ref-mock-v1.png`；mock 只锚画风，咔啦角色另以 `raw/journal/mascot-capybara-v4.png` 锚身份。候选只进 `raw/doodle/`，终审前不转 `picked/`、不接代码。九区题头由 M60 共享层承担，本批不重复画；文字/按钮/功能图标继续留给代码。
+
+Doodle 风格锁（按已认可整页 mock 校准；本批每条 prompt 固定前缀）：
+
+```
+Warm ivory fibrous drawing paper. Predominantly deep charcoal-black fountain-
+pen linework: thin, lively, imperfect and variable, with occasional doubled
+strokes, tiny crosshatching and scribbled fill; spontaneous naive crooked
+handmade charm. Sparse muted mustard-yellow and brick-red accents together
+under 10% of the image. Generous ivory breathing room. No clean vector
+precision, no watercolor, no marker rendering, no blue-and-white porcelain,
+no screen-print halftone, no photorealism, no 3D render, no text, no watermark.
+```
+
+主题层首轮共 12 张：`doodle-mascot-v1/v2`、`doodle-gacha-v1/v2`、`doodle-empty-v1/v2`、`doodle-decor-{town|plants|travel}-v1/v2`。empty 各自引用同版 mascot；全批用 built-in imagegen 生成，原图均为 1254×1254 RGB PNG。QA 总览=`raw/doodle/qa/qa-doodle-theme-v2.png`。
+
+初筛：12/12 无文字、水印、照片感或 3D 感；墨线、纸色与稀疏芥末黄/砖红点缀一致，无「换画师」漂移；两版咔啦均保住方吻、小圆耳、黄帽/红包/纸地图且未跑成猪熊；两版扭蛋机均为非对称层叠山景，不是孤立对称锥体。版型差异：v1 组整体更紧凑安静，v2 组动作/横向延展更强。codex 初选=`mascot v1 + gacha v1 + empty v2 + town v1 + plants v2 + travel v1`；所有候选留 raw 等用户直接看 QA 终审。
+
 ## 初筛核对清单（codex 每张图过一遍）
 
 - [ ] 无任何文字/水印/签名

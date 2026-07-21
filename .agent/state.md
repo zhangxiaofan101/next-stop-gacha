@@ -192,6 +192,8 @@
 
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。四期 🔜 原第 1–3 条（M43 样张/M42 装饰批均已生成初筛完毕、M39 样稿三版）随皮肤化拍板改挂：水彩资产与样稿 v2 转手帐皮肤（P2）素材/施工图，生成与 QA 明细见 git 历史本节原文。 [cc]
 
+- 【插画】A9 — Doodle 皮肤主题层 [R2 · S2] → codex · high（2026-07-21）｜用户直接启动。以 `raw/doodle/style-ref-mock-v1.png` 锚童趣线描画风、以咔啦水彩通过版锚角色，已生成 mascot/gacha/empty/decor-town/decor-plants/decor-travel 各 v1/v2 共 12 张，初筛 12/12 通过；总览=`raw/doodle/qa/qa-doodle-theme-v2.png`，codex 初选=`mascot v1 + gacha v1 + empty v2 + town v1 + plants v2 + travel v1`。九区题头走 M60 共享层，本批不重复画；候选只留 raw，等待用户终审，未转 picked、未接代码。 [codex]
+
 - 【插画】A7 — 青花皮肤主题层 [R2 · S2] → codex · high（2026-07-21）｜12 张候选与 `qa-a7-theme-v1.png` 已生成；另有 `qa-dest-cobalt-map.png` 验证杭州/敦煌/三亚只做瓷白→钴蓝亮度映射的观感。**用户终审已定**：mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1（empty v1 问号随选择接受）。待 cc 转 q90 WebP 入 `picked/porcelain/` 并开 `porcelain` 声明/滤镜实验；第二层工艺件仍候排。 [codex]
 
 1. 【画面】M44·分批铺量 — 目的地插画共享集 [R1 · S2] → codex 长期分批（2026-07-20 用户点名启动，从 P2 提前；与皮肤/代码轨道零文件冲突）｜完整约束=illustration-brief「M44 目的地插画分批铺量」：每城 1 版（✗ 带意见补 1 版）、开批去重硬闸、城市辨识度硬闸、区域回看闸、batch 1=10 城此后 20 城/批、每批停下等用户挑版。batch 0 三样张终审 + 共享集画风 A/B 比稿 B 胜出冻结（design「已冻结风格锁·目的地共享集」，原水彩锁降手帐皮肤专用）后开跑；**画不等接入**——接入走 M42 管线按批换上，卡顶个图属预期新增、代码零改动。进度： [cc]
