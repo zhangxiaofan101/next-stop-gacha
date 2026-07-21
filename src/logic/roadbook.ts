@@ -1,6 +1,7 @@
 // 路书装配（design「决策机制·路书装配」）：方案匹配/就近降配、leg 整组文案、逐日骨架、纯文本导出。
 // HTML 渲染在 ui/roadbook.ts；本模块只产出模型与文本。
 import { ROUTE_STAY } from "./constants";
+import { getOrigin } from "./origin";
 import { tripBudget, type TripBudget } from "./budget";
 import { legEligibleIndices, tripLegs, tripStops } from "./itinerary";
 import { fmtH, TRANSPORT_META } from "./transport";
@@ -81,8 +82,8 @@ export function skeletonRows(items: RoadbookItem[]): SkeletonRow[] {
       const isTripLast = it.legOut && k === it.d.chosenDays - 1;
       let act: string;
       if (k === 0) {
-        const from = i === 0 ? "上海" : shortName(items[i - 1].d);
-        const dest = it.legIn.gwName || name; // 入口门户（F31）优先作为「上海 → X」的目标
+        const from = i === 0 ? getOrigin().name : shortName(items[i - 1].d);
+        const dest = it.legIn.gwName || name; // 入口门户（F31）优先作为「出发地 → X」的目标
         act = `${from} → ${dest}（${it.legIn.mode} ${fmtH(it.legIn.hours)}）`;
         if (it.legIn.gwName || (stays && stayAt(0) !== name)) act += `，进线到${stayAt(0)}`;
       } else if (stays && stayAt(k) !== stayAt(k - 1)) {
@@ -94,7 +95,7 @@ export function skeletonRows(items: RoadbookItem[]): SkeletonRow[] {
         act = `游${stays ? stayAt(k) + "一带" : name}`;
       }
       if (isTripLast) {
-        act += `，${it.legOut!.gwName ? "经" + it.legOut!.gwName : ""}${it.legOut!.mode}返回上海（${fmtH(it.legOut!.hours)}）`;
+        act += `，${it.legOut!.gwName ? "经" + it.legOut!.gwName : ""}${it.legOut!.mode}返回${getOrigin().name}（${fmtH(it.legOut!.hours)}）`;
         rows.push({ n: it.start + k, act, stay: "🏠 回家" });
       } else {
         rows.push({ n: it.start + k, act, stay: stayAt(k) });
@@ -192,7 +193,7 @@ export function sentencesOf(note: string): string[] { return note.split(/[；。
 // 纯文本导出。getWxLine=按站取「已缓存的」天气行（不发请求；无缓存返回 null），由调用方注入。
 export function roadbookText(m: RoadbookModel, tripStart: string, getWxLine: (id: string) => string | null): string {
   const title = m.stops.map(d => d.name).join(" → ");
-  let s = `🧭 ${title}（${m.budget.daySum}天 · 上海往返${tripStart ? ` · ${tripStart} 出发` : ""}）\n`;
+  let s = `🧭 ${title}（${m.budget.daySum}天 · ${getOrigin().name}往返${tripStart ? ` · ${tripStart} 出发` : ""}）\n`;
   let wxUsed = false;
   s += `总里程约 ${m.budget.km}km · 人均预算 ¥${m.budget.lo}~${m.budget.hi}\n\n`;
   s += `【逐日速览】\n`;
@@ -202,7 +203,7 @@ export function roadbookText(m: RoadbookModel, tripStart: string, getWxLine: (id
   });
   s += `\n`;
   m.items.forEach((it, i) => {
-    const inName = i === 0 ? "上海" : m.items[i - 1].d.name;
+    const inName = i === 0 ? getOrigin().name : m.items[i - 1].d.name;
     const outName = (i === 0 && it.legIn.gwName) ? it.legIn.gwName : it.d.name; // 入口门户（F31）
     s += `【${inName} → ${outName}】${it.legIn.mode} ${fmtH(it.legIn.hours)}（约${it.legIn.km}km）\n`;
     s += `D${it.start}${it.end > it.start ? "–D" + it.end : ""} ${it.d.name}（${it.d.chosenDays}天 · ${it.plan.title}）\n`;
@@ -218,7 +219,7 @@ export function roadbookText(m: RoadbookModel, tripStart: string, getWxLine: (id
     const wl = getWxLine(it.d.id); // 只读缓存，不发请求；没缓存就不加这行
     if (wl) { wxUsed = true; s += `  天气参考：${wl}\n`; }
     s += `\n`;
-    if (it.legOut) s += `【${it.d.name}${it.legOut.gwName ? " → " + it.legOut.gwName : ""} → 上海】${it.legOut.mode} ${fmtH(it.legOut.hours)}（约${it.legOut.km}km）\n\n`;
+    if (it.legOut) s += `【${it.d.name}${it.legOut.gwName ? " → " + it.legOut.gwName : ""} → ${getOrigin().name}】${it.legOut.mode} ${fmtH(it.legOut.hours)}（约${it.legOut.km}km）\n\n`;
   });
   s += "※ 时长为估算，请以 12306/航班动态为准。";
   if (wxUsed) s += "\n※ 天气参考数据来自 Open-Meteo（https://open-meteo.com · CC BY 4.0 https://creativecommons.org/licenses/by/4.0/），经本站整理换算。";

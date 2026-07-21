@@ -1,4 +1,5 @@
 /* 卡片渲染（模板与旧版逐字一致，M46 新增卡顶目的地照片槽位） */
+import { getOrigin } from "../logic/origin";
 import { CROWD_CLASS, REGION_COLOR, SEASONS } from "../logic/constants";
 import { routeDaysText } from "../logic/roadbook";
 import { parseTransitIcon } from "../logic/transport";
@@ -31,7 +32,7 @@ export function cardHTML(d: Destination, i: number): string {
   <article class="card ${isRoute ? "route-card" : ""}" data-id="${d.id}" style="--rs:${rs}; --rc:${rs}; animation-delay:${Math.min(i * 25, 350)}ms">
     ${photo}
     <div class="c-strip">
-      <span class="c-route">${isRoute ? `🎫 联程线路 · ${d.province}` : `上海 ${transitIcon} ${d.province} · ${d.region}`}</span>
+      <span class="c-route">${isRoute ? `🎫 联程线路 · ${d.province}` : `${getOrigin().name} ${transitIcon} ${d.province} · ${d.region}`}</span>
       <span class="c-badges">
         ${!isRoute && state.visited.includes(d.id) ? `<span class="badge visitedb">✓ 去过</span>` : ""}
         ${isRoute ? `<span class="badge routeb">线路卡</span>` : ""}

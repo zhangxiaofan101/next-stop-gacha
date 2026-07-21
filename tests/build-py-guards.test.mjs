@@ -79,3 +79,74 @@ test("合法单标（仅 norail 或仅 slowrail）不受影响，仍零违规通
     assert.equal(result.code, 0, `单独标 norail 不应触发互斥校验，stderr: ${result.stderr}`);
   });
 });
+
+// ================= M22 per-origin 视角文件闸门 =================
+// data/origin-<id>.json 必须全量覆盖全部记录 id、difficulty 同基座枚举、条目恰含两字段；
+// 通过后发布 origin-<id>-<hash>.json + origins.json 索引。fixture 从临时副本的真实数据
+// 现算全量 id 集合，避免写死 335 这类会随扩容漂移的常量。
+
+import { readdirSync } from "node:fs";
+
+function allIds(dataDir) {
+  const ids = [];
+  for (const f of readdirSync(dataDir)) {
+    if (!/^data-[a-f]\.json$/.test(f) && f !== "routes.json") continue;
+    for (const d of JSON.parse(readFileSync(join(dataDir, f), "utf8"))) ids.push(d.id);
+  }
+  return ids;
+}
+
+function fullView(dataDir) {
+  const view = {};
+  for (const id of allIds(dataDir)) view[id] = { transit: "高铁约2h", difficulty: "直达" };
+  return view;
+}
+
+test("M22：全量覆盖的视角文件通过并发布 hash chunk + origins.json 索引", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    const view = fullView(dataDir);
+    writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.equal(result.code, 0, `全量视角文件应通过，stderr: ${result.stderr}`);
+    const index = JSON.parse(readFileSync(join(publicDataDir, "origins.json"), "utf8"));
+    assert.match(index.beijing, /^origin-beijing-[0-9a-f]{10}\.json$/);
+    const published = JSON.parse(readFileSync(join(publicDataDir, index.beijing), "utf8"));
+    assert.deepEqual(published, view, "发布产物应与源视角文件内容一致");
+  });
+});
+
+test("M22：无视角文件时 origins.json 为空对象（基座-only 形态）", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.equal(result.code, 0);
+    assert.deepEqual(JSON.parse(readFileSync(join(publicDataDir, "origins.json"), "utf8")), {});
+  });
+});
+
+test("M22：覆盖缺一条必须非零退出并报缺失数", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    const view = fullView(dataDir);
+    delete view[Object.keys(view)[0]];
+    writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.notEqual(result.code, 0, "覆盖不全必须拦截");
+    assert.match(result.stderr, /覆盖不全，缺 1 条/);
+  });
+});
+
+test("M22：未知 id / 非法 difficulty / 多余字段 各自拦截", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    const view = fullView(dataDir);
+    view["no-such-city"] = { transit: "x", difficulty: "直达" };
+    const someId = allIds(dataDir)[0];
+    view[someId] = { transit: "高铁约2h", difficulty: "很难" };
+    const otherId = allIds(dataDir)[1];
+    view[otherId] = { transit: "高铁约2h", difficulty: "直达", extra: 1 };
+    writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /引用不存在的 id/);
+    assert.match(result.stderr, /difficulty 非法: 很难/);
+    assert.match(result.stderr, /恰含 transit\+difficulty/);
+  });
+});

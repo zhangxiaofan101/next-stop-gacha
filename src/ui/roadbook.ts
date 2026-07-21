@@ -1,4 +1,5 @@
 /* 路书（HTML 渲染 + 天气异步填充；模型/文本装配在 logic/roadbook） */
+import { getOrigin } from "../logic/origin";
 import { ROUTE_STAY } from "../logic/constants";
 import {
   filterSeasonNote, fmtMD, remapDayCodes, roadbookModel, roadbookText, shortName, skelDayLabel,
@@ -32,7 +33,7 @@ function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): s
   ${readonly ? `<div class="rb-shared-banner no-print">📎 来自分享链接的路书副本 · 只读，不会保存到本机行程</div>` : ""}
   <div class="rb-cover">
     <h2 class="rb-title">🧭 ${title}</h2>
-    <div class="rb-meta">${m.budget.daySum} 天 · ${m.stops.length} 站 · 总里程约 ${m.budget.km}km · 上海往返${tripStart ? ` · ${tripStart} 出发` : ""} · 生成于 ${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}</div>
+    <div class="rb-meta">${m.budget.daySum} 天 · ${m.stops.length} 站 · 总里程约 ${m.budget.km}km · ${getOrigin().name}往返${tripStart ? ` · ${tripStart} 出发` : ""} · 生成于 ${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}</div>
   </div>
   <div class="rb-skel">
     <div class="rb-skel-t">🗓 逐日速览</div>
@@ -46,7 +47,7 @@ function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): s
     // 全部句子被滤掉时省略整个 span（同样是「全滤则整行省略」，只是单位是 span 不是文本行）。
     const seasonText = tripStart ? filterSeasonNote(it.d.seasonNote, stayMonths(it.start, it.end, tripStart)) : it.d.seasonNote;
     return `
-    ${legLine(it.legIn, i === 0 ? "上海 → " + (it.legIn.gwName || it.d.name) : m.items[i - 1].d.name + " → " + it.d.name)}
+    ${legLine(it.legIn, i === 0 ? getOrigin().name + " → " + (it.legIn.gwName || it.d.name) : m.items[i - 1].d.name + " → " + it.d.name)}
     <div class="rb-day"><span class="rb-dtag">${dayRange(it)}</span></div>
     <div class="rb-stop">
       <h4><span class="emo">${it.d.emoji}</span> ${it.d.name} <span style="font-size:12px;color:var(--ink-soft);font-family:var(--sans)">（${it.d.chosenDays}天 · 方案「${it.plan.title}」${it.plan.days !== it.d.chosenDays ? "，按" + it.plan.days + "天版改编" : ""}）</span></h4>
@@ -61,7 +62,7 @@ function roadbookHTML(m: RoadbookModel, tripStart: string, readonly: boolean): s
         <span class="rb-wx" data-wx="${it.d.id}"></span>
       </div>
     </div>
-    ${it.legOut ? legLine(it.legOut, it.d.name + (it.legOut.gwName ? " → " + it.legOut.gwName : "") + " → 上海（返程）") : ""}
+    ${it.legOut ? legLine(it.legOut, it.d.name + (it.legOut.gwName ? " → " + it.legOut.gwName : "") + ` → ${getOrigin().name}（返程）`) : ""}
   `;
   }).join("")}
   <div class="trip-stats rb-budget">

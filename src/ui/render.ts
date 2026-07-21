@@ -2,6 +2,7 @@
 import { CN_MAP } from "../cn-map";
 import { filtered, LONG_TRIP_KM, relaxCandidates, SHORT_TRIP_KM, type RelaxAction, type RelaxCandidate } from "../logic/filter";
 import { litProvinces } from "../logic/map";
+import { getOrigin } from "../logic/origin";
 import { matchIntent, type IntentAction } from "../logic/searchIntent";
 import type { Destination, GroupKey } from "../logic/types";
 import { byId, CUR_SEASON, DATA, state } from "../store";
@@ -64,11 +65,18 @@ export function clearDistModeFilter() {
   syncChips(); render();
 }
 
+// M22：头部总数胶囊与命中分母都按「当前出发地可见池」计（本城卡对偶隐藏，不把被藏的
+// 本城卡算进「共 N 个」——分母诚实）。boot 与出发地切换后都走这里。
+export function updateCountPill() {
+  const pool = DATA.filter(d => d.id !== getOrigin().cardId);
+  $("countPill").textContent = `🗺 ${pool.filter(d => !d.stops).length} 个目的地 · ${pool.filter(d => d.stops).length} 条线路 · 现在是${CUR_SEASON}天`;
+}
+
 export function render() {
   const list = filtered(DATA, state, CUR_SEASON);
   $("grid").innerHTML = list.map(cardHTML).join("");
   $("empty").style.display = list.length ? "none" : "block";
-  $("hitCount").textContent = `命中 ${list.length} / ${DATA.length}`;
+  $("hitCount").textContent = `命中 ${list.length} / ${DATA.filter(d => d.id !== getOrigin().cardId).length}`;
   if (!list.length) {
     computeRelax();
     $("relaxBox").innerHTML = relaxCands.slice(0, 3).map((c, i) =>
