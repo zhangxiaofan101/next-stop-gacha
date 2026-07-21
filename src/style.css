@@ -947,15 +947,18 @@
      容器盒各自按公开产物真实比例定制，避免 object-fit:cover 大幅裁切主体。位置呼应 ink 的
      willow/bamboo/hill 三件套布局（左下角/右上角/底部通栏），语义对应 mock 副标题「山海入瓷」
      ——浪纹担任「海」在底部，缠枝莲/云纹是角落点缀。 */
-  /* F78：三张装饰母版是不透明画布（cwebp 无 alpha，webpinfo 实测 Alpha:0），底色是暖调瓷白
-     （近 --paper），跟页面实际背景（--grad-paper 渐至一个更冷的浅蓝白 + body::after 釉面颗粒纹理）
-     不完全同色，硬边框在肉眼下可见——用户终审点出。抠透明重出图要碰资产+管线，成本更高；这里选纯 CSS
-     的正片叠底：母版底色本就是接近纯白的浅色，multiply 对浅色背景实质等同「白色部分完全透传」，
-     蓝色线描部分正常透出，与是否精确匹配底层色号无关，不管压到渐变的哪一段、纹理颗粒多浓都天然
-     贴合，且不改一个像素资产、随时可回退（浏览器实测见 A7 终审记录）。 */
-  [data-theme="porcelain"] .deco-lotus, [data-theme="porcelain"] .deco-cloud, [data-theme="porcelain"] .deco-wave {
-    mix-blend-mode: multiply;
-  }
+  /* F78/F79：三张装饰母版原是不透明画布（cwebp 无 alpha），底色暖调瓷白、跟页面实际背景
+     （--grad-paper 渐至一个更冷的浅蓝白 + body::after 釉面颗粒纹理）不完全同色——用户终审两轮点出。
+     首轮试过纯 CSS `mix-blend-mode:multiply`（母版底色本就接近纯白，理论上白色部分该完全透传），
+     真机复验仍可辨一圈发白的矩形——multiply 只能消掉「纯白」，母版底色实际是带暖色偏的浅色而非
+     数学纯白，跟页面偏冷的底色终究不是同一色，残留的柔和色差在留白大的装饰件上仍然可见（追加用户
+     反馈实测坐实，非首轮判断有误，是该招式本身有理论盲区）。根治＝母版直接重出透明底：脚本对每张
+     母版取四角采样得背景色，按与背景色的欧氏距离建 alpha（保留柔和渐变边、非硬阈值二值化），并对
+     半透明像素做「反预乘」（un-premultiply：减去背景残留分量再按 alpha 归一还原前景真实色），避免
+     合成到任意新背景时露色边——高对比测试背景（粉红）验证零色圈后再定稿。母版随之重新裁到贴近实际
+     展示尺寸（分辨率不再取 1024 长边封顶，见 tools/build_illustrations.py 装饰位契约注释）——完整
+     alpha 通道的信息量远高于纯色底，1024px 长边在这三张精细线描上编码不进 60KB 预算（质量下限
+     q40 仍超），降到贴合展示尺寸的 2~3 倍像素密度后自然过预算，肉眼无锯齿。 */
   [data-theme="porcelain"] .deco-lotus, [data-theme="porcelain"] .deco-cloud {
     position: fixed; z-index: 0; pointer-events: none; object-fit: cover;
   }
