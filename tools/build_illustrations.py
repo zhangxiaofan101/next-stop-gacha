@@ -15,6 +15,9 @@
 命名规则（母版 → 槽位名，去掉皮肤前缀——目录本身已经承载皮肤信息，槽位名跨皮肤统一，运行时
 `illustSrc(assetDir, slot)` 用同一套槽位名拼路径，见 src/skins/illustrations.ts）：
   ink-mascot.webp          → mascot.webp        （方图 1:1，吉祥物）
+  ink-mascot-cutout.webp   → mascot-cutout.webp （方图 1:1，吉祥物透明底 die-cut 变体——M64：叠放场景
+                                                  用（FAB 趴机/舞台操作员），自带底晕的整圆版贴图，
+                                                  非该变体不强制——缺图即回退整圆版或隐藏，见 design M64）
   ink-gacha.webp           → gacha.webp         （方图 1:1，扭蛋机）
   ink-empty.webp           → empty.webp         （方图 1:1，空态）
   ink-decor-<name>.webp    → decor-<name>.webp  （自由装饰件，画幅不拘，当前母版均 2:1）
@@ -85,7 +88,7 @@ def classify(skin: str, basename: str, violations: list):
         violations.append(msg)
         return None
     slot = name[len(prefix):]
-    if slot in ("mascot", "gacha", "empty"):
+    if slot in ("mascot", "mascot-cutout", "gacha", "empty"):
         return f"{slot}.webp", SQUARE
     # M60：region- 已从皮肤目录退场，晋升共享题头层（picked/dest/region-<slug>.webp，见
     # process_dest()）——皮肤目录内的 `<skin>-region-*` 命名不再被识别，会落进下方「未知类别」

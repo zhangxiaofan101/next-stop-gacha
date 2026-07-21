@@ -7,7 +7,7 @@ import { openCompare } from "../compare";
 
 const DOM = `
   <div class="overlay" id="cmpOverlay"><div id="cmpTableWrap"></div></div>
-  <div id="toast"></div>`;
+  <div id="toast"><span id="toastMsg"></span></div>`;
 
 describe("对比表列删除钮（M69）", () => {
   beforeEach(() => {

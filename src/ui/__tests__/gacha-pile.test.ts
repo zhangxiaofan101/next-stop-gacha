@@ -40,7 +40,7 @@ const DOM = `
     <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
   </div>
   <button id="footPill"></button>
-  <div id="toast" style="display:none"></div>`;
+  <div id="toast" style="display:none"><span id="toastMsg"></span></div>`;
 
 const eggIds = () => [...document.querySelectorAll<HTMLElement>("#gPileStrip [data-gegg]")].map(e => e.dataset.gegg!);
 const knob = () => document.querySelector<HTMLButtonElement>("#gKnob")!;

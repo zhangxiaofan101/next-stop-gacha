@@ -21,7 +21,7 @@ describe("F63 皮肤切换同步刷新网格 cardPhotos", () => {
         <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
       </div>
       <button id="footPill"></button>
-      <div id="toast" style="display:none"></div>
+      <div id="toast" style="display:none"><span id="toastMsg"></span></div>
       <div class="overlay" id="skinOverlay">
         <div class="paper" id="skinBody"></div>
       </div>`;

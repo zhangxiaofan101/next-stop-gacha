@@ -41,7 +41,7 @@ const GACHA_DOM = `
     <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
   </div>
   <button id="footPill"></button>
-  <div id="toast" style="display:none"></div>`;
+  <div id="toast" style="display:none"><span id="toastMsg"></span></div>`;
 
 function resetState() {
   Object.assign(state, {

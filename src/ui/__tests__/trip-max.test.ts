@@ -30,7 +30,7 @@ describe("M54 行程站数上限 TRIP_MAX", () => {
         <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
       </div>
       <button id="footPill"></button>
-      <div id="toast" style="display:none"></div>
+      <div id="toast" style="display:none"><span id="toastMsg"></span></div>
       <div id="stopList"></div>
       <div id="tripStats"></div>
       <div id="tripSugg"></div>`;

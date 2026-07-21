@@ -218,6 +218,13 @@
   .fab:hover { animation-play-state: paused; transform: scale(1.05); }
   .fab:active { transform: var(--press-shift); box-shadow: none; }
   @keyframes wiggle { 0%, 88%, 100% { transform: rotate(0); } 92% { transform: rotate(-3deg); } 96% { transform: rotate(3deg); } }
+  /* M64：迷你扭蛋机场景——尺寸/叠放交给各皮肤自己的资产覆盖规则（当前只有 ink，见下）；缺 gacha
+     资产的皮肤（如奶油）该 img 恒 404，wireIllustFallbacks 把 fab-scene 整个隐藏，回退现有按钮
+     形态（见 index.html 注释）。[hidden] 覆盖同 F59 道理：给 fab-scene 自己 display 值就必须补
+     [hidden] 覆盖，否则类选择器 specificity 打穿 UA 的 [hidden]{display:none}。 */
+  .fab-scene { display: inline-flex; }
+  .fab-scene[hidden] { display: none; }
+  .fab-label { display: inline-block; }
 
   .dock {
     position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; z-index: 40;
@@ -537,8 +544,13 @@
   .toast {
     position: fixed; left: 50%; transform: translateX(-50%); bottom: 100px; z-index: 80;
     background: var(--ink); color: var(--on-color); border-radius: var(--radius-pill); padding: 8px 20px; font-size: 13px;
-    display: none; animation: pop .25s ease;
+    display: none; align-items: center; gap: 8px; animation: pop .25s ease;
   }
+  /* M64：咔啦头像+说话气泡——缺 mascot 资产的皮肤（toast-kara 恒隐藏）回退纯 toast，见 index.html。
+     [hidden] 覆盖规则同 F59（.illust 那条）道理：给 toast-kara 自己的 display 值就必须补 [hidden]
+     覆盖，否则类选择器的 specificity 打穿 UA 的 [hidden]{display:none}。 */
+  .toast-kara { display: none; }
+  .toast-kara[hidden] { display: none; }
 
   /* ---- M46 插画接入（皮肤无关，管线随山水首落地——见 design M42/「插画层」）。缺图优雅回退
      由 src/skins/illustrations.ts 统一处理（<img> 走 wireIllustFallbacks，background-image 天生
@@ -552,10 +564,16 @@
   .ic { width: 1.05em; height: 1.05em; vertical-align: -0.14em; }
   .icon-btn .ic { width: 20px; height: 20px; } /* M59 ③：17px 与足迹胶囊行（14px 文字+其行高）视觉失衡偏小，放大到与胶囊行更相称的比重 */
 
+  /* M64：44px 头像圈→约90px 探头半身——手机端仍整体隐藏（下方 @media 规则不变），桌面把吉祥物从
+     「看得出有张图」放大到「看得清半身」，零新资产。[hidden] 覆盖=顺手补的既有缺口（同 F59 道理：
+     本规则一直给 .mascot-decor 自己设 display，specificity 打穿 UA 的 [hidden]{display:none}，
+     奶油下 mascot 图 404 后 wireIllustFallbacks 确有把 frame.hidden 置真，但视觉上一直是个空心圆圈
+     而非真正消失——44px 时不显眼未被注意，放大到 90px 后肉眼可辨，顺手补上）。 */
   .mascot-decor {
-    display: inline-flex; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
+    display: inline-flex; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
     border: var(--bw-md) solid var(--ink); box-shadow: var(--shadow-act);
   }
+  .mascot-decor[hidden] { display: none; }
   .mascot-decor .illust { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
 
   /* 自由浮动装饰件（柳桥/竹枝/远山）：不参与布局流，见 design「装饰位画布契约」——母版均 2:1，
@@ -666,11 +684,28 @@
   [data-theme="ink"] .g-knob { font-size: 0; border-color: transparent; filter: url(#sealRough); }
   [data-theme="ink"] .g-knob::after { content: "扭"; font-size: 26px; font-family: var(--round); color: var(--on-color); }
 
-  /* M52 戊-3：「扭一个」FAB=一枚横版朱印——扁平朱红底（--grad-fab token）+ 纸白字 +
-     sealRough 刀刻糙边 + 不对称圆角，墨色描边退场（印章没有深色外框） */
+  /* M64：迷你扭蛋机 FAB——退役 M52 戊-3 的朱印按钮形态，换机器插画钮（约 80px 待机呼吸动画 +
+     趴角咔啦透明底 die-cut，零布局占地叠在机器一角）；朱印质感收编到下面的 fab-label 小标签上。
+     prefers-reduced-motion 降级吃文件底部既有的全局 animation:none 规则，不必再写一条。 */
   [data-theme="ink"] .fab {
-    color: var(--on-color); border-color: transparent; filter: url(#sealRough);
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    background: none; border: none; box-shadow: none; filter: none; padding: 0; animation: none;
+  }
+  [data-theme="ink"] .fab-scene { position: relative; width: 80px; height: 80px; }
+  [data-theme="ink"] .fab-machine {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    border: var(--bw-md) solid var(--ink); box-shadow: var(--shadow-act);
+    animation: fabBreathe 3.4s ease-in-out infinite;
+  }
+  @keyframes fabBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+  [data-theme="ink"] .fab-kara {
+    position: absolute; left: -12px; bottom: -6px; width: 38px; line-height: 0; pointer-events: none;
+  }
+  [data-theme="ink"] .fab-kara .illust { width: 100%; height: auto; object-fit: contain; }
+  [data-theme="ink"] .fab-label {
+    color: var(--on-color); background: var(--grad-fab); filter: url(#sealRough);
     letter-spacing: 3px; border-radius: 14px 8px 16px 9px / 9px 15px 8px 14px;
+    padding: 4px 14px; font-size: 13px;
   }
 
   /* M52 戊-2：手绘边线。小件=不对称圆角 trick（1px 墨线立刻有手描感，零资产零滤镜成本），
@@ -750,6 +785,19 @@
   /* M52 己：咔啦头像圈——山水的 mascot 母版自带圆墨圈构图，再叠深色硬边框=双重圈框，退掉 */
   [data-theme="ink"] .mascot-decor { border-color: transparent; }
 
+  /* M64：toast 说话气泡——头像圈同 M52 己理由去外框；气泡尖角指左（头像在左侧说话），
+     同 M69⑤ g-bubble 尖角指说话者的道理 */
+  [data-theme="ink"] .toast-kara {
+    display: inline-flex; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
+  }
+  [data-theme="ink"] .toast-kara[hidden] { display: none; }
+  [data-theme="ink"] .toast-kara .illust { width: 100%; height: 100%; object-fit: cover; }
+  [data-theme="ink"] .toast { border-radius: 4px 18px 18px 18px; }
+  [data-theme="ink"] .toast::after {
+    content: ""; position: absolute; left: 20px; bottom: -6px; width: 10px; height: 10px;
+    background: var(--ink); transform: rotate(45deg);
+  }
+
   /* 抖动分隔线：不规则长度的虚线段模拟笔触，替代规整的 CSS dashed（token 驱动，无需新增视觉字面量）。
      .console-foot 原本是 border-top、.rb-cover 原本是 border-bottom，伪元素位置各自对应改用
      absolute 覆盖同一条边，不改变盒模型（padding 不变，只是虚线画法从原生 border 换成背景条）。 */
@@ -781,6 +829,9 @@
     .fgroup { flex-direction: column; gap: 4px; }
     .flabel { flex: none; padding-top: 0; }
     .fab { right: 14px; bottom: 14px; padding: 12px 18px; font-size: 15px; }
+    /* M64：窄屏机器徽章收小一档，仍远高于 44px 热区下限 */
+    [data-theme="ink"] .fab-scene { width: 64px; height: 64px; }
+    [data-theme="ink"] .fab-kara { width: 30px; left: -9px; bottom: -5px; }
     .dock { left: 12px; right: 12px; transform: none; bottom: 76px; max-width: none; }
     .paper { padding: 20px 16px; }
     .dt-name { font-size: 27px; }

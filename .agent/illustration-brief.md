@@ -294,6 +294,8 @@ cartoon outlines.
 
 补画已交付并终审（2026-07-20）：东北=v5、港澳=v5，cc 已转 `picked/ink/`——**A6 全批收官，16 张母版齐备**（题头槽位=原生 2:1 不浅裁 + 逐资产 focal 微调的接入口径见 design「装饰位画布契约」）。
 
+**mascot-cutout 补件（2026-07-21，M64 用户终审通过）**：`ink-mascot-cutout-v1`——透明底 die-cut 变体（叠放场景专用，见 design M64「咔啦跨皮肤同一角色」与皮肤部件清单），cc 已转 q90 webp 入 `picked/ink/ink-mascot-cutout.webp`（保留 alpha），build_illustrations.py 新增同名槽位识别。其余皮肤按各自画风另出该变体，缺图回退整圆版或隐藏形态。
+
 ## A7 青花皮肤资产批（P2 预置——锁文本已按用户认可的青花整页 mock 锚定，开批时直接用）
 
 > 方向参照=用户已认可的青花瓷整页 mock（codex 自产）。开批第一步：把 mock 原图存为 `raw/porcelain/style-ref-mock.png`，后续每张以它为 image reference。

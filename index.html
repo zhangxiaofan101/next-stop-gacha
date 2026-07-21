@@ -75,8 +75,17 @@
   </footer>
 </div>
 
-<!-- 🎰 包 span：奶油原样；山水下 emoji 隐藏、按钮走朱红印章形态（M52 丁B/戊-3） -->
-<button class="fab no-print" id="fabGacha"><span class="fab-emoji">🎰</span> 扭一个</button>
+<!-- M64：迷你扭蛋机 FAB——奶油原样（fab-scene 恒缺资产被 wireIllustFallbacks 隐藏，回退现有按钮
+     形态）；山水下 fab-scene 显形为 ~80px 机器徽章 + 趴角咔啦（透明底 mascot-cutout），fab-emoji
+     隐藏（同既有 M52 丁B/戊-3 规则）。 -->
+<button class="fab no-print" id="fabGacha">
+  <span class="fab-scene" data-illust-frame>
+    <img class="illust fab-machine" data-illust="gacha" alt="" loading="lazy" data-fallback="hide">
+    <span class="fab-kara" data-illust-frame><img class="illust" data-illust="mascot-cutout" alt="" loading="lazy" data-fallback="hide"></span>
+  </span>
+  <span class="fab-emoji">🎰</span>
+  <span class="fab-label">扭一个</span>
+</button>
 
 <div class="dock no-print" id="dock">
   <div class="dock-box" id="cmpBox" style="display:none">
@@ -102,8 +111,9 @@
 </div>
 
 <!-- M63 扭蛋主舞台重做：舞台（机器 hero + 咔啦操作员气泡）→ 揭晓（开壳卡 #gReveal）→ 蛋堆（#gPile）。
-     一套 DOM 双皮肤 token；机器 data-illust="gacha" 缺图退 🎰、咔啦 data-illust="mascot" 缺图退隐藏
-     （气泡承担其声音）。DOM 冻结点经用户点名授权修订（design M63），落地重新冻结。 -->
+     一套 DOM 双皮肤 token；机器 data-illust="gacha" 缺图退 🎰、咔啦 data-illust="mascot-cutout"（M64：
+     换透明底 die-cut 变体，叠机器旁更像贴块）缺图退隐藏（气泡承担其声音）。DOM 冻结点经用户点名
+     授权修订（design M63），落地重新冻结。 -->
 <div class="overlay" id="gachaOverlay">
   <div class="gacha-box">
     <button class="sheet-close" data-close>✕</button>
@@ -115,7 +125,7 @@
           <img class="illust g-machine" data-illust="gacha" alt="" loading="lazy" data-fallback="🎰">
         </div>
         <span class="g-kara" data-illust-frame>
-          <img class="illust" data-illust="mascot" alt="" loading="lazy" data-fallback="hide">
+          <img class="illust" data-illust="mascot-cutout" alt="" loading="lazy" data-fallback="hide">
         </span>
       </div>
       <div class="g-window">
@@ -233,7 +243,14 @@
   <button class="btn ghost-btn" id="importNo">忽略</button>
 </div>
 <canvas id="confettiCanvas"></canvas>
-<div class="toast" id="toast"></div>
+<!-- M64：toast 升级为咔啦头像+说话气泡；缺 mascot 资产的皮肤（toast-kara 恒隐藏）回退纯 toast。
+     toast 恒以 display:none 起手、由 JS 切到可见——同 M63「由隐藏切入可见的容器一律 loading=eager」
+     的道理，lazy 会让浏览器把这张图的加载无限期推迟到「可见」那一刻，首次弹出的 1.8s 窗口内很可能
+     还没来得及决出成功/404，回退判定跟着延迟。 -->
+<div class="toast" id="toast">
+  <span class="toast-kara" data-illust-frame><img class="illust" data-illust="mascot" alt="" loading="eager" data-fallback="hide"></span>
+  <span class="toast-msg" id="toastMsg"></span>
+</div>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
