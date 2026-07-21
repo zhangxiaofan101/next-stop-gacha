@@ -336,7 +336,7 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 终审结果（2026-07-20 用户拍板）：`ink-texture-paper-v2` / `ink-frame-brush-v2` / `ink-divider-brush-v2` / `ink-seal-nextstop-v2` / `ink-seal-wheretoplay-v4` / `ink-placeholder-mist-v1`。六件已由 cc 转 q90 webp 入 `picked/ink/` 并经 M57 全部接入生产（frame/divider 后经 M59 ②⑧ 渲染参数校准）。**后记（2026-07-21 拍板）**：frame/divider 两槽位因隐形实证撤出成套清单——本批已画两件留用不删、消费点照旧，新皮肤不再画（详见成套清单注与 design「工艺件画布契约」）。
 
-## A9 Doodle 皮肤主题层（2026-07-21，等待用户终审）
+## A9 Doodle 皮肤主题层（2026-07-21，用户终审通过）
 
 > 用户直接启动「画一下 doodle 的皮肤组件」。画风基准=`raw/doodle/style-ref-mock-v1.png`；mock 只锚画风，咔啦角色另以 `raw/journal/mascot-capybara-v4.png` 锚身份。候选只进 `raw/doodle/`，终审前不转 `picked/`、不接代码。九区题头由 M60 共享层承担，本批不重复画；文字/按钮/功能图标继续留给代码。
 
@@ -354,4 +354,6 @@ no screen-print halftone, no photorealism, no 3D render, no text, no watermark.
 
 主题层首轮共 12 张：`doodle-mascot-v1/v2`、`doodle-gacha-v1/v2`、`doodle-empty-v1/v2`、`doodle-decor-{town|plants|travel}-v1/v2`。empty 各自引用同版 mascot；全批用 built-in imagegen 生成，原图均为 1254×1254 RGB PNG。QA 总览=`raw/doodle/qa/qa-doodle-theme-v2.png`。
 
-初筛：12/12 无文字、水印、照片感或 3D 感；墨线、纸色与稀疏芥末黄/砖红点缀一致，无「换画师」漂移；两版咔啦均保住方吻、小圆耳、黄帽/红包/纸地图且未跑成猪熊；两版扭蛋机均为非对称层叠山景，不是孤立对称锥体。版型差异：v1 组整体更紧凑安静，v2 组动作/横向延展更强。codex 初选=`mascot v1 + gacha v1 + empty v2 + town v1 + plants v2 + travel v1`；所有候选留 raw 等用户直接看 QA 终审。
+初筛：12/12 无文字、水印、照片感或 3D 感；墨线、纸色与稀疏芥末黄/砖红点缀一致，无「换画师」漂移；两版咔啦均保住方吻、小圆耳、黄帽/红包/纸地图且未跑成猪熊；两版扭蛋机均为非对称层叠山景，不是孤立对称锥体。版型差异：v1 组整体更紧凑安静，v2 组动作/横向延展更强。
+
+**用户终审拍板（2026-07-21）**：`mascot v2` / `gacha v1` / `empty v2`；三组 decor 明确评价「都很好」，故 `town v1/v2 + plants v1/v2 + travel v1/v2` 六张全部通过，作为可组合自由装饰保留。按职责边界待 cc 转 q90 WebP 入 `picked/doodle/` 并接入 M62；未选的 mascot/gacha/empty 候选继续留 raw。

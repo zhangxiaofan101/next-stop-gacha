@@ -8,7 +8,7 @@
 
 **封板（2026-07-21）**：三期（M26–M36）、四期（M37–M44，M39 未落地留 P2）、五期（M45–M60）一并封板（见 🪦）。封板核验：codex 复核链收口——89c7b04 曾以 F63–F68 明确阻板，三轮修复/复核后 2ee6223 确认「F68、F69 均已关闭；当前无 Active findings」；封板会话另实跑 `bun run verify` 全绿（217 前端 + 45 workerd，退出码 0）、`git status` 干净、main↔origin 0/0。 [cc]
 
-**六期（已规划，2026-07-21 用户定方向：两套新皮肤 + 北京起点）**：执行顺序 M61 青花 → M62 doodle → M22 北京首发（见 🔜）；远期方向=M11 海外版（P2，用户同日确认在六期之后）。用户侧在飞：A9 doodle 12 张候选待终审（M62 gating）。 [cc]
+**六期（已规划，2026-07-21 用户定方向：两套新皮肤 + 北京起点）**：执行顺序 M61 青花 → M62 doodle → M22 北京首发（见 🔜）；远期方向=M11 海外版（P2，用户同日确认在六期之后）。A9 doodle 主题层已终审，M62 资产 gating 解除。 [codex]
 
 ## ✅ Implemented
 
@@ -19,7 +19,7 @@
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。 [cc]
 
 1. **M61 — 皮肤：青花（porcelain）[R2 · S2] → sonnet · high（cc）+ 用户终审**｜就绪度最高、排首位：A7 主题层 6 张已终审（mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1，empty v1 问号随选择接受）。步骤：①cc 转档 6 张 q90 WebP 入 `picked/porcelain/`，M42 管线出装饰位产物；②porcelain 声明 + token 批（白瓷底/钴蓝；朱红只许出现在 UI chrome 语义色，资产内无红——A7 工单红线）；③共享集钴蓝滤镜首次真实消费（M51 机制）；④cardPhotos 开关按滤镜后目检拍定；⑤工艺件批（texture/seal/placeholder，frame/divider 已撤出成套清单）codex 另开、不阻塞 chrome。 [cc]
-2. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜gating：A9 12 张候选待用户终审（codex 初选=mascot v1 + gacha v1 + empty v2 + town v1 + plants v2 + travel v1，总览=`raw/doodle/qa/qa-doodle-theme-v2.png`；九区随 M60 共享层不画）；终审后同 M61 流程，滤镜=灰度线稿化。 [codex][cc]
+2. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
 3. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜排两套皮肤之后——卡池/皮肤稳定后再写北京视角文案，避免二次补写；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate。spec 见 design M22（已按两段式改述）。 [cc]
 
 - 六期 review gate：M61+M62 皮肤批合并一轮 codex 跨家族复核（同 M46/M52 先例）；M22 因 S3 单独一轮。 [cc]
@@ -36,7 +36,6 @@
 
 ## 🟡 Pending decisions
 
-- **A9 doodle 主题层用户终审**（2026-07-21 生成初筛完毕）：12 张候选待用户挑版（codex 初选意见与 QA 总览见 🔜 M62 条目）——M62 开工的唯一 gating [cc]
 - **手帐水彩 19 张用户终审**：M39（P2）gating，不急；九区 9 张已随 M60 退出待审转素材库 [cc]
 - **奶油皮肤缺 mascot 插画**（2026-07-21 用户外观反馈批发现）：`public/illustrations/cream/mascot.webp` 从未画过，「咔啦」头像在奶油下恒空白（缺图隐藏是既有设计，非 bug）；用户拍板先放着，记入插画轨道待办——需要一版奶油卡通风咔啦母版（不能直接复用水墨版，风格家族不同） [cc]
 - 插画轨道执行细节：codex 若无图像 API 可用，降级为「整理批量 prompt 清单交用户手动生成」（工单已写明两种模式）；用哪个图像模型由 codex/用户按可用性定，cc 不锁定 [cc]
