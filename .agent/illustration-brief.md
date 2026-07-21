@@ -6,7 +6,7 @@
 
 | 谁 | 干什么 |
 |----|--------|
-| **codex（文生图轨道）** | 按各批工单的风格锁+prompt 生成图像。优先用 Codex built-in imagegen；不可用时才降级为整理可逐条粘贴的 prompt 清单交用户手动生成。皮肤件每资产出 2~4 版（**dest 共享集=每城只画 1 版**，见 M44 节），按「初筛核对清单」做第一轮筛选，产出放 `assets/illustrations/raw/<目录>/`（PNG 原图，不进 git；目录结构与流转规则见 `assets/illustrations/README.md`） |
+| **codex（文生图轨道）** | 按各批工单的风格锁+prompt 生成图像。优先用 Codex built-in imagegen；不可用时才降级为整理可逐条粘贴的 prompt 清单交用户手动生成。皮肤件每资产出 2~4 版（**mascot-cutout=基于终审整版只出 1 版**；**dest 共享集=每城只画 1 版**，见 M44 节），按「初筛核对清单」做第一轮筛选，产出放 `assets/illustrations/raw/<目录>/`（PNG 原图，不进 git；目录结构与流转规则见 `assets/illustrations/README.md`） |
 | **用户** | 终审挑版：并排判「换画师」感、角色身份、城市辨识度；✗ 的带意见要求补画（一次补 1 版） |
 | **cc** | 终审通过版转档入 `picked/`（cwebp `-q 90`；⚠️ macOS `sips` 声称支持 webp 实则写不出，勿用）；M42 管线出装饰位小图与代码接入；初筛复核与风格锁维护（两轮跑不齐回 cc 重新定锁） |
 
@@ -35,22 +35,23 @@ codex 整页 mock → 用户认可 → 存 `raw/<id>/style-ref-mock.png` → 风
 
 | 槽位 | 画布 | 版数 | 要点 |
 |---|---|---|---|
-| mascot | 1024×1024 | 2~4 | 角色参照=咔啦通过版（mock 不作角色参照）；三件套形状恒定、颜色随皮肤语言；IP 红线照旧 |
+| mascot（整版） | 1024×1024 | 2~4 | 角色参照=咔啦通过版（mock 不作角色参照）；三件套形状恒定、颜色随皮肤语言；IP 红线照旧；可含本皮肤语言的圆框/底饰 |
+| mascot-cutout | 1024×1024 透明底 | 1 | **常驻双版之二（2026-07-21 立册；每皮肤 mascot 必出两版=整版+cutout）**：整版终审后补画——只保留主体（帽/包/地图齐全），无圆框/花边/地面阴影，透明底无杂边；以整版通过图锁角色重出（键控去背须查残色边）；叠放场景专用（design M64），缺图回退整版或隐藏形态 |
 | gacha | 1024×1024 | 2 | 扭蛋机主视觉；非对称构图红线照旧 |
 | empty | 1024×1024 | 2 | 必须引用本皮肤 mascot 通过版生成，保证同一只 |
 | decor ×2~3 | 画幅不拘 | 各 2 | 自由浮动装饰件，母题随皮肤自选（山水=柳桥/竹枝/远山，青花=缠枝莲/云纹…）；透明底优先 |
 
-> **九区题头不再入皮肤画单**（2026-07-21 用户拍板，M60）：九区题头晋升共享题头层（皮肤无关，同目的地共享集），共享版=原 A6 水墨九张——**新皮肤成套少画 9 个版位**。已画的手帐水彩九区 9 张转素材库存档（不作废、不再是手帐 gating 项）；A7 青花预置画单中的 region ×9 同此口径删除。
+> **不随皮肤画的版位**：九区题头归共享题头层（M60 起皮肤无关，全皮肤共用 A6 水墨九张 `region-<slug>`；手帐水彩九张已转素材库存档）；目的地共享集同为皮肤无关（M44 节）。皮肤画单不再含这两类。
 
 ### 第二层 · 工艺件（M52 后新增；画的是界面「材质」——笔触与质地本身，不是画面）
 
 | 槽位 | 画布 | 版数 | 要点 |
 |---|---|---|---|
 | texture（底材纹理） | 512×512 **无缝** | 2 | 平铺无可辨重复母题；近底色低对比（叠加 opacity ≤.06 量级仍读得出质感） |
-| seal（印章/徽记，可选） | 256×256，2~3 枚 | 每枚 3+ | 皮肤有印章语言才画（山水/青花有、奶油无）；**风格锁「No text」对本槽位开例外**——印文是主体不是水印；文生图汉字保真差：垫真实印蜕做 image reference、逐字核对无错字缺笔，保不住字形就保留代码版 |
+| seal（印章/徽记，可选） | 256×256，2~3 枚 | 每枚 3+ | 皮肤有印章语言才画（山水有并已入画；青花 A7 拍板不画——朱红印章归 UI chrome/CSS，资产保持钴蓝单色；奶油无）；**风格锁「No text」对本槽位开例外**——印文是主体不是水印；文生图汉字保真差：垫真实印蜕做 image reference、逐字核对无错字缺笔，保不住字形就保留代码版 |
 | placeholder（图位垫底，可选） | 960×480 | 2 | 比 decor 更淡更空的氛围底，图位加载期/缺省垫底，不与正式插画抢戏 |
 
-> **frame/divider 槽位撤出成套清单**（2026-07-21 用户拍板）：两轮校准实证投入产出不成立——frame 发丝级母版经 9-slice 42px 切片压到 18/20px 边框宽后与纯色边框肉眼无差（M59 ② 已放大到压缩比 2.3:1 仍弱），divider 收细到 1.5px「不碍眼」即与代码版虚线无感知差（M59 ⑧，其一处消费点更因定位缺陷已删）。**新皮肤不再画这两件，代码版（纯色边框/CSS 虚线）即正式样式**；山水已画两张留用不删、消费点照旧。将来某皮肤要重拾，前提=先重画抗压缩母版（框线 12px+ 粗、分隔线均匀中段构图）并过拉伸预演再立项。
+> **frame/divider 不设槽位**（2026-07-21 实证撤销）：发丝级母版压到接入尺寸后与纯色边框/CSS 虚线无肉眼差（M59 ②⑧），**代码版即正式样式**；山水已画两件留用不删、消费点照旧。将来重拾前提=先重画抗压缩母版（框线 12px+ 粗、分隔线均匀中段构图）并过拉伸预演再立项。
 
 ### 第三层 · 不入画清单（永远代码，别画）
 
@@ -73,12 +74,13 @@ codex 整页 mock → 用户认可 → 存 `raw/<id>/style-ref-mock.png` → 风
 - [ ] 底色干净（奶油底均匀 / 透明底无杂边），主体居中完整不出血
 - [ ] 与基准图并排看，笔触密度接近
 - [ ] 吉祥物类资产：无头顶柑橘/叼草/温泉毛巾等既有水豚 IP 标志元素；辨识三件套（黄渔夫帽/红背包/纸地图）齐全
+- [ ] cutout 变体：透明底无杂边、无键控残色；无框/花边/地面阴影；主体与三件套完整不缺切
 - [ ] 横幅资产（题头/装饰）：主体集中在垂直中央约 2/3——接入位可能比生成画布更浅，上下各 1/6 须经得起裁切（构图安全区，2026-07-20 起全皮肤生效）
 
 ## 交付规范
 
-- 文件名：皮肤批=`<皮肤id>-<slot>-v{n}.png`（开批规矩①；历史水彩首批 A1–A4 为无前缀命名，收官记录不回改）；目的地共享集=`dest-<cityid>-v{n}.png`（cityid 与 data 记录一字不差）；共享九区题头=`region-<slug>` 系 A6 水墨版转档产物（M60 后不再按皮肤新画）
-- 原图 PNG ≥1024px 放 `assets/illustrations/raw/<皮肤id>/`（不进 git；水彩批=`raw/journal/`，山水批=`raw/ink/`）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/<皮肤id>/`（进 git 的压缩母版），接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
+- 文件名：皮肤批=`<皮肤id>-<slot>-v{n}.png`（开批规矩①；历史水彩首批 A1–A4 为无前缀命名，收官记录不回改）；raw 批允许简写前缀（如青花批 `qh-`），**转 picked 时统一为 `<皮肤id>-<slot>.webp`**（如 `qh-mascot-cutout-v1.png` → `porcelain-mascot-cutout.webp`）；目的地共享集=`dest-<cityid>-v{n}.png`（cityid 与 data 记录一字不差）；共享九区题头=`region-<slug>` 系 A6 水墨版转档产物（M60 后不再按皮肤新画）
+- 原图 PNG ≥1024px 放 `assets/illustrations/raw/<皮肤id>/`（不进 git；水彩批=`raw/journal/`，山水批=`raw/ink/`）；用户终审通过的版本由 cc 转 q90 webp 存 `assets/illustrations/picked/<皮肤id>/`（进 git 的压缩母版），**cutout 等透明底槽位转档保留 alpha**；接入时再产出各装饰位小尺寸版本（尺寸/体积上限见 design 资产规范）
 - **picked/ 纪律：只收用户终审定案**——终审前不转档、不接入（曾有一次抢跑转档被回滚的先例）；转 picked 时命名去 `-v{n}` 后缀；比稿/复议期间相应 picked 目录保持原状不动
 
 ---
@@ -296,7 +298,7 @@ cartoon outlines.
 
 **mascot-cutout 补件（2026-07-21，M64 用户终审通过）**：`ink-mascot-cutout-v1`——透明底 die-cut 变体（叠放场景专用，见 design M64「咔啦跨皮肤同一角色」与皮肤部件清单），cc 已转 q90 webp 入 `picked/ink/ink-mascot-cutout.webp`（保留 alpha），build_illustrations.py 新增同名槽位识别。其余皮肤按各自画风另出该变体，缺图回退整圆版或隐藏形态。
 
-## A7 青花皮肤资产批（P2 预置——锁文本已按用户认可的青花整页 mock 锚定，开批时直接用）
+## A7 青花皮肤资产批（已收官——M61 消费，全部资产 2026-07-21 终审通过）
 
 > 方向参照=用户已认可的青花瓷整页 mock（codex 自产）。开批第一步：把 mock 原图存为 `raw/porcelain/style-ref-mock.png`，后续每张以它为 image reference。
 
@@ -324,7 +326,7 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 
 为验证目的地共享集只做整体调色是否够用，另对 picked 基准三张（杭州/敦煌/三亚）做了**仅 QA、不改母版**的瓷白→钴蓝亮度映射预演，总览=`raw/porcelain/qa/qa-dest-cobalt-map.png`。本批不转 `picked/`、不接代码；用户终审后再由 cc 转档并开青花声明/滤镜实验。第二层工艺件（texture/seal/placeholder——frame/divider 已撤出成套清单，见成套清单注）尚未开画，不阻塞本轮 dest 调色判断。
 
-### A7 工艺件与 mascot-cutout 补件（2026-07-21，待用户终审）
+### A7 工艺件与 mascot-cutout 补件（2026-07-21，已终审收官）
 
 承接用户「把剩下的组件画完」与上轮推荐方案：seal 不画（朱红印章继续归 UI chrome / CSS-SVG，资产保持钴蓝单色），frame/divider 按成套清单已撤；本批只画 texture、placeholder，并补 M64 叠放场景使用的透明 mascot-cutout。全部用 built-in imagegen，以 `style-ref-mock.png` 为画风参照；cutout 另以终审 `qh-mascot-v1.png` 锁角色，洋红键控后用官方 helper 去背。
 
@@ -332,7 +334,9 @@ No other colors, no text, no watermark, no photorealism, no 3D render.
 - `qh-placeholder-mist-v1.png` / `v2.png`——两张 2:1 极淡图位垫底：v1=远山云水，v2=云浪浅滩；均不与正式目的地图抢视觉
 - `qh-mascot-cutout-v1.png`——只保留青花咔啦本体（帽/包/地图齐全），无瓷盘圆框、花边、地面阴影；1254×1254 RGBA，透明角与主体边界通过检查，未检出洋红残边
 
-终审总览=`raw/porcelain/qa/qa-a7-craft-v2.png`。挑版后由 cc 将 texture/placeholder 去 v 号转 q90 WebP；cutout 以 `qh-mascot-cutout.webp` 入 `picked/porcelain/` 并走同名槽位。终审前不转档、不接代码。
+终审总览=`raw/porcelain/qa/qa-a7-craft-v2.png`。
+
+**用户终审拍板（2026-07-21）**：texture=v3、placeholder=v2、mascot-cutout=v1 全部通过。cc 已转 q90 WebP 入 `picked/porcelain/`（前缀统一皮肤 id：`porcelain-texture-glaze.webp` / `porcelain-placeholder-mist.webp` / `porcelain-mascot-cutout.webp`，cutout 保留 alpha），M61 已接入生产——A7 全批收官。
 
 ## A8 山水工艺件补画批（M52 后首个工艺件批；已收官——消费方 M57 已接入）
 
