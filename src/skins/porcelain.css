@@ -1,0 +1,206 @@
+/* 青花皮肤（M61）——青花瓷 token 集，挂 :root[data-theme="porcelain"]。与 cream.css/ink.css 结构
+   对齐：同一套 token 名，只换值；新增 token 的皮肤只需在三个文件里各加一行，不改任何视图 CSS。
+   气质对照 assets/illustrations/picked/porcelain/style-ref-mock.webp：白瓷底（#f7f5ef）+ 通体钴蓝
+   线描（#2b4d9e 家族，风格锁冻结值，见 design「已冻结风格锁」）+ 朱红仅限 UI chrome（抽一个/印章/
+   热门徽章等，资产内无红——A7 工单红线）。选中态=实心钴蓝填充+白字（mock「江浙沪/夏/自然风光」
+   三处 chip 实证，与 ink 的「浅底+朱红描边」选中语言不同，照 mock 实物取样，不强行套用 ink 的
+   既有惯例）。区域九色沿用 ink 先例整体退场=全瓷白（mock 无区域色概念，卡片是瓷面+细蓝框，
+   区域归属交给条带文字表达）。不改 cream.css/ink.css 任何一行、任何一个值——三套皮肤零共享
+   可变状态，只共享变量名契约。fonts=null（无专属字体对，沿用系统字体，同 cream 先例）。 */
+
+:root[data-theme="porcelain"] {
+  --sky: #eef1f6;
+  --sky-deep: #e3e8f0;
+  --sky-top: #eef1f6;
+  --sky-mid: #f4f4f0;
+  --sky-bot: #f7f5ef;
+  --hill-1: #d7e0ee;
+  --hill-2: #b9c9e2;
+  --hill-3: #93aad4;
+  --a1: #4067b5;
+  --a1b: #6f93c9;
+  --a2: #5a8f7b;
+  --a3: #c9a15a;
+  --paper: #f7f5ef;
+  --ink: #26417f;
+  --ink-soft: #5c6f96;
+  --blue: #4067b5;
+  --blue-deep: #1f3d78;
+  --orange: #a8763c;
+  --orange-deep: #8a5f28;
+  --green: #5a8f7b;
+  --pink: #b0708a;
+  --yellow: #d1a850;
+  --purple: #7b6fa0;
+  --red: #c1502f;
+  --spring: #6fa08c;
+  --summer: #6f93c9;
+  --autumn: #c9a15a;
+  --winter: #9fb0cf;
+  --round: "Songti SC", "STSong", "SimSun", serif;
+  --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, sans-serif;
+
+  --on-color: #f8f7f2;
+  --panel-warm-bg: #f1ede0;
+  --panel-warm-border: #cbb073;
+  --info-blue-bg: #eaf0fa;
+  --info-blue-border: #c3d3ec;
+  --info-blue-text: #2f4d84;
+  --food-chip-bg: #f3ecdd;
+  --food-chip-border: #ddc793;
+  --food-chip-text: #7a5b26;
+  --note-green-bg: #eaf3ee;
+  --note-green-border: #a9cdb9;
+  --note-green-text: #3c6b52;
+  --note-hotel-bg: #f4eedc;
+  --note-hotel-border: #dcc78f;
+  --note-hotel-text: #6e5322;
+  --arch-chip-bg: #e9f1ef;
+  --arch-chip-border: #a0c4ba;
+  --arch-chip-text: #366156;
+  --highlight-accent: #a06a8c;
+  --panel-cool-bg: #eef2f9;
+  --panel-cool-border: #c7d6ec;
+  --field-bg: #f0f3f9;
+  --chip-hover-bg: #e9eef7;
+  --dock-box-bg: #eef1f8;
+  --dock-chip-hover-bg: #f3dfd7;
+  --dot-off-bg: #e9ecf3;
+  --season-default-bg: #dde4f0;
+  --badge-alt-bg: #e6e3f2;
+  --badge-alt-text: #564d80;
+  --badge-visited-bg: #dfeee5;
+  --badge-visited-text: #326048;
+  --tag-bg: #e7edf8;
+  --tag-text: #33538c;
+  --tag-border: #c3d3ec;
+  --table-border: #d6ddec;
+  --table-rowh-bg: #eef1f8;
+  --table-cityh-bg: #f2eddc;
+  --rb-skel-bg: #f2f4fa;
+  --rb-day-num-text: #2f4d84;
+  --divider-console: #d3ddef;
+  --divider-cover: #cad6ec;
+  --divider-leg: #c1cfe6;
+  --divider-skrow: #dbe4f2;
+
+  --text-mid: #3e4f74;
+  --text-body: #364569;
+  --text-subtle: #4c5c81;
+  --text-faint: #8b96af;
+  --text-footer: #8593b3;
+  --season-off-text: #8b96b0;
+  --placeholder-text: #93a0ba;
+
+  /* 瓷面细线描——style lock「fine, even, delicate outlines」，比水墨更纤细均匀，不做手绘粗细变化 */
+  --bw-thin: 1px;
+  --bw-md: 1.25px;
+  --bw-thick: 1.5px;
+  --bw-xthick: 2px;
+
+  /* 圆角：mock 的 chip 近全圆胶囊、卡片/面板圆润但不夸张——介于水墨的收窄与奶油的贴纸感之间 */
+  --radius-qr: 8px;
+  --radius-icon-btn: 9px;
+  --radius-field: 9px;
+  --radius-control: 10px;
+  --radius-panel-sm: 12px;
+  --radius-panel: 14px;
+  --radius-window: 16px;
+  --radius-card: 18px;
+  --radius-panel-lg: 18px;
+  --radius-sheet: 20px;
+  --radius-machine: 22px;
+  --radius-pill: 999px;
+
+  --shadow-ink-rgb: 38, 65, 127;
+  --ink-rgb: 38, 65, 127;
+  --glow-sun-rgb: 216, 180, 104;
+  --shine-rgb: 247, 245, 239;
+  --blue-rgb: 64, 103, 181;
+  --blue-deep-rgb: 31, 61, 120;
+  --orange-rgb: 168, 118, 60;
+  --orange-deep-rgb: 138, 95, 40;
+  --purple-rgb: 123, 111, 160;
+  --overlay-tint-rgb: 50, 66, 102;
+
+  --grad-sun: radial-gradient(circle at 38% 34%, #ecdba0 30%, var(--yellow) 78%);
+  --grad-console: linear-gradient(180deg, var(--paper), #eef1f7);
+  --grad-paper: linear-gradient(180deg, var(--paper), #f1f3f8);
+  --grad-machine: linear-gradient(180deg, var(--paper), #eef1f7);
+  --grad-window: linear-gradient(#f1f3f8, var(--paper));
+  /* mock「抽一个」实证=扁平朱红色印，无渐变高光——同 ink 的扁平色印语言 */
+  --grad-fab: var(--red);
+  --grad-knob: var(--red);
+  --grad-btn-primary: var(--red);
+  --grad-btn-blue: var(--blue-deep);
+  --grad-btn-green: #4f7d68;
+
+  /* 区域九色整体退场=全瓷白（同 ink 先例）：mock 卡片是瓷面+细蓝框，无区域色块，归属交给条带文字 */
+  --region-jzh: #f7f5ef;
+  --region-huadong: #f7f5ef;
+  --region-huabei: #f7f5ef;
+  --region-dongbei: #f7f5ef;
+  --region-huazhong: #f7f5ef;
+  --region-huanan: #f7f5ef;
+  --region-xinan: #f7f5ef;
+  --region-xibei: #f7f5ef;
+  --region-gangao: #f7f5ef;
+  --region-fallback: #f7f5ef;
+
+  /* ---- 形态 token：瓷器语言是「细蓝线 + 柔光泽」——无水墨的完全无影，也无奶油的硬偏移贴纸影，
+     取中间态：小面积交互件（chip/act/btn）扁平无影，大面积悬浮件（卡片/面板/机器）给极淡无偏移
+     的钴蓝雾晕，像釉面反光；按压反馈同 ink 走透明度（style.css 「M52 乙」块的水墨规则将扩展到
+     本皮肤，无位移贴纸感）。 ---- */
+  --shadow-logo: none;
+  --shadow-pill: none;
+  --shadow-panel: 0 6px 20px -6px rgba(var(--ink-rgb), .16);
+  --shadow-chip: none;
+  --shadow-chip-on: none;
+  --shadow-btn: none;
+  --shadow-act: none;
+  --shadow-card: 0 3px 10px rgba(var(--ink-rgb), .12);
+  --shadow-card-hover: 0 6px 18px rgba(var(--ink-rgb), .18);
+  --shadow-fab: 0 3px 10px rgba(var(--ink-rgb), .2);
+  --shadow-dock: 0 3px 12px rgba(var(--ink-rgb), .16);
+  --shadow-go: none;
+  --shadow-close: none;
+  --shadow-sheet: 0 8px 26px rgba(var(--ink-rgb), .2);
+  --shadow-machine: 0 8px 26px rgba(var(--ink-rgb), .2);
+  --shadow-knob: 0 3px 8px rgba(var(--ink-rgb), .22);
+  --shadow-cmp: 0 8px 26px rgba(var(--ink-rgb), .2);
+  --shadow-mini: none;
+  --shadow-bigbtn: 0 3px 10px rgba(var(--ink-rgb), .18);
+  --shadow-bigbtn-active: none;
+  --shadow-bigbtn-ghost: none;
+  --shadow-share: 0 8px 26px rgba(var(--ink-rgb), .2);
+  --press-shift: none;
+  --press-shift-sm: none;
+
+  /* ---- 选中态：实心钴蓝填充+白字（mock「江浙沪/夏/自然风光」三枚已选 chip 实证），与 ink 的
+     「浅底+朱红描边」选中语言不同——按 mock 实物取样，不套 ink 惯例 ---- */
+  --chip-on-bg: var(--ink);
+  --chip-on-text: var(--on-color);
+  --chip-on-border: var(--ink);
+  --btn-on-bg: var(--ink);
+  --btn-on-text: var(--on-color);
+  --btn-on-border: var(--ink);
+
+  --map-prov: #eef1f7;
+  --map-prov-lit: #dde7f3;
+  --map-stroke: #aebedd;
+  --map-stroke-lit: #4067b5;
+  --map-dot-idle: #becee6;
+  --map-dot-visited: #2f4d84;
+  --map-heart: #c1502f;
+
+  /* ---- 共享集皮肤适配滤镜（M51）：灰度→钴蓝双色映射，本皮肤是该机制的首个真实消费方——
+     inline SVG feComponentTransfer（index.html 内 #porcelainDuotone），把明度斜坡映到瓷白～钴蓝
+     两端点（与上方风格锁冻结值同源：#f7f5ef / #2b4d9e），比简单 CSS filter() 链更贴近青花的
+     双色映射本质（非简单降饱和）。 ---- */
+  --dest-filter: url(#porcelainDuotone);
+
+  /* ---- M63 扭蛋壳件（SVG + 皮肤取色）：钴蓝上盖 + 瓷白下碗 + 深蓝描边 ---- */
+  --cap-top: #4067b5;
+  --cap-bot: #f1f3f8;
+  --cap-line: #26417f;
+}

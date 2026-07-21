@@ -8,18 +8,36 @@
      避免默认皮肤首屏先渲染一帧再被 JS 换肤的闪烁。数组/默认值特意与 src/skins/registry.ts
      重复而非 import（内联脚本不能依赖构建），两处一致性由 src/skins/__tests__/registry.test.ts
      的漂移钉子测试保证。 -->
-<script>(function(){try{var S=["cream","ink"],D="ink",c=localStorage.getItem("nextstop_skin_v1")||D,id=c==="random"?S[Math.floor(Math.random()*S.length)]:c;if(S.indexOf(id)<0)id=D;document.documentElement.dataset.theme=id;}catch(e){document.documentElement.dataset.theme="ink"}})()</script>
+<script>(function(){try{var S=["cream","ink","porcelain"],D="ink",c=localStorage.getItem("nextstop_skin_v1")||D,id=c==="random"?S[Math.floor(Math.random()*S.length)]:c;if(S.indexOf(id)<0)id=D;document.documentElement.dataset.theme=id;}catch(e){document.documentElement.dataset.theme="ink"}})()</script>
 <title>下一站 · 去哪玩</title>
 </head>
 <body>
 
 <!-- M52 戊：全站共享 SVG 滤镜 defs（CSS filter:url(#…) 引用）——sealRough=高频细碎位移，做印章/
-     朱印按钮的刀刻糙边。只被 [data-theme="ink"] 规则引用，奶油皮肤零消费。（inkWobble 曾用于大
-     容器手绘边线的伪元素位移，M57 换成 border-image 真实边框图后不再需要，随之移除） -->
+     朱印按钮的刀刻糙边，被 [data-theme="ink"]/[data-theme="porcelain"] 规则引用，奶油皮肤零消费。
+     （inkWobble 曾用于大容器手绘边线的伪元素位移，M57 换成 border-image 真实边框图后不再需要，
+     随之移除）。porcelainDuotone（M61）：目的地共享集皮肤适配滤镜（design M51 机制、本皮肤为
+     首个真实消费方）——灰度→钴蓝双色映射，非简单降饱和；feColorMatrix 先取亮度转灰阶，
+     feComponentTransfer 两点表把明度斜坡映到 design 风格锁冻结的瓷白～钴蓝两端点
+     （数值=两端点色值的 sRGB 归一化分量，color-interpolation-filters="sRGB" 保证计算色彩空间与
+     取值时一致，不经默认 linearRGB 走样）；--dest-filter（porcelain.css）引用本 id，见 style.css
+     「M51」注释——缺失/失败时浏览器原生按 none 处理，天然优雅回退原图。 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="sealRough" x="-8%" y="-8%" width="116%" height="116%">
     <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="3"/>
     <feDisplacementMap in="SourceGraphic" scale="1.7"/>
+  </filter>
+  <filter id="porcelainDuotone" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="
+      0.2126 0.7152 0.0722 0 0
+      0.2126 0.7152 0.0722 0 0
+      0.2126 0.7152 0.0722 0 0
+      0      0      0      1 0"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.169 0.969"/>
+      <feFuncG type="table" tableValues="0.302 0.961"/>
+      <feFuncB type="table" tableValues="0.620 0.937"/>
+    </feComponentTransfer>
   </filter>
 </svg>
 
@@ -38,6 +56,15 @@
 <img class="illust deco-bamboo" data-illust="decor-bamboo" data-deco="bamboo" data-illust-frame
      data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
 <img class="illust deco-hill" data-illust="decor-hill" data-deco="distantHill" data-illust-frame
+     data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
+<!-- M61：青花装饰件（缠枝莲角饰/云纹/浪纹）——同上机制，随 porcelain 皮肤 decorations 声明整套
+     启停；三张母版画幅各不相同（M61 起 decor 槽位保留原生比例，见 tools/build_illustrations.py），
+     容器盒各自按母版比例定制，见 style.css。 -->
+<img class="illust deco-lotus" data-illust="decor-lotus" data-deco="lotus" data-illust-frame
+     data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
+<img class="illust deco-cloud" data-illust="decor-cloud" data-deco="cloud" data-illust-frame
+     data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
+<img class="illust deco-wave" data-illust="decor-wave" data-deco="wave" data-illust-frame
      data-fallback="hide" alt="" loading="lazy" aria-hidden="true">
 
 <div class="wrap">

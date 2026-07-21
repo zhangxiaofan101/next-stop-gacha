@@ -174,6 +174,24 @@ test("M60：region-<slug> 槽位一样受 2:1 比例硬闸——3:2 个图冒充
   });
 });
 
+// M61：decor-* 槽位不再强制 BANNER(960x480, 2:1) 画布——design「装饰位画布契约」明确装饰件
+// 画幅比不拘（porcelain 的缠枝莲角饰近 1:1、云纹浪纹近 2:1，不是统一画布）。用 ink-mascot.webp
+// （真实 1:1 母版）冒充 decor- 槽位：改动前会因比例偏差 100% 被 BANNER 校验拒绝，改动后应
+// 保留原生比例通过，产物本身也应是 1:1（不是被硬拉伸成 2:1）。
+test("M61 回归：decor-* 保留母版原生比例，不再强制 2:1 画布契约", () => {
+  withTmpDirs((probeDir, pickedRoot, out) => {
+    copyFileSync(join(REAL_INK_PICKED, "ink-mascot.webp"), join(probeDir, "probe-decor-corner.webp"));
+    const result = runPipeline(pickedRoot, out);
+    assert.equal(result.code, 0, `1:1 母版冒充 decor- 槽位应保留原生比例通过，stderr: ${result.stderr}`);
+    const outPath = join(out, "probe", "decor-corner.webp");
+    assert.ok(existsSync(outPath), "decor-corner.webp 应产出");
+    const info = execFileSync("webpinfo", [outPath], { encoding: "utf8" });
+    const w = Number(info.match(/Width:\s*(\d+)/)[1]);
+    const h = Number(info.match(/Height:\s*(\d+)/)[1]);
+    assert.equal(w, h, `产物应保持源图 1:1 原生比例（不被硬拉伸成 2:1），实际 ${w}x${h}`);
+  });
+});
+
 test("M60：皮肤目录（非 dest）内的 <skin>-region-<slug> 命名不再被识别为合法槽位（九区已退出皮肤素材维度）", () => {
   withTmpDirs((probeDir, pickedRoot, out) => {
     copyFileSync(join(REAL_INK_PICKED, "ink-decor-hill.webp"), join(probeDir, "probe-region-test.webp"));

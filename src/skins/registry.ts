@@ -39,6 +39,16 @@ export const SKINS: SkinDeclaration[] = [
     decorations: { willow: true, bamboo: true, distantHill: true },
     cardPhotos: true,
   },
+  {
+    id: "porcelain", label: "青花",
+    fonts: null, // 无专属字体对（同 cream 先例），--round/--sans 走系统字体栈，见 porcelain.css
+    assetDir: "porcelain",
+    // 自由浮动装饰件（缠枝莲角饰/云纹/浪纹，A7 工单）——键名与 index.html 对应 img 的 data-deco
+    // 值一一对应；三张母版画幅各不相同（lotus 近 1:1、cloud/wave 近 2:1，M61 起 decor 槽位保留
+    // 原生比例，见 tools/build_illustrations.py）。
+    decorations: { lotus: true, cloud: true, wave: true },
+    cardPhotos: true, // 灰度→钴蓝滤镜下目的地共享集与青花瓷面气质相容（qa-dest-cobalt-map 预演），M61 验收目检确认
+  },
 ];
 
 export const SKIN_IDS = SKINS.map(s => s.id);

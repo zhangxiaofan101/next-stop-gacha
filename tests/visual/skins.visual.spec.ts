@@ -7,7 +7,7 @@ import { test, expect, type Page } from "@playwright/test";
 // `import.meta.env.BASE_URL`（Vite 专属全局），Playwright 测试跑在纯 Node/esbuild 转译下没有这个
 // 全局，import 时会直接抛错。字面量镜像 + drift-pin 断言（同 index.html 防闪烁内联脚本的先例，见
 // src/skins/__tests__/registry.test.ts）比强行 import 更稳，两处一致性由该测试保证。
-const SKIN_IDS = ["cream", "ink"];
+const SKIN_IDS = ["cream", "ink", "porcelain"];
 
 // 天气是唯一的外部实时接入（Open-Meteo），详情页会异步发起；截图必须是网络无关的确定态——
 // 阻断后走既有静默降级路径（design「实时天气」），不是伪造成功响应。

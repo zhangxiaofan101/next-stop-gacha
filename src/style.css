@@ -1,5 +1,6 @@
 @import "./skins/cream.css";
 @import "./skins/ink.css";
+@import "./skins/porcelain.css";
 
   * { box-sizing: border-box; }
   body {
@@ -640,6 +641,9 @@
     .mascot-decor { display: none; } /* 手机头部寸土寸金，纯装饰的吉祥物让位（同 M50 纪律：低频/纯氛围入口不占首屏行） */
     .deco-willow, .deco-bamboo { width: 120px; height: 60px; } /* M59 ①：66→60，配平 2:1 母版真实比例（同族自查） */
     .deco-hill { max-height: 220px; } /* 手机视口窄，height=width/2 天然就矮（约195-215px），220 基本等于零封顶 */
+    .deco-lotus { width: 90px; height: 90px; }
+    .deco-cloud { width: 130px; height: 68px; }
+    .deco-wave { max-height: 160px; }
   }
 
   /* ---- M46 山水皮肤装饰块（style.css 是「装饰块」的家，见 design 部件清单表；ink.css 只放
@@ -827,6 +831,120 @@
   [data-theme="ink"] .console-foot::before { top: -2px; }
   [data-theme="ink"] .rb-cover::after { bottom: -2px; }
 
+  /* ---- M61 青花皮肤装饰块（style.css 是「装饰块」的家，同 ink 先例；porcelain.css 只放 token）。
+     porcelain 与 ink 同属「非卡通、克制形态」语言（无奶油贴纸硬投影/位移反馈、无飘动飞机/装饰
+     emoji），故多处复刻 ink 的处理手法，但按 mock 实物与 A7 红线独立取值——不与 ink 共享选择器
+     （两皮肤各自一段纯新增声明，改一处不牵动另一处，同 cream.css/ink.css「零共享可变状态」的
+     既有架构原则）。frame/divider 两个工艺件槽位已随 M59 撤出成套清单（design「工艺件画布契约」）
+     ——本皮肤同全体新皮肤一样不画这两件，下方 .console/.paper/.machine 等容器的边框/虚线全部
+     沿用 style.css 顶部未加皮肤限定的通用规则（纯色边框/CSS 虚线本就是撤出后的正式代码版，
+     不是「资产未到位前」的占位）。 ---- */
+  [data-theme="porcelain"] .sky, [data-theme="porcelain"] .hills { display: none; }
+
+  /* M52 乙同款：瓷器的按压反馈不做「按下贴纸」位移，改短促透明度变化 */
+  [data-theme="porcelain"] .chip:active, [data-theme="porcelain"] .btn:active, [data-theme="porcelain"] .act:active,
+  [data-theme="porcelain"] .fab:active, [data-theme="porcelain"] .big-btn:active, [data-theme="porcelain"] .dock-go:active,
+  [data-theme="porcelain"] .stop .mini:active, [data-theme="porcelain"] button.count-pill:active { opacity: .8; }
+
+  /* 印章（index.html 内联两枚：副标题「下一站」/页脚「去哪玩」）——mock 副标题旁实证同款小印，
+     朱红仅限这枚 UI chrome（A7 红线），复用既有 .ink-seal 容器基础设施（真图叠 SVG 糙边代码版
+     之上，图 404 时 SVG 天然透出当兜底；本皮肤不画印章图，data-illust="seal-*" 恒 404，即恒显
+     SVG 代码版——同「seal 不画，归 CSS/SVG」的 A7 拍板）。 */
+  [data-theme="porcelain"] .ink-seal {
+    display: inline-block; position: relative; width: 30px; height: 30px; vertical-align: -9px;
+    margin-left: 8px; transform: rotate(-4deg); opacity: .88;
+  }
+  [data-theme="porcelain"] footer .ink-seal { transform: rotate(3deg); }
+  [data-theme="porcelain"] .ink-seal-svg { display: block; width: 100%; height: 100%; }
+  [data-theme="porcelain"] .ink-seal-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 3px;
+  }
+
+  /* 奶油卡通物件（飘动飞机/装饰 emoji）在瓷器语境下退场，同 ink 判断——装饰 emoji 只留代表城市的
+     小 emoji（用户拍板见 design M63），🆚/🥚/🎉 一类包 .deco-emoji 一并隐藏 */
+  [data-theme="porcelain"] .plane { display: none; }
+  [data-theme="porcelain"] .fab-emoji { display: none; }
+  [data-theme="porcelain"] .deco-emoji { display: none; }
+  /* 扭蛋旋钮：彩色 🎯 emoji 换白「扭」字圆形朱印，同 ink 处理——瓷器语境同样不接受塑料贴纸感 emoji */
+  [data-theme="porcelain"] .g-knob { font-size: 0; border-color: transparent; filter: url(#sealRough); }
+  [data-theme="porcelain"] .g-knob::after { content: "扭"; font-size: 26px; font-family: var(--round); color: var(--on-color); }
+
+  /* 迷你扭蛋机 FAB——机器插画钮（约 80px 待机呼吸动画）+ 趴角咔啦（透明底 die-cut），同 M64 结构；
+     朱印质感收在 fab-label 小标签上 */
+  [data-theme="porcelain"] .fab {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    background: none; border: none; box-shadow: none; filter: none; padding: 0; animation: none;
+  }
+  [data-theme="porcelain"] .fab-scene { position: relative; width: 80px; height: 80px; }
+  [data-theme="porcelain"] .fab-machine {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    border: var(--bw-md) solid var(--ink); box-shadow: var(--shadow-act);
+    animation: fabBreathe 3.4s ease-in-out infinite;
+  }
+  [data-theme="porcelain"] .fab-kara {
+    position: absolute; left: -12px; bottom: -6px; width: 38px; line-height: 0; pointer-events: none;
+  }
+  [data-theme="porcelain"] .fab-kara .illust { width: 100%; height: auto; object-fit: contain; }
+  [data-theme="porcelain"] .fab-label {
+    color: var(--on-color); background: var(--grad-fab); filter: url(#sealRough);
+    letter-spacing: 3px; border-radius: 14px 8px 16px 9px / 9px 15px 8px 14px;
+    padding: 4px 14px; font-size: 13px;
+  }
+
+  /* 咔啦头像圈——青花 mascot 母版自带完整圆形瓷盘边饰构图（缠枝莲+回纹环），再叠 CSS 硬边框=
+     双重圈框，退掉（同 M52 己对 ink 的处理，判断同源：母版自带的画框已是最终视觉，代码框是冗余） */
+  [data-theme="porcelain"] .mascot-decor { border-color: transparent; }
+
+  /* toast 咔啦头像+说话气泡，同 M64/M69⑤结构；本皮肤 mascot 母版有资产，头像圈会真实显示 */
+  [data-theme="porcelain"] .toast-kara {
+    display: inline-flex; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; flex: 0 0 auto;
+  }
+  [data-theme="porcelain"] .toast-kara[hidden] { display: none; }
+  [data-theme="porcelain"] .toast-kara .illust { width: 100%; height: 100%; object-fit: cover; }
+  [data-theme="porcelain"] .toast { border-radius: 4px 18px 18px 18px; }
+  [data-theme="porcelain"] .toast::after {
+    content: ""; position: absolute; left: 20px; bottom: -6px; width: 10px; height: 10px;
+    background: var(--ink); transform: rotate(45deg);
+  }
+
+  /* M57 工艺件——本皮肤有 texture（釉面纹理）与 placeholder（图位垫底）两件终审通过资产
+     （seal 按 A7 红线不画，frame/divider 全皮肤统一撤出，见上方大注释）。 */
+  [data-theme="porcelain"] .c-photo, [data-theme="porcelain"] .dt-banner {
+    background-color: var(--paper);
+    background-image:
+      var(--craft-placeholder, none),
+      radial-gradient(120% 70% at 18% 108%, rgba(var(--ink-rgb), .08) 0 56%, transparent 60%),
+      radial-gradient(140% 55% at 82% 106%, rgba(var(--ink-rgb), .05) 0 60%, transparent 64%);
+    background-position: center, 0 0, 0 0;
+    background-size: cover, auto, auto;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+  }
+  /* 釉面细颗粒——同 ink body::after 处理手法，两层叠加：真实釉面纹理图（--craft-texture）+
+     程序噪点 data-URI 代码版兜底（缺图/未加载完成时第一层不绘制，第二层原样透出，永不露白）；
+     色调换成钴蓝灰调（同 --ink 分量），呼应瓷面而非宣纸纤维。 */
+  [data-theme="porcelain"] body::after {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .045;
+    background-image: var(--craft-texture, none),
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='256'%20height='256'%3E%3Cfilter%20id='p'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200.15%200%200%200%200%200.25%200%200%200%200%200.42%200%200%200%200.8%200'/%3E%3C/filter%3E%3Crect%20width='256'%20height='256'%20filter='url(%23p)'/%3E%3C/svg%3E");
+    background-size: 512px 512px, 256px 256px;
+  }
+
+  /* 自由浮动装饰件（缠枝莲角饰/云纹/浪纹，A7 工单）：不参与布局流，同 design「装饰位画布契约」
+     判断——三张母版画幅各不相同（M61 起 decor 保留原生比例，见 tools/build_illustrations.py），
+     容器盒各自按公开产物真实比例定制，避免 object-fit:cover 大幅裁切主体。位置呼应 ink 的
+     willow/bamboo/hill 三件套布局（左下角/右上角/底部通栏），语义对应 mock 副标题「山海入瓷」
+     ——浪纹担任「海」在底部，缠枝莲/云纹是角落点缀。 */
+  [data-theme="porcelain"] .deco-lotus, [data-theme="porcelain"] .deco-cloud {
+    position: fixed; z-index: 0; pointer-events: none; object-fit: cover;
+  }
+  [data-theme="porcelain"] .deco-lotus { left: 0; bottom: 4px; width: 150px; height: 150px; object-position: 70% 30%; opacity: .85; }
+  [data-theme="porcelain"] .deco-cloud { top: 0; right: 0; width: 230px; height: 120px; object-position: 100% 0; opacity: .8; }
+  [data-theme="porcelain"] .deco-wave {
+    position: fixed; z-index: 0; pointer-events: none; left: 0; right: 0; bottom: 0; width: 100%;
+    aspect-ratio: 2 / 1; height: auto; max-height: 300px; object-fit: contain; object-position: bottom;
+    opacity: .55;
+  }
+
   @media (max-width: 680px) {
     h1.logo { font-size: 34px; }
     /* M47：窄屏筛选台默认收纳成一行，点「筛选」就地展开，语义不变、只切呈现 */
@@ -841,6 +959,8 @@
     /* M64：窄屏机器徽章收小一档，仍远高于 44px 热区下限 */
     [data-theme="ink"] .fab-scene { width: 64px; height: 64px; }
     [data-theme="ink"] .fab-kara { width: 30px; left: -9px; bottom: -5px; }
+    [data-theme="porcelain"] .fab-scene { width: 64px; height: 64px; }
+    [data-theme="porcelain"] .fab-kara { width: 30px; left: -9px; bottom: -5px; }
     .dock { left: 12px; right: 12px; transform: none; bottom: 76px; max-width: none; }
     .paper { padding: 20px 16px; }
     .dt-name { font-size: 27px; }
