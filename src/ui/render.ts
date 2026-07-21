@@ -1,9 +1,9 @@
 // 全局渲染编排 + 空池定向放宽的执行侧（候选计算在 logic/filter，DOM 复位在这里）。
 import { CN_MAP } from "../cn-map";
-import { filtered, relaxCandidates, type RelaxAction, type RelaxCandidate } from "../logic/filter";
+import { filtered, LONG_TRIP_KM, relaxCandidates, SHORT_TRIP_KM, type RelaxAction, type RelaxCandidate } from "../logic/filter";
 import { litProvinces } from "../logic/map";
 import { matchIntent, type IntentAction } from "../logic/searchIntent";
-import type { Destination } from "../logic/types";
+import type { Destination, GroupKey } from "../logic/types";
 import { byId, CUR_SEASON, DATA, state } from "../store";
 import { cardHTML } from "./cards";
 import { syncChips, updateChipCounts } from "./console";
@@ -34,8 +34,12 @@ function applyRelaxAction(a: RelaxAction) {
   }
 }
 
-// M68：概念词→筛选 chip——点击即「应用对应筛选并清搜索词」（design 原话），setGroup 合并进该组
-// 现有选中（同用户手动点一下那颗 chip 的效果，不清空该组其余已选值）。
+// M68：概念词→筛选 chip——点击即「应用对应筛选并清搜索词」（design 原话）。setGroup 的合并/替换
+// 按组语义分叉（F71 修复）：偏好型 OR 组（地区/季节/冷热/体力/同行，design「决策机制·过滤」）选中
+// 取并集——沿用旧选中会把概念词想要的语义扩大而非限定（已选「冬」时按「避暑」= {冬,夏}，冬季-only
+// 卡仍会命中，与按钮承诺的「按刚输入的概念筛选」相悖），故这里改为替换该组为单一新值；AND 型的玩法
+// 标签（tags）继续合并进现有选中——多个标签本就是收窄语义，合并不改变「按刚请求筛选」的直觉。
+const OR_PREF_GROUPS: ReadonlySet<GroupKey> = new Set(["region", "season", "crowd", "effort", "companions"]);
 export function applyIntent() {
   const entry = matchIntent(state.q);
   if (!entry) return;
@@ -45,9 +49,19 @@ export function applyIntent() {
 }
 function applyIntentAction(a: IntentAction) {
   switch (a.type) {
-    case "setGroup": state[a.key] = new Set(state[a.key]).add(a.value); break;
+    case "setGroup":
+      state[a.key] = OR_PREF_GROUPS.has(a.key) ? new Set([a.value]) : new Set(state[a.key]).add(a.value);
+      break;
     case "setDistMode": state.distMode = a.mode; break;
   }
+}
+
+// F72 修复：distMode 不新增筛选行（design 拍板），但也不能应用后就没有任何可见/可单独撤销的
+// 入口——之前只能靠「清空筛选」连同其余 9 组一起清掉。复用 #intentBox 呈现一枚常驻 active chip
+// （与「按筛选看」建议 chip 共存，互不冲突），单独点掉只清 distMode 一项。
+export function clearDistModeFilter() {
+  state.distMode = null;
+  syncChips(); render();
 }
 
 export function render() {
@@ -63,7 +77,12 @@ export function render() {
   // M68：搜索词命中概念词（短途/避暑/海岛…）时给一键筛选 chip，与字面命中数无关——搜「短途」
   // 全军覆没也照样出，因为它本就不指望字面命中，是「按你想要的语义直接跳筛选」的捷径
   const intent = matchIntent(state.q);
-  $("intentBox").innerHTML = intent ? `<button class="btn intent" data-intent>按筛选看：${intent.label}</button>` : "";
+  const suggestChip = intent ? `<button class="btn intent" data-intent>按筛选看：${intent.label}</button>` : "";
+  // F72：distMode 生效时的常驻可撤销 chip（与上面的建议 chip 互不冲突，可同时出现）
+  const distChip = state.distMode
+    ? `<button class="btn intent active" data-clear-dist>已按${state.distMode === "short" ? `短途·≤${SHORT_TRIP_KM}km` : `长途·>${LONG_TRIP_KM}km`}筛选 ✕</button>`
+    : "";
+  $("intentBox").innerHTML = distChip + suggestChip;
   updateChipCounts();
   renderDock();
   updateFootprint();

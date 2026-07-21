@@ -14,6 +14,11 @@ import { computeRelax, render } from "./render";
 import { toast } from "./toast";
 
 let rolling = false;
+// F70 修复：roll() 揭晓在 ~2s 动画后才落堆，这段时间内 openGacha(newPool) 可切换/覆盖池——
+// 世代计数器 + 定时器句柄双保险：openGacha 时作废旧世代并砍掉飞行中的动画，settle 前再核对
+// 世代，防止旧池抽中的结果落进切换后的新池（尤其对比池覆盖场景）。
+let gachaGen = 0;
+let rollTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 蛋堆＝页内会话态（design M63「存续」）：不进 localStorage，刷新即散；关弹层再开仍在＝模块级
 // 变量天然满足；改筛选不清堆（蛋已出机）。揭晓卡＝蛋堆最新一颗的放大展示（同一颗，不另存「游离
@@ -74,6 +79,7 @@ function renderScope() {
   if (state.effort.size) parts.push([...state.effort].join("/"));
   if (state.companions.size) parts.push([...state.companions].join("/"));
   if (state.tags.size) parts.push([...state.tags].join("+"));
+  if (state.distMode) parts.push(state.distMode === "short" ? "短途" : "长途"); // F72：池说明补上 distMode，否则暗中限距离却显「全国不限」
   if (state.noAlt) parts.push("避开高海拔");
   if (state.hideVisited) parts.push("隐藏去过");
   if (state.q) parts.push(`「${state.q}」`);
@@ -167,6 +173,13 @@ function renderPile() {
 function renderAll() { renderScope(); renderStage(); renderReveal(); renderPile(); }
 
 export function openGacha(cmpPool?: Destination[]) {
+  gachaGen++;                                  // 作废任何飞行中的旧世代 roll
+  if (rollTimer !== null) { clearTimeout(rollTimer); rollTimer = null; }
+  if (rolling) {                               // 旧 roll 被腰斩：清掉它留下的动画态，交由下面 renderAll 按新池重算
+    rolling = false;
+    $("gCity").classList.remove("spin");
+    $<HTMLButtonElement>("gKnob").classList.remove("turn");
+  }
   cmpPoolOverride = cmpPool ?? null;
   renderAll();                    // 蛋堆跨 open/close 存续；仅池覆盖随本次入口更新
   $("gachaOverlay").classList.add("show");
@@ -178,6 +191,7 @@ export function roll() {
   const pool = drawablePool();
   if (!pool.length) return;                    // 空池/抽干：停用
   rolling = true;
+  const myGen = gachaGen;
   const knob = $<HTMLButtonElement>("gKnob");
   knob.disabled = true; knob.classList.add("turn");
   const revealEl = $("gReveal");
@@ -185,6 +199,8 @@ export function roll() {
 
   const pick = gachaPick(pool)!;
   const settle = () => {
+    rollTimer = null;
+    if (myGen !== gachaGen) { rolling = false; return; } // 池已在飞行中被切换/重开，旧结果作废、不落堆
     pile.push(pick);
     knob.classList.remove("turn");
     rolling = false;
@@ -194,7 +210,7 @@ export function roll() {
     confetti();
   };
 
-  // prefers-reduced-motion：跳过老虎机滚动，直接揭晓（不塌）
+  // prefers-reduced-motion：跳过老虎机滚动，直接揭晓（不塌）——同步执行，openGacha 不可能插入其间
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) { settle(); return; }
 
   const cityEl = $("gCity");
@@ -205,7 +221,7 @@ export function roll() {
     const r = gachaPick(pool)!;
     cityEl.textContent = r.emoji + " " + r.name;
     t += delay;
-    if (t < totalMs) setTimeout(() => step(Math.min(delay * 1.2, 300)), delay);
+    if (t < totalMs) rollTimer = setTimeout(() => step(Math.min(delay * 1.2, 300)), delay);
     else { cityEl.classList.remove("spin"); settle(); }
   };
   step(60);

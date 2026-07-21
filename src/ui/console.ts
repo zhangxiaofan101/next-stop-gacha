@@ -119,7 +119,9 @@ export function updateChipCounts() {
   updateFilterBadge();
 }
 
-// 手机收纳态入口按钮上的已选计数徽章：9 个分组维度 + 3 个开关，q 不计入（搜索框本身就在收纳条上可见）
+// 手机收纳态入口按钮上的已选计数徽章：9 个分组维度 + 3 个开关 + distMode，q 不计入（搜索框本身
+// 就在收纳条上可见）。F72：distMode 此前未计入徽章——只开短途/长途时徽章显示为空，看起来像
+// 「无筛选生效」，与扭蛋池说明暗中限距离一样是不可见幽灵筛选，一并补上。
 function updateFilterBadge() {
   const badge = document.getElementById("filterBadge");
   if (!badge) return;
@@ -128,6 +130,7 @@ function updateFilterBadge() {
   if (state.noAlt) n++;
   if (state.onlyFav) n++;
   if (state.hideVisited) n++;
+  if (state.distMode) n++;
   badge.textContent = n > 0 ? String(n) : "";
 }
 

@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { bestInsertion, legEligibleIndices, nearestNeighborOrder, onwaySuggestions, tripGateway, tripLegs, tripStops } from "../itinerary";
 import type { TripItem } from "../types";
-import { byIdOf, loadRealData, mkState, tripOfRoute } from "./helpers";
+import { byIdOf, loadRealData, mkCity, mkState, tripOfRoute } from "./helpers";
 
 const data = loadRealData();
 const byId = byIdOf(data);
@@ -19,13 +19,13 @@ describe("最近邻顺路排序（上海起点贪心）", () => {
 describe("F34：单站行程锚点前后并列时，插在锚点之后", () => {
   it("成都 + 乐山 → [成都, 乐山]（at=1，锚定成都）", () => {
     const trip: TripItem[] = [{ id: "chengdu", days: 3 }];
-    const r = bestInsertion(byId("leshan-emeishan")!, stopsOf(trip));
+    const r = bestInsertion(byId("leshan-emeishan")!, stopsOf(trip), byId);
     expect(r.at).toBe(1);
     expect(r.near?.name).toBe("成都");
   });
   it("多站回归：杭州→成都→南京 + 都江堰 → 插在成都之后（at=2）", () => {
     const trip: TripItem[] = [{ id: "hangzhou", days: 2 }, { id: "chengdu", days: 3 }, { id: "nanjing", days: 2 }];
-    const r = bestInsertion(byId("dujiangyan-qingcheng")!, stopsOf(trip));
+    const r = bestInsertion(byId("dujiangyan-qingcheng")!, stopsOf(trip), byId);
     expect(r.at).toBe(2);
     expect(Number.isFinite(r.add)).toBe(true);
   });
@@ -124,6 +124,32 @@ describe("overland 段级禁飞（F29）与显式交通接线（F30）", () => {
     expect(legs[1].mode).toBe("游轮");
     expect(legs[1].icon).toBe("🚢");
     expect(legs[1].hours).toBeGreaterThan(10);
+  });
+});
+
+describe("F74：bestInsertion 的既有段必须走 tripLegs 同款 overland 判定（正向候选，非仅负向安全性）", () => {
+  it("G318 川西环线→林芝：正下方候选应被判定为廊道顺路（near=null），裸 legInfo 会误判成飞行段而漏判", () => {
+    const g318 = byId("route-g318-south")!; // stops=[chengdu, chuanxi-loop, linzhi, lhasa]
+    const stops = stopsOf(tripOfRoute(g318));
+    // 候选坐标＝chuanxi-loop↔linzhi 连线中点，triangle 绕路增量趋近 0，且离两端点均约 350km
+    // （远超落脚顺游的 150km 门槛）——只有廊道路径能接住它，专挑这个位置正是为了排除「候选恰好
+    // 落在某端点 150km 内、走落脚顺游侥幸接住」的假阳性，逼着断言必须走对廊道判定。
+    const mid = mkCity({ id: "test-g318-midpoint", coords: [29.925, 98.005] });
+    const r = bestInsertion(mid, stops, byId);
+    expect(r.near).toBeNull();
+    expect(r.add).toBeLessThan(1);
+    expect(r.at).toBe(2); // 插在 chuanxi-loop 之后、linzhi 之前
+  });
+
+  it("阿里南线日喀则→普兰：同样应判定为廊道顺路而非漏判", () => {
+    const ali = byId("route-ali-south")!; // stops=[lhasa, shigatse, pulan, zanda]
+    const stops = stopsOf(tripOfRoute(ali));
+    // shigatse[29.27,88.88] ↔ pulan[30.29,81.18] 连线中点
+    const mid = mkCity({ id: "test-ali-midpoint", coords: [29.78, 85.03] });
+    const r = bestInsertion(mid, stops, byId);
+    expect(r.near).toBeNull();
+    expect(r.add).toBeLessThan(5);
+    expect(r.at).toBe(2); // 插在 shigatse 之后、pulan 之前
   });
 });
 

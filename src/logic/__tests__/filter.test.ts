@@ -126,4 +126,8 @@ describe("真实数据回归", () => {
   it("默认无排序时保持 manifest 拼接顺序（首卡杭州）", () => {
     expect(filtered(data, mkState(), "夏")[0].id).toBe("hangzhou");
   });
+  it("F76：搜「苏南」命中南京——江苏省统计局口径「苏南五市」明确列入南京，M68 批漏标", () => {
+    const s = mkState({ q: "苏南" });
+    expect(filtered(data, s, "夏").some(d => d.id === "nanjing")).toBe(true);
+  });
 });

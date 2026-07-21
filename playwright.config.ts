@@ -16,6 +16,10 @@ export default defineConfig({
       // （色板/描边/圆角/资产替换）远超此阈值，不会被容忍值吞掉。
       maxDiffPixelRatio: 0.02,
       animations: "disabled",
+      // F73：默认 5s 断言超时在 fullyParallel 多页面并发抢字体加载时偶发撞线（实跑复现
+      // cream-detail 超时）；测试代码已显式 await document.fonts.ready 把字体等待挪出这条超时
+      // 预算，这里再给并发抢占本身留余量。
+      timeout: 10_000,
     },
   },
   use: {

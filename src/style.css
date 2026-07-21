@@ -136,8 +136,9 @@
   .btn.on { background: var(--btn-on-bg); color: var(--btn-on-text); border-color: var(--btn-on-border); }
   .hit { margin-left: auto; font-family: var(--round); font-size: 14px; color: var(--blue-deep); font-variant-numeric: tabular-nums; }
 
-  /* M68：概念词一键筛选 chip——空 innerHTML 时零占位（不占一整行的固定高度） */
-  #intentBox:not(:empty) { margin-top: 14px; }
+  /* M68：概念词一键筛选 chip——空 innerHTML 时零占位（不占一整行的固定高度）。
+     F72：distMode 的常驻可撤销 chip 可能与建议 chip 同时出现，故走 flex 横排。 */
+  #intentBox:not(:empty) { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
   #intentBox .intent { background: var(--btn-on-bg); color: var(--btn-on-text); border-color: var(--btn-on-border); }
 
   /* ---- 卡片 ---- */
@@ -446,12 +447,16 @@
   table.cmp th, table.cmp td { border: var(--bw-thin) solid var(--table-border); padding: 10px 14px; text-align: left; vertical-align: top; }
   table.cmp th.rowh { font-family: var(--round); font-size: 12px; color: var(--ink-soft); background: var(--table-rowh-bg); white-space: nowrap; width: 92px; }
   table.cmp td.cityh { font-family: var(--round); font-size: 20px; background: var(--table-cityh-bg); position: relative; padding-right: 34px; }
-  /* M69：对比列删除——看完详情不想比了就地移出，剩下的继续比（样式随 .ge-x 家族） */
+  /* M69：对比列删除——看完详情不想比了就地移出，剩下的继续比（样式随 .ge-x 家族）。
+     F77：视觉圆钮维持 20px（同 .ge-x 家族观感），但对比表本身是手机横向滚动场景，20px 不到通用
+     44px 触达建议的一半——同 .icon-btn 已有先例，用 ::after 外扩热区补足，不改视觉尺寸。
+     absolute 伪元素基准是自身 padding box，外扩量须扣掉边框（见 .icon-btn 注释同款算法）。 */
   .cmp-del {
     position: absolute; right: 6px; top: 6px; width: 20px; height: 20px; padding: 0; border-radius: 50%;
     background: var(--paper); border: var(--bw-thin) solid var(--ink); color: var(--ink);
     font-size: 11px; line-height: 1; cursor: pointer;
   }
+  .cmp-del::after { content: ""; position: absolute; inset: calc(-12px - var(--bw-thin)); border-radius: 50%; }
   table.cmp td .sm { font-size: 11px; color: var(--ink-soft); font-weight: 400; }
 
   /* 行程规划 */

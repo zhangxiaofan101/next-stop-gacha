@@ -64,7 +64,7 @@ export function insertOnWay(id: string) {
   const d = byId(id);
   if (!d || d.stops || state.trip.some(t => t.id === id)) return;
   if (state.trip.length >= TRIP_MAX) { toast(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`); return; }
-  const { add, at } = bestInsertion(d, tripStops(state.trip, byId));
+  const { add, at } = bestInsertion(d, tripStops(state.trip, byId), byId);
   if (!isFinite(add)) return; // 防御：无可插的陆路段（正常情况下按钮就不会渲染）
   state.trip.splice(at, 0, { id, days: Math.min(...d.days) });
   saveLS(); render(); renderTrip();

@@ -97,16 +97,23 @@ export const NEAR_KM = 150;
 
 export interface Insertion { add: number; at: number; near: Place | null; }
 
-export function bestInsertion(c: Destination, stops: TripStopX[]): Insertion {
+export function bestInsertion(c: Destination, stops: TripStopX[], byId: ById): Insertion {
   const pts: Place[] = [SH, ...stops, SH];
+  // F74 修复：pts[i]→pts[i+1] 是行程里已经排定的真实段，其 air 判据必须走 tripLegs 同款
+  // overland/显式 transport 判定（legEligibleIndices 同 rid 整组陆路豁免+门户改写），不能只用不带
+  // 上下文的裸 legInfo(a,b)——后者对 G318 川西环线→林芝、阿里南线日喀则→普兰、南疆线塔县→库车
+  // 这类长自驾廊道的相邻两站会按通用距离启发式误判成飞机，静默压掉沿线本该成立的顺路候选。
+  // tripLegs 内部用的正是同一个 [SH, ...stops, SH] 序列，legs[i] 与这里的 pts[i]→pts[i+1] 一一对应。
+  const legs = tripLegs(stops, byId);
   let add = Infinity, at = 0, near: Place | null = null, tie = Infinity;
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i], b = pts[i + 1];
     const extra = havRaw(a.coords, c.coords) + havRaw(c.coords, b.coords) - havRaw(a.coords, b.coords);
     // M67：判飞用 air 布尔而非 mode==="飞机"——「飞机+包车」（noair 站的组合档）同样是飞行段，
     // 地面包车只是末程接驳，不构成廊道顺路语义；字符串比较曾漏掉组合档，行程含 noair 远站时
-    // 近沪城市以「+绕0km」涌入（budget 侧 M56 已用 air，此处同规）。
-    const anyFly = legInfo(a, b).air || legInfo(a, c).air || legInfo(c, b).air;
+    // 近沪城市以「+绕0km」涌入（budget 侧 M56 已用 air，此处同规）。候选牵涉的 a→c/c→b 两段是
+    // 还未真正插入的假设连接，没有「真实行程段」可循，继续用裸 legInfo 守卫。
+    const anyFly = legs[i].air || legInfo(a, c).air || legInfo(c, b).air;
     let m: number | null = null, anch: Place | null = null;
     if (!anyFly) m = extra; // 廊道顺路：段与两子段全陆路，度量=绕路增量
     else for (const e of [a, b]) { // 落脚顺游：只认贴着本段非上海端点的候选
@@ -132,7 +139,7 @@ export function onwaySuggestions(data: Destination[], state: FilterState, byId: 
   return data
     .filter(d => !d.stops && !state.trip.some(t => t.id === d.id)
       && !(state.noAlt && d.alt) && !(state.hideVisited && state.visited.includes(d.id)))
-    .map(d => ({ d, ...bestInsertion(d, stops) }))
+    .map(d => ({ d, ...bestInsertion(d, stops, byId) }))
     .filter(x => x.add < 200)
     .sort((a, b2) => a.add - b2.add).slice(0, limit);
 }
