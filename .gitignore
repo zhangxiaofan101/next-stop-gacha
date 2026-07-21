@@ -15,3 +15,8 @@ m39-sample*.html
 # M46 字体管线：源字体体积大、可从公开地址重新下载（见 fonts/README.md），只留本地不进 git
 fonts/source/*
 !fonts/source/.gitkeep
+
+# M66 视觉回归：每次跑的临时产物（actual/diff/trace），基线快照本身在 tests/visual/*-snapshots/ 进 git
+test-results/
+playwright-report/
+blob-report/

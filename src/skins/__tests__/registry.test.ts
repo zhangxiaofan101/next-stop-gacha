@@ -38,6 +38,18 @@ describe("index.html 防闪烁内联脚本与 registry 同步（漂移钉子）"
   });
 });
 
+describe("M66：Playwright 视觉回归矩阵字面量与 registry 同步（漂移钉子）", () => {
+  it("tests/visual/skins.visual.spec.ts 的硬编码 SKIN_IDS 字面量与 registry 一致", () => {
+    // 该测试文件不能直接 import registry.ts（经 illustrations.ts 引用 import.meta.env.BASE_URL，
+    // Playwright 的纯 Node 转译环境没有这个全局），只能镜像字面量——同 index.html 内联脚本的
+    // 漂移钉子道理，新增/改名皮肤时这里会红灯提醒同步。
+    const spec = readFileSync(join(ROOT, "tests", "visual", "skins.visual.spec.ts"), "utf8");
+    const arrMatch = spec.match(/const SKIN_IDS = (\[[^\]]*\]);/);
+    expect(arrMatch, "tests/visual/skins.visual.spec.ts 缺少 const SKIN_IDS = [...] 字面量").not.toBeNull();
+    expect(JSON.parse(arrMatch![1].replace(/'/g, '"'))).toEqual(SKIN_IDS);
+  });
+});
+
 describe("皮肤 token 双文件漂移钉子（M52：新 token 必须 cream.css/ink.css 同步各加一行）", () => {
   const tokenNames = (rel: string) =>
     new Set([...readFileSync(join(ROOT, rel), "utf8").matchAll(/^\s*(--[\w-]+)\s*:/gm)].map(m => m[1]));
