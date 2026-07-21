@@ -1,12 +1,13 @@
 // 过滤/排序/chip 语义/空池治理（design「决策机制·过滤」「空池治理」）。
 // 全部纯函数：data 与 state 显式传入，DOM 副作用（清搜索框/按钮高亮）由 UI 层按 action 描述符执行。
-import { CEIL_GROUPS, DAY_BUCKETS, GROUP_NAMES, SH } from "./constants";
+import { CEIL_GROUPS, DAY_BUCKETS, GROUP_NAMES } from "./constants";
 import { hav } from "./geo";
+import { getOrigin } from "./origin";
 import type { Destination, FilterState, GroupKey } from "./types";
 
 const group = (state: FilterState, k: GroupKey) => state[k];
 
-// M68：「短途/长途」概念词的距离派生阈值——按距出发地（SH，M22 参数化后自动跟随）直线距离，
+// M68：「短途/长途」概念词的距离派生阈值——按距当前出发地（getOrigin()，M22）直线距离，
 // 不是筛选组的离散枚举。短途口径对齐 goal「短途默认江浙沪一带」（江浙沪腹地距上海多在此内）；
 // 长途取需要飞机的量级（同 logic/transport.ts 的 950km 飞行分界附近，留round数余量）。
 export const SHORT_TRIP_KM = 500;
@@ -21,11 +22,14 @@ export function matchOne(d: Destination, state: FilterState, okey: string | null
   const noAlt = okey === "noAlt" ? false : state.noAlt;
   const hideV = okey === "hideVisited" ? false : state.hideVisited;
   const distMode = okey === "distMode" ? null : state.distMode;
+  // M22 本城卡对偶：目的地就是当前出发地的城市卡时从池中隐去（不可被放宽/计数假设覆盖——
+  // 「从北京出发去北京玩」在任何条件组合下都不成立）
+  if (d.id === getOrigin().cardId) return false;
   if (fav && !state.favs.includes(d.id)) return false;
   if (noAlt && d.alt) return false;
   if (hideV && state.visited.includes(d.id)) return false;
   if (distMode) {
-    const km = hav(SH.coords, d.coords);
+    const km = hav(getOrigin().coords, d.coords);
     if (distMode === "short" && km > SHORT_TRIP_KM) return false;
     if (distMode === "long" && km <= LONG_TRIP_KM) return false;
   }

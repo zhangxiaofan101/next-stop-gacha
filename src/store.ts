@@ -1,11 +1,12 @@
 // 应用状态与持久化：DATA（运行时 fetch 后注入）、可变 state 单例、localStorage 读写。
 // localStorage 键名/结构不变（nextstop_v2），老用户状态无损（M37 验收口径延续）。
 import { seasonForMonth } from "./logic/constants";
+import { applyView, captureBaseView, type OriginViewEntry, type ViewMap } from "./logic/originView";
 import { normalizePersisted } from "./logic/persist";
 import type { Destination, FilterState } from "./logic/types";
 
 export let DATA: Destination[] = [];
-export function setData(d: Destination[]) { DATA = d; }
+export function setData(d: Destination[]) { DATA = d; baseView = null; }
 export const byId = (id: string) => DATA.find(x => x.id === id);
 
 export const CUR_SEASON = seasonForMonth(new Date().getMonth());
@@ -51,4 +52,22 @@ export function getSkinChoice(): string | null {
 }
 export function setSkinChoice(choice: string) {
   try { localStorage.setItem(SKIN_LS_KEY, choice); } catch (e) {}
+}
+
+// M22：出发地选择（原始 id 字符串）。同 SKIN_LS_KEY 纪律：store 保持哑，
+// 合法性/是否已发布/兜默认交给 logic/origin.ts 的 resolveOrigin 决定。
+const ORIGIN_LS_KEY = "nextstop_origin_v1";
+export function getOriginChoice(): string | null {
+  try { return localStorage.getItem(ORIGIN_LS_KEY); } catch (e) { return null; }
+}
+export function setOriginChoice(id: string) {
+  try { localStorage.setItem(ORIGIN_LS_KEY, id); } catch (e) {}
+}
+
+// M22 视角换值编排：基座快照持在这里（首次换值前对当前 DATA 捕获一次，setData 时作废），
+// 变换本体是 logic/originView.ts 纯函数。view=null 恢复基座（上海视角）。
+let baseView: Map<string, OriginViewEntry> | null = null;
+export function applyOriginView(view: ViewMap | null) {
+  if (!baseView) baseView = captureBaseView(DATA);
+  applyView(DATA, view, baseView);
 }

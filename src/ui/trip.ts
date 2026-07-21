@@ -1,4 +1,5 @@
 /* 行程规划（行程单渲染 + 顺路彩蛋展示；决策全部在 logic/itinerary） */
+import { getOrigin } from "../logic/origin";
 import { REGION_COLOR, TRIP_MAX } from "../logic/constants";
 import { bestInsertion, nearestNeighborOrder, onwaySuggestions, tripLegs, tripStops } from "../logic/itinerary";
 import { tripBudget } from "../logic/budget";
@@ -25,7 +26,7 @@ export function renderTrip() {
     return;
   }
   const legs = tripLegs(stops, byId);
-  let html = `<div class="leg-line"><span class="dash"></span>🏠 上海出发 · ${legs[0].icon} ${legs[0].mode} ${fmtH(legs[0].hours)}（约${legs[0].km}km）${legs[0].gwName ? " → " + legs[0].gwName + "（进线门户）" : ""}</div>`;
+  let html = `<div class="leg-line"><span class="dash"></span>🏠 ${getOrigin().name}出发 · ${legs[0].icon} ${legs[0].mode} ${fmtH(legs[0].hours)}（约${legs[0].km}km）${legs[0].gwName ? " → " + legs[0].gwName + "（进线门户）" : ""}</div>`;
   stops.forEach((d, i) => {
     html += `
     <div class="stop" data-idx="${i}">
@@ -42,7 +43,7 @@ export function renderTrip() {
       </span>
     </div>`;
     const leg = legs[i + 1];
-    html += `<div class="leg-line"><span class="dash"></span>${leg.icon} ${leg.mode} ${fmtH(leg.hours)}（约${leg.km}km）${i === stops.length - 1 ? (leg.gwName ? " · 经" + leg.gwName + "返回上海 🏠" : " · 返回上海 🏠") : ""}</div>`;
+    html += `<div class="leg-line"><span class="dash"></span>${leg.icon} ${leg.mode} ${fmtH(leg.hours)}（约${leg.km}km）${i === stops.length - 1 ? (leg.gwName ? " · 经" + leg.gwName + `返回${getOrigin().name} 🏠` : ` · 返回${getOrigin().name} 🏠`) : ""}</div>`;
   });
   listEl.innerHTML = html;
 

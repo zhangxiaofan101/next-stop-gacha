@@ -9,6 +9,7 @@ import { openDetail } from "./detail";
 import { $ } from "./dom";
 import { clearPile, getLastPick, openGacha, pileToCompare, roll, tossEgg } from "./gacha";
 import { openMap } from "./mapview";
+import { openOrigin, selectOrigin } from "./origin";
 import { applyIntent, applyRelax, clearDistModeFilter, render } from "./render";
 import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
 import { forgetSync, generateShareCode, importJSON, openShare, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
@@ -64,6 +65,9 @@ export function wireEvents() {
     if (mapDot) { e.stopPropagation(); openDetail(mapDot.dataset.mapdot!); return; }
     const skin = t.closest<HTMLElement>("[data-skin]");
     if (skin) { selectSkin(skin.dataset.skin!); return; }
+    // M22 出发地选项（#originBody 每次重生成，走委托，同 data-skin 习语）
+    const org = t.closest<HTMLElement>("[data-origin]");
+    if (org) { selectOrigin(org.dataset.origin!); return; }
     // M63 揭晓卡动作（#gReveal 每次重生成，走委托）：继续扭 / 看详情 / 加入行程
     const gact = t.closest<HTMLElement>("[data-gact]");
     if (gact) {
@@ -96,6 +100,7 @@ export function wireEvents() {
   $("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
   $("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
   $("footPill").addEventListener("click", openMap); // 足迹统计胶囊本身即地图入口（M50 修订）
+  $("originPill").addEventListener("click", openOrigin); // M22 出发地胶囊即选择器入口
   $("shareBtn").addEventListener("click", openShare);
   $("skinBtn").addEventListener("click", openSkin);
   $("fabGacha").addEventListener("click", () => openGacha()); // 全量池入口；直传 openGacha 会把 MouseEvent 当成 cmpPool 参数传入，必须包一层

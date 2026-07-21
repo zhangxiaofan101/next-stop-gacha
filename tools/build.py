@@ -221,6 +221,42 @@ for src, d in all_rows:
         if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
             errors.append(f"{tag} regions 非法: {rg}")
 
+# M22 per-origin 视角文件：data/origin-<id>.json（目的地 id → {transit, difficulty}），
+# 该出发地视角下的交通文案与抵达难度。覆盖必须全量（含本城条目——transit=本地出发、
+# difficulty=直达，校验免特判，运行时对偶隐藏）；difficulty 同基座枚举；id 必须存在。
+# 通过后发布为独立 chunk + origins.json 索引（见下方发布段）；启用新出发地=新增一个文件。
+all_ids = {d.get("id") for _, d in all_rows}
+origin_views = {}  # oid → view dict（发布段消费）
+for op in sorted(glob.glob(os.path.join(DATA_DIR, "origin-*.json"))):
+    oname = os.path.basename(op)
+    oid = re.match(r"origin-(.+)\.json$", oname).group(1)
+    try:
+        view = json.load(open(op))
+    except Exception as e:
+        errors.append(f"{oname} JSON 解析失败: {e}"); continue
+    if not isinstance(view, dict):
+        errors.append(f"{oname} 顶层不是对象（需 id → {{transit, difficulty}}）"); continue
+    unknown = sorted(set(view) - all_ids)
+    if unknown:
+        errors.append(f"{oname} 引用不存在的 id: {unknown[:5]}{' 等' if len(unknown) > 5 else ''}（共 {len(unknown)} 条）")
+    missing = sorted(all_ids - set(view))
+    if missing:
+        errors.append(f"{oname} 覆盖不全，缺 {len(missing)} 条: {missing[:5]}{' 等' if len(missing) > 5 else ''}（视角文件必须全量覆盖）")
+    for vid, v in view.items():
+        vtag = f"{oname}/{vid}"
+        if not isinstance(v, dict) or set(v) != {"transit", "difficulty"}:
+            errors.append(f"{vtag} 条目非法（需恰含 transit+difficulty 两字段）: {v}"); continue
+        if not isinstance(v["transit"], str) or not v["transit"].strip():
+            errors.append(f"{vtag} transit 非法(需非空字符串): {v['transit']}")
+        if v["difficulty"] not in DIFFICULTIES:
+            errors.append(f"{vtag} difficulty 非法: {v['difficulty']}")
+        # 守卫互查（非阻塞，同基座文本审计口径）：无高铁/动车常态班次的城市，视角文案不得承诺「高铁/动车直达」
+        base_d = city_by_id.get(vid)
+        if base_d and (base_d.get("norail") or base_d.get("slowrail")) and isinstance(v.get("transit"), str) \
+                and re.search(r"(高铁|动车)\s*直达", v["transit"]):
+            warnings.append(f"{vtag} 城市标记 norail/slowrail 但视角文案称「高铁/动车直达」，请人工复核")
+    origin_views[oid] = view
+
 if errors:
     print("== 校验错误 ==\n" + "\n".join(errors), file=sys.stderr)
     sys.exit(1)
@@ -238,7 +274,7 @@ merged = sorted((d for _, d in all_rows), key=lambda d: ORDER.index(d["region"])
 # hash 就变，旧客户端手里的旧 manifest 仍指向旧 hash 文件，不会读到半新不旧的内容；
 # manifest.json 本身文件名不变，靠 Worker 侧短缓存/must-revalidate 保证客户端能发现新 hash。
 os.makedirs(PUBLIC_DATA_DIR, exist_ok=True)
-for stale in glob.glob(os.path.join(PUBLIC_DATA_DIR, "chunk-*.json")):
+for stale in glob.glob(os.path.join(PUBLIC_DATA_DIR, "chunk-*.json")) + glob.glob(os.path.join(PUBLIC_DATA_DIR, "origin-*.json")):
     os.remove(stale)
 
 chunk_names = []
@@ -251,6 +287,19 @@ for i in range(0, len(merged), CHUNK_SIZE):
     chunk_names.append(name)
 open(os.path.join(PUBLIC_DATA_DIR, "manifest.json"), "w", encoding="utf-8").write(
     json.dumps(chunk_names, ensure_ascii=False))
+
+# M22：视角文件发布为独立 chunk（同 F42 内容 hash 长缓存策略）+ origins.json 索引
+# （originId → 文件名，前端据此决定哪些出发地可选）。manifest 保持「城市数据 chunk 文件名
+# 数组」的既有形状不动——索引是独立小文件，取不到=只有基座上海可选，静默降级。
+origins_index = {}
+for oid, view in sorted(origin_views.items()):
+    view_json = json.dumps(view, ensure_ascii=False, separators=(",", ":"))
+    digest = hashlib.sha256(view_json.encode("utf-8")).hexdigest()[:10]
+    name = f"origin-{oid}-{digest}.json"
+    open(os.path.join(PUBLIC_DATA_DIR, name), "w", encoding="utf-8").write(view_json)
+    origins_index[oid] = name
+open(os.path.join(PUBLIC_DATA_DIR, "origins.json"), "w", encoding="utf-8").write(
+    json.dumps(origins_index, ensure_ascii=False))
 
 by_region = {}
 for d in merged:

@@ -1,7 +1,9 @@
 // 行程规划（design「决策机制·顺路排序」「顺路彩蛋」及交通三条覆盖规则的 leg/门户两条）。
 // 全部纯函数：trip/stops/byId 显式传入；行程数组的变异（splice/赋值）由 UI 层执行。
-import { SH } from "./constants";
+// M22：起点=当前出发地（getOrigin()，模块级环境态）；出发地对象在同一次调用内身份稳定，
+// 「非出发地端点」判定用对象同一性（e === o）与旧 SH 锚点语义一致。
 import { havRaw } from "./geo";
+import { getOrigin } from "./origin";
 import { legInfo } from "./transport";
 import type { ById, Destination, FilterState, Place, TripItem, TripLeg, TripStopX } from "./types";
 
@@ -9,11 +11,11 @@ export function tripStops(trip: TripItem[], byId: ById): TripStopX[] {
   return trip.map(t => ({ ...byId(t.id)!, chosenDays: t.days, fromRoute: !!t.r, rid: t.r }));
 }
 
-// 顺路排序：以上海为起点的最近邻贪心；返回新数组，不动入参。
+// 顺路排序：以出发地为起点的最近邻贪心；返回新数组，不动入参。
 export function nearestNeighborOrder(trip: TripItem[], byId: ById): TripItem[] {
   const rest = [...trip];
   const ordered: TripItem[] = [];
-  let cur = SH.coords;
+  let cur = getOrigin().coords;
   while (rest.length) {
     let bi = 0, bd = Infinity;
     rest.forEach((t, i) => {
@@ -61,7 +63,8 @@ export function tripGateway(stops: TripStopX[], byId: ById): { entry: Destinatio
 export function tripLegs(stops: TripStopX[], byId: ById): TripLeg[] {
   const legIdx = legEligibleIndices(stops, byId); // 整组完整启用 leg 的站下标（F21）
   const gw = tripGateway(stops, byId);
-  const pts: Place[] = [SH, ...stops, SH];
+  const o = getOrigin();
+  const pts: Place[] = [o, ...stops, o];
   const legs: TripLeg[] = [];
   for (let i = 0; i < pts.length - 1; i++) {
     let a = pts[i], b = pts[i + 1];
@@ -77,7 +80,7 @@ export function tripLegs(stops: TripStopX[], byId: ById): TripLeg[] {
       const st = rt && rt.stops && rt.stops.find(s => s.id === dest.id);
       if (st && st.leg && st.leg.transport) transport = st.leg.transport;
     }
-    // 门户改写首末大交通端点（F31）：上海→入口门户、出口门户→上海
+    // 门户改写首末大交通端点（F31）：出发地→入口门户、出口门户→出发地
     let gwName: string | null = null;
     if (gw && i === 0 && gw.entry) { b = gw.entry; gwName = gw.entry.name; }
     if (gw && i === pts.length - 2 && gw.exit) { a = gw.exit; gwName = gw.exit.name; }
@@ -98,12 +101,14 @@ export const NEAR_KM = 150;
 export interface Insertion { add: number; at: number; near: Place | null; }
 
 export function bestInsertion(c: Destination, stops: TripStopX[], byId: ById): Insertion {
-  const pts: Place[] = [SH, ...stops, SH];
+  const o = getOrigin();
+  const pts: Place[] = [o, ...stops, o];
   // F74 修复：pts[i]→pts[i+1] 是行程里已经排定的真实段，其 air 判据必须走 tripLegs 同款
   // overland/显式 transport 判定（legEligibleIndices 同 rid 整组陆路豁免+门户改写），不能只用不带
   // 上下文的裸 legInfo(a,b)——后者对 G318 川西环线→林芝、阿里南线日喀则→普兰、南疆线塔县→库车
   // 这类长自驾廊道的相邻两站会按通用距离启发式误判成飞机，静默压掉沿线本该成立的顺路候选。
-  // tripLegs 内部用的正是同一个 [SH, ...stops, SH] 序列，legs[i] 与这里的 pts[i]→pts[i+1] 一一对应。
+  // tripLegs 内部用的正是同一个 [出发地, ...stops, 出发地] 序列（同一 getOrigin() 单例），
+  // legs[i] 与这里的 pts[i]→pts[i+1] 一一对应。
   const legs = tripLegs(stops, byId);
   let add = Infinity, at = 0, near: Place | null = null, tie = Infinity;
   for (let i = 0; i < pts.length - 1; i++) {
@@ -116,8 +121,8 @@ export function bestInsertion(c: Destination, stops: TripStopX[], byId: ById): I
     const anyFly = legs[i].air || legInfo(a, c).air || legInfo(c, b).air;
     let m: number | null = null, anch: Place | null = null;
     if (!anyFly) m = extra; // 廊道顺路：段与两子段全陆路，度量=绕路增量
-    else for (const e of [a, b]) { // 落脚顺游：只认贴着本段非上海端点的候选
-      if (e === SH) continue;
+    else for (const e of [a, b]) { // 落脚顺游：只认贴着本段非出发地端点的候选
+      if (e === o) continue;
       const dk = havRaw(e.coords, c.coords);
       if (dk <= NEAR_KM && !legInfo(e, c).air && (m === null || dk < m)) { m = dk; anch = e; }
     }
@@ -136,8 +141,11 @@ export function bestInsertion(c: Destination, stops: TripStopX[], byId: ById): I
 // 尊重「避开高海拔」「隐藏去过的」两个开关——不给避高原的人推高海拔、不重推去过的（其余浏览筛选不约束行程建议）。
 export function onwaySuggestions(data: Destination[], state: FilterState, byId: ById, limit = 3): ({ d: Destination } & Insertion)[] {
   const stops = tripStops(state.trip, byId);
+  // M22：本城卡对偶——出发地自己的城市卡不进彩蛋候选（它距起点 0km，不排除会在任何行程里
+  // 以「+绕0km」霸榜，与浏览池的隐藏口径同源）
+  const selfId = getOrigin().cardId;
   return data
-    .filter(d => !d.stops && !state.trip.some(t => t.id === d.id)
+    .filter(d => !d.stops && d.id !== selfId && !state.trip.some(t => t.id === d.id)
       && !(state.noAlt && d.alt) && !(state.hideVisited && state.visited.includes(d.id)))
     .map(d => ({ d, ...bestInsertion(d, stops, byId) }))
     .filter(x => x.add < 200)

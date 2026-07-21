@@ -117,6 +117,8 @@
     <div class="title-row">
       <h1 class="logo"><span class="plane">✈️</span> 下一站，去哪玩</h1>
       <span class="count-pill" id="countPill">…</span>
+      <!-- M22 出发地胶囊：全站数据视角开关（足迹胶囊同区同语言）；只有基座可选时 JS 隐藏 -->
+      <button class="count-pill" id="originPill" style="display:none" title="切换出发地"></button>
       <span class="foot-group">
         <button class="count-pill" id="footPill" style="display:none" title="打开足迹地图"></button>
         <!-- 静态按钮的线形图标与 src/ui/icons.ts 同款内联（模块脚本注入会闪一帧空按钮），改图形时两处同步 -->
@@ -308,6 +310,14 @@
   <div class="sheet">
     <button class="sheet-close" data-close>✕</button>
     <div class="paper" id="skinBody"></div>
+  </div>
+</div>
+
+<!-- M22 出发地选择器：页头胶囊（#originPill）打开；选项由 ui/origin.ts 按已发布视角索引渲染 -->
+<div class="overlay" id="originOverlay">
+  <div class="sheet">
+    <button class="sheet-close" data-close>✕</button>
+    <div class="paper" id="originBody"></div>
   </div>
 </div>
 
