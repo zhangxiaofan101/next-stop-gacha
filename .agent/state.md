@@ -8,21 +8,23 @@
 
 **封板（2026-07-21）**：三期（M26–M36）、四期（M37–M44，M39 未落地留 P2）、五期（M45–M60）一并封板（见 🪦）。封板核验：codex 复核链收口——89c7b04 曾以 F63–F68 明确阻板，三轮修复/复核后 2ee6223 确认「F68、F69 均已关闭；当前无 Active findings」；封板会话另实跑 `bun run verify` 全绿（217 前端 + 45 workerd，退出码 0）、`git status` 干净、main↔origin 0/0。 [cc]
 
-**六期（已规划，2026-07-21 用户定方向：两套新皮肤 + 北京起点；同日追加 M63 扭蛋主舞台重做拍定头名、M64 主页显性化随后）**：执行顺序 M63 扭蛋连扭备选 → M64 机器/咔啦主页显性化 → M61 青花 → M62 doodle → M22 北京首发（见 🔜）；远期方向=M11 海外版（P2，用户同日确认在六期之后）。A9 doodle 主题层已终审，M62 资产 gating 解除。 [codex][cc]
+**六期（进行中，2026-07-21）**：执行顺序 ~~M63 扭蛋连扭备选~~ ✅落地 → **M64 机器/咔啦主页显性化（下一个）** → M61 青花 → M62 doodle → M22 北京首发（见 🔜）；远期方向=M11 海外版（P2，六期之后）。M63 首个落地（扭蛋舞台重做，双皮肤真机复验通过，见 ✅）；A9 doodle 主题层已终审、M62 资产 gating 解除。 [codex][cc]
 
 ## ✅ Implemented
 
-（三期–五期已封板 → 见 🪦 墓碑；M26–M60 全部条目与 Verified 证据明细在 git 历史（至 9298442）；M61–M64 已指配六期，新编号自 M65 起。六期尚无落地条目） [cc]
+（三期–五期已封板 → 见 🪦 墓碑；M26–M60 全部条目与 Verified 证据明细在 git 历史（至 9298442）；M61–M64 已指配六期，新编号自 M65 起。） [cc]
+
+- **M63 — 扭蛋主舞台重做：连扭备选（蛋堆）[R2 · S2]（used: opus·high，cc 主 session 直落——核心 feature 视觉门槛 + 与用户拍板紧耦合，in-session 合理）**｜舞台（机器 hero + 咔啦操作员气泡）→ 揭晓开壳卡（大票券退役）→ 蛋堆压底（半开蛋壳小卡，SVG + `--cap-*` token 取色）。连扭按 id 排除、上限 CMP_MAX 单点、满堆停旋钮、× 扔回池、整堆拿去对比、机器有蛋堆时收窄、蛋堆扭出第一颗才显、页内会话存续（不进 localStorage）。ink 去装饰 emoji（`.deco-emoji`）/ cream 保留。spec 见 design M63。
+  Verified（2026-07-21）：`npm run verify` 全绿（tsc + **223 前端** + **45 workerd**，退出码 0）；gacha 三测迁移不丢断言——compare-pool 保留「对比池覆盖复位」并把结果断言改看开壳卡 `#gReveal`；ticket-eager→reveal 小图 eager；ambience 随大票券退役删除——另新增 `gacha-pile`（排除不重复/容量/toss 恢复/拿去对比/清空/跨 open 存续，6 例）、`gacha-reveal`（开壳卡信息+eager+无 `#gachaTicket`，3 例）。真实浏览器复验（Chrome + dev server）：ink 连扭→开壳卡（城市卡「＋加入行程」/线路卡「整条装入」两形态）→蛋堆 2 颗（半开蛋壳 cradle 小图）→机器收窄→「拿去对比」关弹层开对比表（两城并排）；cream 回退 🎰 机器 + 无咔啦（气泡承担其声）+ emoji 开壳/蛋堆；emoji 纪律 ink 隐 🥚🆚 / cream 显；352px 容器零横向溢出；reduced-motion 同步揭晓（单测跑的正是该路径）。**待办：咔啦透明底重画（🟡，插画轨道，不阻塞）；codex 跨家族 review gate 待与 M64 合并一轮（见 review backlog）。** [cc]
 
 ## 🔜 Next batch（六期，2026-07-21 规划；spec 见 design 注册表 M61/M62 与 M22）
 
 轨道并行照旧：**插画轨道（codex，只动 `assets/illustrations/` 与工单）** ∥ **代码轨道（cc，动 src/）**，文件边界零冲突。 [cc]
 
-1. **M63 — 扭蛋主舞台重做：连扭备选（蛋堆）[R2 · S2] → opus · high（cc，核心 feature 视觉门槛上调）+ 构图草案闸 + 用户目检终审**｜2026-07-21 用户立项（源=用户朋友提案「扭出的城市当备选、不满意继续扭、扭差不多了对比选一个」），排六期头名——扭蛋弹层 DOM/样式先定新舞台，青花/doodle 直接按新结构画一次到位；四项拍板 + 显性化两答见 📋；spec 见 design M63。要点：轻量开壳卡揭晓（大票券退役）、蛋堆上限 6 一键去对比、已落地蛋抽样排除、页内会话存续、咔啦任舞台操作员（揭晓/满堆/空池咔啦口吻气泡）、蛋壳件 SVG+token 先行；**铺交互前先出静态构图草案经用户拍板**；DOM 冻结点授权修订，落地后重新冻结；既有 gacha 单测（对比池覆盖/票券 eager）随新结构迁移不丢断言。 [cc]
-2. **M64 — 扭蛋机与咔啦主页显性化 [R1 · S2] → sonnet · high（cc）+ 用户目检**｜2026-07-21 用户点名「机器不抢眼/咔啦不明显（手机端更甚）」，两答拍板（见 📋）：FAB 升级迷你扭蛋机 + 咔啦趴机、桌面页头探头放大（44→约90px）、手机不设常驻位靠高频出场（toast 咔啦气泡 + M63 舞台操作员 + 趴 FAB）；排 M63 后皮肤前（新 FAB/气泡形态定型后新皮肤一次画到位）；spec 见 design M64。cream 缺 gacha/mascot 资产，三处均走回退形态（补画待办见 🟡）。 [cc]
-3. **M61 — 皮肤：青花（porcelain）[R2 · S2] → sonnet · high（cc）+ 用户终审**｜就绪度最高、排首位：A7 主题层 6 张已终审（mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1，empty v1 问号随选择接受）。步骤：①cc 转档 6 张 q90 WebP 入 `picked/porcelain/`，M42 管线出装饰位产物；②porcelain 声明 + token 批（白瓷底/钴蓝；朱红只许出现在 UI chrome 语义色，资产内无红——A7 工单红线）；③共享集钴蓝滤镜首次真实消费（M51 机制）；④cardPhotos 开关按滤镜后目检拍定；⑤工艺件批（texture/seal/placeholder，frame/divider 已撤出成套清单）codex 另开、不阻塞 chrome。 [cc]
-4. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
-5. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜排两套皮肤之后——卡池/皮肤稳定后再写北京视角文案，避免二次补写；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate。spec 见 design M22（已按两段式改述）。 [cc]
+1. **M64 — 扭蛋机与咔啦主页显性化 [R1 · S2] → sonnet · high（cc）+ 用户目检（下一个）**｜2026-07-21 用户点名「机器不抢眼/咔啦不明显（手机端更甚）」，两答拍板（见 📋）：FAB 升级迷你扭蛋机 + 咔啦趴机、桌面页头探头放大（44→约90px）、手机不设常驻位靠高频出场（toast 咔啦气泡 + M63 舞台操作员 + 趴 FAB）；M63 已落地（舞台操作员气泡已在弹层就位），本模块补主页三处显性化；spec 见 design M64。cream 缺 gacha/mascot 资产，三处均走回退形态（补画待办见 🟡）。**注：M63 已把 `.deco-emoji` 包 span 习语落地（ink 隐藏装饰 emoji），M64 的 FAB「扭一个」emoji/toast 气泡沿用同口径。** [cc]
+2. **M61 — 皮肤：青花（porcelain）[R2 · S2] → sonnet · high（cc）+ 用户终审**｜就绪度最高、排首位：A7 主题层 6 张已终审（mascot v1 / gacha v2 / empty v1 / lotus v2 / cloud v1 / wave v1，empty v1 问号随选择接受）。步骤：①cc 转档 6 张 q90 WebP 入 `picked/porcelain/`，M42 管线出装饰位产物；②porcelain 声明 + token 批（白瓷底/钴蓝；朱红只许出现在 UI chrome 语义色，资产内无红——A7 工单红线）；③共享集钴蓝滤镜首次真实消费（M51 机制）；④cardPhotos 开关按滤镜后目检拍定；⑤工艺件批（texture/seal/placeholder，frame/divider 已撤出成套清单）codex 另开、不阻塞 chrome。 [cc]
+3. **M62 — 皮肤：doodle [R2 · S2] → sonnet · high（cc）+ 用户终审**｜A9 已终审：`mascot v2 / gacha v1 / empty v2`，decor 六张（town/plants/travel 各 v1/v2）全部通过，三张落选主题件已从 raw 删除；九区随 M60 共享层不画。下一步由 cc 转档通过版、接声明/token/资产与灰度线稿滤镜。 [codex][cc]
+4. **M22 — 自选出发城市·北京首发 [R2 · S3 · 🌫️] → 机制段 cc · 数据批 fable 编排 + opus 分片（M56 体检批先例）**｜排两套皮肤之后——卡池/皮肤稳定后再写北京视角文案，避免二次补写；🌫️=per-origin difficulty/transit schema 方案开工时 AskUserQuestion 拍板（difficulty 还是筛选契约，动它牵连构建校验）；S3 → 落地后单独挂 codex 跨家族 review gate。spec 见 design M22（已按两段式改述）。 [cc]
 
 - 六期 review gate：M63+M64 扭蛋面合并一轮 codex 跨家族复核 → M61+M62 皮肤面合并一轮（同 M46/M52 先例）；M22 因 S3 单独一轮。 [cc]
 
@@ -39,11 +41,13 @@
 
 - **手帐水彩 19 张用户终审**：M39（P2）gating，不急；九区 9 张已随 M60 退出待审转素材库 [cc]
 - **奶油皮肤缺 mascot/gacha 插画**（2026-07-21 用户外观反馈批发现 mascot 缺口；M64 立项后 gacha 缺口同框）：`illustrations/cream/` 从未画过 mascot 与 gacha 母版，咔啦头像在奶油下恒空白（缺图隐藏是既有设计，非 bug）；用户拍板先放着——M63/M64 落地后奶油的舞台操作员/FAB 机器/趴机/toast 气泡均走回退形态；若要补齐需奶油卡通风 mascot+gacha 两件母版一并立批（不能直接复用水墨版，风格家族不同） [cc]
+- **咔啦透明底重画（M63 舞台操作员用）**（2026-07-21 用户拍板 M63 构图时提出）：M63 让咔啦叠站在扭蛋机旁当操作员，需要 die-cut **透明底** mascot（当前 `picked/ink/mascot.webp` 自带圆形墨晕/纸块，44px 头像圈里没问题、但叠机器旁像贴一块）；属插画轨道（codex/用户重画），**不阻塞 M63 代码**（mascot 槽位消费现有资产、换图即生效）。ink 先行；其余带 mascot 皮肤（doodle 等）接入舞台时同样以透明底为准。cream 无 mascot 资产，舞台咔啦位走机器 🎰 回退、气泡承担其声音 [cc]
 - 插画轨道执行细节：codex 若无图像 API 可用，降级为「整理批量 prompt 清单交用户手动生成」（工单已写明两种模式）；用哪个图像模型由 codex/用户按可用性定，cc 不锁定 [cc]
 
 ## 📋 拍板档案
 
 - **2026-07-21 扭蛋机/咔啦显性化拍板**（用户，AskUserQuestion 两答均选推荐项）：①主页扭蛋入口=FAB 升级迷你扭蛋机（机器插画钮+待机微动画，复用皮肤 gacha 资产，缺资产回退现按钮形态）；②咔啦策略=桌面页头探头放大（44→约90px 半身）+ 手机不设常驻位、靠高频出场（趴 FAB 机器顶/toast 咔啦气泡/M63 舞台操作员）→ 立 M64，排 M63 后皮肤前。同轮 cc 拍定：M63 视觉门槛上调（拨盘 sonnet→opus·high + 构图草案先行闸，响应用户「核心 feature 做好看点」）；P2「咔啦出场扩展」被 M63/M64 收编销项 [cc]
+- **2026-07-21 M63 构图草案拍板**（用户看 artifact 静态 mock 后，AskUserQuestion 4 答）：①整体构图（机器 hero + 咔啦操作员气泡 / 开壳卡揭晓 / 蛋堆压底）=**局部调整后照此开铺**——(a) 去掉「拿去对比」等按钮上的装饰 emoji（🆚 一类），水墨风只接受代表城市的小 emoji（cc 落法：装饰 emoji 包 .deco-emoji span，ink 隐藏、cream 保留）；(b) 咔啦需重画为透明底 die-cut（当前 ink mascot 自带圆墨晕，叠机器旁像贴块，见 🟡）。②机器=**有蛋堆时收窄让位**。③蛋堆空态=**扭出第一颗才显**（用户理由：有人扭出一个满意直接走、未必要对比）。④蛋壳图形=**先 SVG + 皮肤取色**（草案版即是，质感不足再立插画小批）。 [cc]
 - **2026-07-21 M63 扭蛋连扭备选立项拍板**（用户，AskUserQuestion 四答均选推荐项）：①排期=六期头名、皮肤之前（新舞台定型后青花/doodle 一次画到位）；②蛋堆上限 6=对比池上限（同一常量单点，一键整堆去对比）；③揭晓形态=轻量开壳卡，整张卡片大票券退役（完整信息进详情看）；④蛋堆存续=页面会话内（关弹层再开仍在、刷新即散，不进 localStorage）。提案源=用户朋友建议；「扭蛋淡化/弹层不好看」为用户本轮点名的重做动机；DOM 冻结点授权修订，落地后重新冻结 [cc]
 - （三期–五期拍板全文见 git 历史——本文件封板前版本至 9298442；已升华的规则以 design.md / goal.md / content-checklist / illustration-brief 现行文本为准。Phase 1 拍板见墓碑范围） [cc]
 
@@ -55,6 +59,7 @@
 
 ## 📥 Review backlog（triage 结果）
 
+- **M63 扭蛋主舞台重做已落地（2026-07-21），待 codex 跨家族复核**：按六期 review gate 与 M64 扭蛋面合并一轮（M64 落地后开）。复核关注点建议：连扭排除/容量的池语义边界（对比池覆盖 × 蛋堆排除叠加）、揭晓卡与蛋堆同源 `currentPick=堆尾` 单一真相是否漏态、`.deco-emoji` 纪律是否有遗漏的裸 emoji、reduced-motion 与缺资产皮肤回退。改动面：`src/ui/gacha.ts` 重写、`index.html` 弹层重构、`src/style.css` 舞台/开壳卡/蛋堆 + 移除 `#gachaTicket`/`.ticket-ambience`、`src/skins/{cream,ink}.css` 新增 `--cap-*`、`src/ui/events.ts` 委托、gacha 三测迁移。 [cc]
 - 截至封板（2026-07-21）：历史 F 项（F14–F69）全部修复并经 codex 复核关闭，review.md 无 active findings（最新 baseline e5a6648）；M38/M41/M45/M46/M52 跨家族 gate 均正式通过。**内容批（批A/批B）「codex 跨家族抽查」gate 收口**：89c7b04 复核轮范围明确覆盖 M48/M49 内容批与 M56 交通守卫（提出的 F64/F65/F68 均属该范围且已修复关闭），gate 视为已执行并通过，原「待开」记录就此销项——内容轨道可开新批。 [cc]
 
 ## 🪦 Sealed phases
