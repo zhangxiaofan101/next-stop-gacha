@@ -8,13 +8,15 @@
 
 **封板（2026-07-22）**：六期（M61–M69、M71、M73 + M22 北京首发）封板（见 🪦；一至五期先前已封，核验记录见 git 历史）。封板核验：四道 review gate 全过——代码面（F70–F77）、皮肤面（F89–F91）、M22 S3（F78–F88）、M73 终审——review.md 无 Active findings（最新 baseline b077de4）；封板会话实跑 `bun run verify` 全绿（lint:agent + tsc + 294 前端 + 50 workerd，退出码 0）、`bun run test:visual` 24/24、`git status` 干净、main↔origin 同步。 [cc]
 
-**七期（已排未开工）**：M72 装饰件体系 → M70 PWA（见 🔜）；远期池见 🗄。新编号自 M74 起。 [cc]
+**七期（已排未开工）**：M72 装饰件体系 → M70 PWA（见 🔜）；远期池见 🗄。新编号自 M75 起。 [codex]
 
 ## ✅ Implemented
 
+- **M74 — 项目说明同步 [R1 · S1] → codex-small · low（used: gpt-5.6-terra delegated）**｜2026-07-22 用户插入 README 修缮，不改变七期 M72 → M70 排序；全面对齐现行产品能力、295 城 + 53 线数据规模、上海/北京双出发地、四套皮肤、数据维护入口、验证命令与 Cloudflare 部署/降级边界，去掉易漂移的硬编码测试条数。Verified：六区源数据计数 46+36+70+34+60+49=295，`routes.json` 53；`package.json` 脚本逐项核对；`bun run verify` 全绿；`git diff --check` 通过。 [codex]
+
 - **M22 增补 — 新增 13 城目的地插画转正 [R1 · S2] → codex-small · high（used: gpt-5.6-sol in-session；纯机械转档，委派开销更高）**｜2026-07-22 用户终审通过 Batch 17 全部候选；13 张 1536×1024 RGB raw 以 `cwebp -q 90` 转入 `picked/dest/`，再由 M42 管线生成 640×427 卡位产物。picked 从 282 增至 295，正式城市数据 295/295 均有母版与 public 产物；既有 282 张永久跳过、零覆盖。Verified：`python3 tools/build_illustrations.py` 零违规；13 张卡位均 ≤40KiB（22.5–38.4KiB，最高 `shidu` 38.4KiB）；`bun run test:build-assets` 23/23 全绿。 [codex]
 
-（一期–六期已封板 → 见 🪦 墓碑；六期全部条目与 Verified 证据明细在 git 历史——封板前版本至 817b9ca。新编号自 M74 起。） [cc]
+（一期–六期已封板 → 见 🪦 墓碑；六期全部条目与 Verified 证据明细在 git 历史——封板前版本至 817b9ca。新编号自 M75 起。） [codex]
 
 ## 🔜 Next batch（七期，2026-07-22 排定）
 

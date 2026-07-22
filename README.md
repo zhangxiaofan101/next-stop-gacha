@@ -2,79 +2,76 @@
 
 [![verify](https://github.com/zhangxiaofan101/next-stop-gacha/actions/workflows/verify.yml/badge.svg)](https://github.com/zhangxiaofan101/next-stop-gacha/actions/workflows/verify.yml)
 
-> 选择困难症旅行救星：267 个中国目的地 + 53 条多城联游线路，筛一筛慢慢比，扭一个听天由命，串几站直接出路书。
+> 给选择困难症准备的中国旅行目的地选择器：295 个目的地、53 条多城联游线路。筛选、比较、扭蛋决定下一站，再把多站串成可带走的路书。
 
-**Vite + TypeScript 工程化（零运行时框架），构建产物为纯静态资产** —— `bun install && bun run dev` 本地跑，`bun run build` 出 `dist/`（构建前自动过 `.agent` 协议 lint + `tsc` 类型检查 + 决策层单测门禁；同一门禁在 GitHub Actions 对每次 push/PR 跑红绿灯）。
+线上入口：[lab.medspiral.com/next-stop-gacha](https://lab.medspiral.com/next-stop-gacha/)
 
-## 能干什么
+## 可以做什么
 
-| 玩法 | 说明 |
-|------|------|
-| 🔍 筛选比对 | 按地区 / 季节 / 天数（2天~2周）/ 冷热 / 花费（天花板）/ 抵达难度（天花板）/ 体力（多选）/ 同行适配（带娃·带爸妈·独行·情侣周末）/ 玩法标签 / 关键词组合筛选，另有 ⛰️ 避开高海拔开关；每个筛选项实时标注"点下去还剩几个"，筛空了给一键定向放宽；选中最多 4 个出对比表 |
-| 🎰 扭一个 | 定好筛选条件转扭蛋，命运决定下一站（含彩带） |
-| 🎫 线路卡 | 53 条精选多城串线（河西走廊 / 滇藏线 / 大湾区……）与城市卡同池筛选和扭蛋，可整条装进行程单 |
-| 🧳 行程串联 | 最多 6 站加入行程，一键顺路排序（从上海出发贪心就近），每站可调天数 |
-| 📖 路书生成 | 逐日安排 + 站间交通推荐（高铁/飞机/自驾，按坐标估时）+ 每站美食/住宿/市内交通 + 人均预算区间，可复制文本或打印存 PDF |
-| ♥ 收藏 | 本地保存，支持「只看收藏」 |
-| 👣 打卡足迹 | 详情页打卡「去过」，卡片绿色角标 + 「隐藏去过的」开关；🗺 足迹地图——零依赖内嵌 SVG 中国地图（省界离线简化自公开边界数据），去过省份点亮、收藏心形标记，点位可直接打开详情 |
+- **按条件找地方**：按地区、季节、天数、冷热、预算、抵达难度、体力、同行对象、玩法标签和关键词筛选；支持避开高海拔、收藏/打卡过滤、当季或距离排序，以及「短途」「长途」等概念搜索。
+- **比较后再随机**：最多选 6 个目的地比较；扭蛋机可连续抽取最多 6 个候选，也能从比较池定向抽签。
+- **从哪出发**：默认上海，现可切换北京；交通提示、距离排序、筛选、行程和路书都会随出发地视角更新。
+- **把目的地变成行程**：城市卡和线路卡都能加入行程；一次最多 10 站，支持顺路排序、调整停留天数、站间交通与预算估算，并生成逐日路书，可复制或打印为 PDF。
+- **保留与分享**：收藏、打卡、行程和皮肤偏好保存在本机；收藏/打卡可通过链接、二维码或 JSON 迁移，也可用同步码跨设备合并。路书可生成短链分享。
+- **看得更有趣**：原味、山水、青花、涂鸦四套浅色手绘皮肤可即时切换（或随机）；295 个目的地均有共享插画。详情页提供 7 天天气预报，取不到时不会影响其他功能。
 
-每个目的地附一句住宿参考（偏高档连锁档位 + 落脚区域建议），小地方会直说「以品质民宿为主」。
+交通与时长、预算均为估算；请以 12306、航班动态和酒店 App 的实际信息为准。
 
 ## 数据
 
-267 个目的地按六个文件分区存放在 [`data/`](data/)，另有 53 条多城联游线路：
+仓库的 [`data/`](data/) 是内容唯一真相源。295 个目的地分在六个区域数据文件中，另有 53 条多城联游线路；构建后会生成按区加载的静态数据 chunk。
 
 | 文件 | 覆盖 | 条数 |
-|------|------|------|
-| `data-a.json` | 江浙沪 | 42 |
-| `data-b.json` | 华东（皖赣闽鲁） | 35 |
-| `data-c.json` | 华北 + 东北 | 55 |
-| `data-d.json` | 西北 | 33 |
-| `data-e.json` | 华中 + 华南 + 港澳 | 58 |
-| `data-f.json` | 西南 | 44 |
+| --- | --- | ---: |
+| `data-a.json` | 江浙沪 | 46 |
+| `data-b.json` | 华东 | 36 |
+| `data-c.json` | 华北 + 东北 | 70 |
+| `data-d.json` | 西北 | 34 |
+| `data-e.json` | 华中 + 华南 + 港澳 | 60 |
+| `data-f.json` | 西南 | 49 |
 | `routes.json` | 多城联游线路卡 | 53 |
 
-每区配套 `data-X-patch.json` 补充 `coords`（坐标）/ `hotel`（住宿情报）/ `local`（当地交通）/ `effort`（体力档，空=通配）/ `alt`（高海拔 >2500m）/ `difficulty`（抵达难度）/ `companions`（同行适配，空=通配）。
+每区的 `data-*-patch.json` 补充坐标、住宿、当地交通、体力、高海拔、抵达难度和同行适配等字段。`registry-origins.json` 与 `origin-*.json` 管理出发地视角；目前发布上海基座与北京视角。
 
-字段 schema：`id / name / emoji / province / region / crowd / cost / seasons / seasonNote / days / transit / tagline / tags / food / museums / architecture / highlights / plans[] / coords / hotel / local / effort[] / alt / difficulty / companions[]`；线路卡记录另有 `regions[]`（多区域筛选）与 `stops[]`（`{id, days, leg?}` 引用城市 + 建议停留；`leg` 可带线路视角逐日文案 `route`/每晚落脚点 `stays[]`/显式交通 `transport`），线路 `days` 为筛选档位、须包住各站天数合计，线路途经任一高海拔站则 `alt` 必须为 true，线路名称不带日数（卡面以「约N~M天 · 默认Σ天」展示，各站天数装入行程单后可调），另可选 `entry`/`exit` 声明与首末停留站不同的进出门户城市。全部枚举与校验规则见 [`tools/build.py`](tools/build.py)。
-
-## 改数据 / 加目的地
-
-1. 编辑 `data/` 下对应区域的 JSON（新目的地记得在 patch 文件里补 coords/hotel/local/effort/alt/difficulty/companions；新线路直接加进 `routes.json`）
-2. 跑构建校验闸门，通过后把校验+合并后的数据发布为 `public/data/` 下的静态 chunk：
+新增或修改内容时，编辑 `data/` 中的源文件，然后运行：
 
 ```bash
 python3 tools/build.py
 ```
 
-校验不过会直接报错并指出是哪条数据的哪个字段。Cloudflare 部署构建也会先重跑这个脚本（数据校验闸门，非法数据会让部署直接失败）；`public/data/*.json` 的改动仍建议跟着提交，用于本地预览与产物审计，但部署真相源始终是 `data/`。
+该脚本会校验 schema、枚举、坐标及线路不变式，并更新 `public/data/` 的发布数据。不要直接把 `public/data/` 当作内容源。
 
-## 本地开发 / 构建
+## 本地开发与验证
+
+要求：安装 [Bun](https://bun.sh/)；Python 3 用于数据构建脚本。
 
 ```bash
-bun install              # 安装依赖（Vite + TypeScript，无运行时框架）
-bun run dev              # 本地开发服务器
-bun run build            # 先跑 verify 门禁（tsc + 决策层单测 + Worker/DO 请求级测试），再产出 dist/
-bun run verify           # 单独跑门禁：tsc --noEmit + vitest run（决策层）+ vitest run --config vitest.workers.config.ts（Worker/DO）
-bun run test:unit        # 决策层 Vitest 单测（src/logic/__tests__/，73 条）
-bun run test             # Cloudflare Worker/Durable Object 请求级测试——跑在真实本地 workerd 沙箱里（@cloudflare/vitest-pool-workers）
-bun run test:build-assets  # 校验 vite 构建产物的资产路径能被 Worker 路由命中（需要真实文件系统/子进程，不进 verify 门禁）
+bun install
+bun run dev                 # 本地开发服务器
+bun run build               # verify 通过后构建 dist/
+bun run preview             # 预览构建产物
+
+bun run verify              # .agent 协议 lint + 类型检查 + 前端/Worker 测试
+bun run test:unit           # 前端与决策层 Vitest 测试
+bun run test                # Cloudflare Worker / Durable Object 请求级测试
+bun run test:build-assets   # 构建产物与插画管线校验
+bun run test:visual         # 皮肤 × 视图视觉回归测试
 ```
 
-代码分层（M38 起）：`src/logic/` 决策层纯函数模块（filter / gacha / itinerary / transport / budget / roadbook / share / map / qr / persist，无 DOM 依赖，Vitest 覆盖）· `src/ui/` 按视图切分的模板渲染模块（筛选台/卡片/详情/对比/扭蛋/行程/路书/地图/分享 + 事件接线）· `src/store.ts`（应用状态与 localStorage）· `src/services/weather.ts`(天气 I/O) · `src/main.ts`（启动编排）· `src/style.css` + `src/cn-map.ts`（足迹地图 SVG 数据）；`index.html` 是 Vite 入口，只保留静态 body 标记。
+`bun run test:visual:update` 会以全量模式更新视觉基线；只在确认所有截图变化都正确时使用。
 
-## 部署
+## 技术与部署
 
-正式入口 `https://lab.medspiral.com/next-stop-gacha/`，内容只在本仓库维护。`wrangler.jsonc` 在 Cloudflare 构建时跑 `python3 tools/build.py && bun install && bun run build`（先重跑数据校验闸门并从 `data/` 重新生成 chunk，再过 `tsc` + 决策层单测 + Worker/Durable Object 请求级测试门禁，最后 Vite 构建产出多文件 `dist/`——数据非法、类型错误、不变式单测失败或 Worker/DO 测试失败都会让部署直接失败），最后由 `cloudflare/worker.mjs` 剥离 `/next-stop-gacha` 路径前缀，`/api/*` 路由到短链分享（存 KV）与同步码/限流（存 Durable Object——两台设备并发同步需要真原子读写，KV 给不了），其余交给静态资源服务——该 Worker 逻辑与资产文件数量无关，天然支持多文件产物，并按路径分层设置缓存（hash 命名资产 immutable 长缓存，HTML/manifest 短缓存重验证）。
+前端采用 Vite + TypeScript、零运行时框架；过滤、扭蛋、行程、交通、预算和路书等决策逻辑与 DOM 分离并接受测试。构建产物是静态资产，目的地数据按区按需加载。
 
-仓库配置只负责声明构建和目标 Route；首次上线还需要在 Cloudflare Workers 中连接本仓库并执行一次生产部署。不要给这个 Worker 绑定整个 `lab.medspiral.com` Custom Domain，以免接管 Lab 首页。
+部署在 Cloudflare 免费额度内：[`wrangler.jsonc`](wrangler.jsonc) 会先执行数据构建与 `bun run build`，再由 [`cloudflare/worker.mjs`](cloudflare/worker.mjs) 服务 `/next-stop-gacha/` 路径。`/api/*` 提供 KV 短链分享，以及 Durable Object 支持的同步码与限流；后端不可用时，筛选、扭蛋、行程、路书、地图等核心本地能力仍可使用。
 
-## 说明与免责
+该 Worker 只应绑定 `lab.medspiral.com/next-stop-gacha/*`，不要绑定整个 `lab.medspiral.com` 域名，以免接管 Lab 首页。
 
-- 交通方式与时长按坐标直线距离估算，仅供排程参考，出发前以 12306 / 航班动态为准
-- 住宿信息为知识性参考，房态与价格以酒店 App 实时为准
-- `.agent/` 是多 agent 开发工作流的控制面文件（goal / design / state / review）
+## 参与协作
+
+`.agent/` 保存本项目的目标、设计、状态和跨模型审阅记录；提交前请至少运行与改动相符的验证命令。
 
 ---
 
-🤖 Built with [Claude Code](https://claude.com/claude-code)
+🤖 Built with [Claude Code](https://claude.com/claude-code) and Codex
