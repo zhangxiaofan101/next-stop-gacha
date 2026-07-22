@@ -3,7 +3,9 @@
 import type { TripItem } from "../logic/types";
 
 export interface MarksPayload { favs: string[]; visited: string[]; }
-export interface TripPayload { trip: TripItem[]; tripStart?: string; }
+// F78：短链固化分享者的出发地视角——接收端据此先切视角再渲染，避免默认（上海）访客把交通/预算
+// 按「上海往返」无声重算。缺字段=旧版短链（M22 前只有上海基座），接收端按上海解释。
+export interface TripPayload { trip: TripItem[]; tripStart?: string; originId?: string; }
 
 const apiUrl = (path: string) => `${import.meta.env.BASE_URL}api/${path}`;
 

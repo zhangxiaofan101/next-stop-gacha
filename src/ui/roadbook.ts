@@ -110,7 +110,9 @@ export function currentRoadbookText(): string {
 }
 
 export async function shareCurrentRoadbook() {
-  const code = await createTripShareLink({ trip: currentRbTrip, tripStart: currentRbTripStart || undefined });
+  // F78：把当前出发地一并固化进短链——路书的首末段/交通/预算都是按 getOrigin() 视角算的，
+  // 不带出发地分享，默认视角的访客打开会被无声重算成「上海往返」。
+  const code = await createTripShareLink({ trip: currentRbTrip, tripStart: currentRbTripStart || undefined, originId: getOrigin().id });
   if (!code) { toast("短链生成失败，用「复制路书文本」代替"); return; }
   copyText(`${location.origin}${import.meta.env.BASE_URL}?sc=${code}`);
 }

@@ -37,8 +37,10 @@ async function fetchView(o: Origin): Promise<ViewMap | null> {
   return view;
 }
 
-/** 切到指定出发地；成功（或已在途中被作废）返回值见下方注释。失败 toast 并维持现状（quietFail 供测试/边角关提示） */
-export async function switchOrigin(id: string, opts: { silent?: boolean } = {}): Promise<boolean> {
+/** 切到指定出发地；成功（或已在途中被作废）返回值见下方注释。失败 toast 并维持现状（silent 供测试/边角关提示）。
+    persist（默认 true）：是否把这次选择写进 localStorage 记忆——F78 打开分享副本时按分享者视角切一眼，
+    persist:false 跳过记忆那一步（不覆盖访客自己的出发地偏好），其余副作用（换值/onSwitched 刷新/胶囊）照常。 */
+export async function switchOrigin(id: string, opts: { silent?: boolean; persist?: boolean } = {}): Promise<boolean> {
   const my = ++gen; // 自增必须在同城早退判断之前，见上方 gen 声明处注释
   const o = originById(id);
   if (!o || !availableOrigins().includes(o)) return false;
@@ -53,7 +55,7 @@ export async function switchOrigin(id: string, opts: { silent?: boolean } = {}):
     if (my !== gen) return false;
     setOrigin(o);
     applyOriginView(view);
-    setOriginChoice(o.id);
+    if (opts.persist !== false) setOriginChoice(o.id); // F78：分享副本切视角传 persist:false，不写记忆
     onSwitched();
     updateOriginPill();
     if (!opts.silent) toast(`出发地已切换：从${o.name}出发 🛫`);
