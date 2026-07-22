@@ -18,6 +18,6 @@
 
 ## Active findings
 
-> Confirmation baseline: PR #4 `m22-beijing` head `80f5aeb`，GitHub base `main@8c3916a`，Codex/GPT reviewer，2026-07-22。**F78–F88 已全部验证关闭，当前无 Active findings；M22 S3 review gate 通过，PR #4 可以合并。** GitHub 当前为 `MERGEABLE / CLEAN`，verify 与 Workers Builds 均 SUCCESS。
+> Confirmation baseline: `b077de4`（`origin/main`），Codex/GPT reviewer，2026-07-22。**当前无 Active findings；M73 距离排序 + 视角默认序 review 通过。** 上一轮 M61+M62+M71 合并皮肤面 gate 的通过结论维持不变；本轮实现差异为 `275f2a0..b077de4`（立项 spec 起点 `e10c103`）。
 >
-> 独立门禁：`1858308` 的完整 S3 复核维持全绿——F79 focused 7/7、前端 290/290、workerd 50/50、build-assets 23/23、348 条数据构建零警告、visual 24/24。F88 修复 `80f5aeb` 相对该基线只删除 10 个逐字节重复的 `public/data/* 2.json`；`git ls-files` 与 Vite 生产构建的 `dist/data` 均确认同形副本归零，`bun run test:build-assets` 复跑 23/23，`git diff --check 8c3916a..80f5aeb` 通过。doodle 主页基线仍仅含预期的「上海出发」胶囊更新；此前所有内容与机制关闭结论维持不变。
+> 独立复核：`filtered()` 对显式 `dist` 与非基座 `default` 共用当前 `getOrigin().coords` 的 `havRaw` 升序，每次调用现取出发地、不缓存旧距离；上海基座 `default` 继续保持数据文件序，城市卡/线路卡同用代表坐标，排序没有接入分享、彩蛋或行程序。新增四个回归用例分别钉住上海显式距离序（含线路卡）、切北京重排、上海默认序不变、北京默认退化。实跑 `bun run verify` 全绿（前端 294/294 + workerd 50/50）、`bun run test:visual` 24/24、`git diff --check 275f2a0..b077de4` 通过。
