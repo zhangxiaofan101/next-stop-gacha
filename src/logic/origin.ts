@@ -1,10 +1,11 @@
-// M22 出发地机制：出发地是全站数据视角（非筛选条件）。注册表=代码内预设城市表；
-// 某出发地「可选」当且仅当其视角文件已发布进 origins 索引（tools/build.py 产出的
-// public/data/origins.json）——启用新出发地=加一个 data/origin-<id>.json，零代码改动。
+// M22 出发地机制：出发地是全站数据视角（非筛选条件）。注册表=data/registry-origins.json
+// （构建 tools/build.py 与前端共用的单一真相，构建侧强校验其结构与本城固定条目）；某出发地
+// 「可选」当且仅当其视角文件已发布进 origins 索引（public/data/origins.json）——启用新出发地
+// =注册表加一行 + 一个 data/origin-<id>.json 视角文件，零 src 改动。
 // 当前出发地是模块级状态（同 CUR_SEASON 的环境态先例）：决策层纯函数经 getOrigin()
 // 读取，测试用 setOrigin 注入并复位。基座 data-*.json 的 transit/difficulty 恒为上海
 // 视角，换视角的数据面在 logic/originView.ts。
-import { SH } from "./constants";
+import registryOrigins from "../../data/registry-origins.json";
 
 export interface Origin {
   id: string;
@@ -15,10 +16,8 @@ export interface Origin {
   cardId: string;
 }
 
-export const ORIGINS: Origin[] = [
-  { id: "shanghai", name: SH.name, region: SH.region!, coords: SH.coords, cardId: "shanghai" },
-  { id: "beijing", name: "北京", region: "华北", coords: [39.9, 116.4], cardId: "beijing" },
-];
+// 注册表从数据文件派生（JSON 里 coords 推断为 number[]，断言回元组契约；结构真校验在 build.py）
+export const ORIGINS: Origin[] = registryOrigins as Origin[];
 
 /** 基座视角：data-*.json 的 transit/difficulty 按此出发地书写，无需视角文件 */
 export const BASE_ORIGIN = ORIGINS[0];

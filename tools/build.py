@@ -221,11 +221,59 @@ for src, d in all_rows:
         if not isinstance(rg, list) or not rg or any(x not in REGIONS for x in rg):
             errors.append(f"{tag} regions 非法: {rg}")
 
-# M22 per-origin 视角文件：data/origin-<id>.json（目的地 id → {transit, difficulty}），
-# 该出发地视角下的交通文案与抵达难度。覆盖必须全量（含本城条目——transit=本地出发、
-# difficulty=直达，校验免特判，运行时对偶隐藏）；difficulty 同基座枚举；id 必须存在。
-# 通过后发布为独立 chunk + origins.json 索引（见下方发布段）；启用新出发地=新增一个文件。
+# M22 出发地注册表 + per-origin 视角文件（构建与前端的单一真相）：
+# · registry-origins.json：出发地表 [{id,name,region,coords,cardId}]，命名刻意不匹配
+#   origin-*.json glob；此处强校验其结构（合法数组/id 唯一/五字段齐/coords 在中国范围/
+#   cardId 必须是已加载目的地 id）。
+# · data/origin-<id>.json（目的地 id → {transit, difficulty}）：该出发地视角下的交通文案与
+#   抵达难度。id 必须已在注册表登记；覆盖必须全量；difficulty 同基座枚举；本城条目
+#   （view[注册表同源 cardId]）由构建强校验为固定值 transit=本地出发·市内交通 / difficulty=直达
+#   （运行时对偶隐藏）。通过后发布为独立 chunk + origins.json 索引（见下方发布段）；
+#   启用新出发地=注册表加一行 + 一个视角文件。
 all_ids = {d.get("id") for _, d in all_rows}
+
+# 出发地注册表校验（前端 src/logic/origin.ts 亦 import 同一文件派生 ORIGINS）
+REGISTRY_HOME_TRANSIT = "本地出发·市内交通"
+REGISTRY_HOME_DIFFICULTY = "直达"
+registry_path = os.path.join(DATA_DIR, "registry-origins.json")
+registry_by_id = {}  # oid → 注册表条目（供视角文件校验消费）
+if not os.path.exists(registry_path):
+    errors.append("缺出发地注册表文件: registry-origins.json")
+else:
+    try:
+        registry = json.load(open(registry_path))
+    except Exception as e:
+        errors.append(f"registry-origins.json JSON 解析失败: {e}"); registry = []
+    if not isinstance(registry, list) or not registry:
+        errors.append("registry-origins.json 顶层需为非空数组"); registry = []
+    seen_oid = set()
+    for entry in registry:
+        oid = entry.get("id") if isinstance(entry, dict) else None
+        etag = f"registry-origins.json/{oid}"
+        if not isinstance(entry, dict):
+            errors.append(f"registry-origins.json 条目不是对象: {entry}"); continue
+        for k in ("id", "name", "region", "coords", "cardId"):
+            if k not in entry: errors.append(f"{etag} 缺字段 {k}")
+        if not isinstance(oid, str) or not oid.strip():
+            errors.append(f"{etag} id 非法(需非空字符串): {oid}")
+        elif oid in seen_oid:
+            errors.append(f"registry-origins.json id 重复: {oid}")
+        if isinstance(oid, str):
+            seen_oid.add(oid)
+        if not isinstance(entry.get("name"), str) or not entry.get("name", "").strip():
+            errors.append(f"{etag} name 非法(需非空字符串): {entry.get('name')}")
+        if entry.get("region") not in REGIONS:
+            errors.append(f"{etag} region 非法: {entry.get('region')}")
+        c = entry.get("coords")
+        if (not isinstance(c, list) or len(c) != 2
+                or not all(isinstance(x, (int, float)) for x in c)
+                or not (18 <= c[0] <= 54 and 73 <= c[1] <= 135)):
+            errors.append(f"{etag} coords 非法(需 [纬,经] 且在中国范围): {c}")
+        if entry.get("cardId") not in all_ids:
+            errors.append(f"{etag} cardId 不是已加载目的地 id: {entry.get('cardId')}")
+        if isinstance(entry, dict) and isinstance(oid, str):
+            registry_by_id[oid] = entry
+
 origin_views = {}  # oid → view dict（发布段消费）
 for op in sorted(glob.glob(os.path.join(DATA_DIR, "origin-*.json"))):
     oname = os.path.basename(op)
@@ -236,6 +284,8 @@ for op in sorted(glob.glob(os.path.join(DATA_DIR, "origin-*.json"))):
         errors.append(f"{oname} JSON 解析失败: {e}"); continue
     if not isinstance(view, dict):
         errors.append(f"{oname} 顶层不是对象（需 id → {{transit, difficulty}}）"); continue
+    if oid not in registry_by_id:
+        errors.append(f"{oname} 出发地 id「{oid}」未在注册表 registry-origins.json 登记（启用新出发地须先加注册表条目）")
     unknown = sorted(set(view) - all_ids)
     if unknown:
         errors.append(f"{oname} 引用不存在的 id: {unknown[:5]}{' 等' if len(unknown) > 5 else ''}（共 {len(unknown)} 条）")
@@ -255,6 +305,28 @@ for op in sorted(glob.glob(os.path.join(DATA_DIR, "origin-*.json"))):
         if base_d and (base_d.get("norail") or base_d.get("slowrail")) and isinstance(v.get("transit"), str) \
                 and re.search(r"(高铁|动车)\s*直达", v["transit"]):
             warnings.append(f"{vtag} 城市标记 norail/slowrail 但视角文案称「高铁/动车直达」，请人工复核")
+        # F83 后续机械审计（非阻塞，同上口径）：transit 里每个时长 token（数字+h/小时/分钟/min）须「带约」。
+        # 判定=从 token 起点往前跳过区间连接符 [0-9.\-~～–至] 后，紧邻字符必须是「约」——这样「约4.5-5h」的
+        # 5h 通过、「转车1h」「约250km/4h」的 4h（约修饰 km 非时长）被抓出，提示时长应表述为约N。
+        if isinstance(v.get("transit"), str):
+            tr = v["transit"]
+            for m in re.finditer(r"[0-9]+(?:\.[0-9]+)?\s*(?:h|小时|分钟|min)", tr):
+                j = m.start() - 1
+                while j >= 0 and tr[j] in "0123456789.-~～–至":
+                    j -= 1
+                if not (j >= 0 and tr[j] == "约"):
+                    warnings.append(f"{vtag} 时长「{m.group()}」疑似未带「约」（时长应表述为约N，请人工复核）")
+    # F85：本城固定条目——cardId 取自注册表（同源），transit/difficulty 必须逐字为固定值
+    if oid in registry_by_id:
+        home_card = registry_by_id[oid].get("cardId")
+        hv = view.get(home_card)
+        if not isinstance(hv, dict):
+            errors.append(f"{oname} 缺本城固定条目 {home_card}（注册表 cardId 同源）")
+        else:
+            if hv.get("transit") != REGISTRY_HOME_TRANSIT:
+                errors.append(f"{oname}/{home_card} 本城 transit 必须固定为「{REGISTRY_HOME_TRANSIT}」，实为: {hv.get('transit')}")
+            if hv.get("difficulty") != REGISTRY_HOME_DIFFICULTY:
+                errors.append(f"{oname}/{home_card} 本城 difficulty 必须固定为「{REGISTRY_HOME_DIFFICULTY}」，实为: {hv.get('difficulty')}")
     origin_views[oid] = view
 
 if errors:

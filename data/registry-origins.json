@@ -1,0 +1,4 @@
+[
+  { "id": "shanghai", "name": "上海", "region": "江浙沪", "coords": [31.23, 121.47], "cardId": "shanghai" },
+  { "id": "beijing", "name": "北京", "region": "华北", "coords": [39.9, 116.4], "cardId": "beijing" }
+]
