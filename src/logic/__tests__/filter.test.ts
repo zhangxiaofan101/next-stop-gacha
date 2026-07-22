@@ -1,6 +1,8 @@
 // 不变式：容忍型天花板（点一档=含所有低档）、偏好型 OR/空数组通配、玩法 AND、空池定向放宽。
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { countWith, filtered, matchOne, relaxCandidates, simulateChipClick } from "../filter";
+import { havRaw } from "../geo";
+import { BASE_ORIGIN, originById, setOrigin } from "../origin";
 import { loadRealData, mkCity, mkState } from "./helpers";
 
 describe("容忍型天花板（cost/difficulty）", () => {
@@ -110,6 +112,41 @@ describe("空池定向放宽（relaxCandidates）", () => {
     const s = mkState({ crowd: new Set(["小众"]), tags: new Set(["美食"]) });
     expect(countWith(data, s, "crowd", new Set())).toBe(3); // 不限冷热 → a1/a2/c
     expect(countWith(data, s, "tags", new Set())).toBe(3); // 不限玩法 → 小众 a1/a2/b
+  });
+});
+
+describe("M73：距离排序 + 视角默认序", () => {
+  afterEach(() => setOrigin(BASE_ORIGIN));
+  const BEIJING = originById("beijing")!;
+  // 三条固定坐标记录，其中一条是线路卡（stops 存在）——验证排序不特判线路卡，同用 coords 代表点
+  const recs = [
+    mkCity({ id: "a", coords: [30.25, 120.17] }), // 近上海
+    mkCity({ id: "b", coords: [22.3, 114.2] }), // 深圳附近，远上海也远北京
+    mkCity({ id: "route-c", coords: [34.27, 108.95], stops: [{ id: "a", days: 2 }] }), // 线路卡，西安附近
+  ];
+  const byDist = (origin: [number, number]) =>
+    [...recs].sort((x, y) => havRaw(origin, x.coords) - havRaw(origin, y.coords)).map(d => d.id);
+
+  it("显式「距离近 → 远」按当前出发地（上海）坐标球面距离升序，线路卡同口径不特判", () => {
+    const order = filtered(recs, mkState({ sort: "dist" }), "春").map(d => d.id);
+    expect(order).toEqual(byDist(BASE_ORIGIN.coords));
+  });
+
+  it("切出发地到北京后即用新坐标重排，不残留上海视角距离", () => {
+    setOrigin(BEIJING);
+    const order = filtered(recs, mkState({ sort: "dist" }), "春").map(d => d.id);
+    expect(order).toEqual(byDist(BEIJING.coords));
+    expect(order).not.toEqual(byDist(BASE_ORIGIN.coords)); // 确有区分度，非巧合同序
+  });
+
+  it("基座出发地（上海）下 default 仍为数据文件序，不退化为距离序", () => {
+    expect(filtered(recs, mkState(), "春").map(d => d.id)).toEqual(["a", "b", "route-c"]);
+  });
+
+  it("非基座出发地（北京）下 default 退化为距离序", () => {
+    setOrigin(BEIJING);
+    const order = filtered(recs, mkState(), "春").map(d => d.id); // state.sort 仍是 "default"
+    expect(order).toEqual(byDist(BEIJING.coords));
   });
 });
 

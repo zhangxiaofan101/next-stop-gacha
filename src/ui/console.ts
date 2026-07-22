@@ -45,6 +45,7 @@ export function buildConsole() {
         <option value="hidden">小众优先</option>
         <option value="hot">热门优先</option>
         <option value="short">天数短 → 长</option>
+        <option value="dist">距离近 → 远</option>
       </select>
       <button class="btn" id="resetConsoleBtn">清空筛选</button>
       <div class="hit" id="hitCount"></div>

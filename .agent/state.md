@@ -12,6 +12,7 @@
 
 ## ✅ Implemented
 
+- **M73 — 距离排序 + 视角默认序 [R1 · S2]（used: sonnet in-session；小改+机制拍板耦合，未委派）**｜2026-07-22 六期尾插：推荐排序补「距出发地」维度 + per-origin 默认序修正。🌫️ 两问拍板（见 📋）：per-origin 默认序=非基座退化为距离序、选项文案=「距离近 → 远」。实现：`filter.ts filtered()` 新增 `sort==="dist"` 分支（`havRaw(getOrigin().coords, d.coords)` 升序，城市卡/线路卡同口径不特判）；`state.sort==="default"` 时若 `getOrigin().id !== BASE_ORIGIN.id` 就地退化为 dist 分支——每次 `filtered()` 调用都读当前 `getOrigin()`，不缓存距离值，故切出发地后自然用新坐标重排，不会残留旧视角距离（render() 已由 M22 的 `wireOriginSwitch` 回调触发，无需新增接线）；`console.ts` 下拉新增 `<option value="dist">距离近 → 远</option>`。design M73 机制段已回写拍板结果与实现要点。Verified（2026-07-22）：`bun run verify` 全绿（lint:agent + tsc + **294 前端**（+4：显式距离序含线路卡/切出发地重排/基座 default 不变/非基座 default 退化）+ 50 workerd）；真实浏览器（Chrome + `vite` dev server）逐一走查：上海 default=数据文件序（杭州/苏州/南京，同改动前）→ 上海显式「距离近→远」=崇明岛/昆山周庄/苏州（近沪结果符合直觉）→ 切北京（页头胶囊）显式「距离近→远」=京承坝上·皇家草原（线路卡）/爨底下/十渡（京畿新卡集中，含线路卡正确混排证明不特判）→ 北京 default 与显式结果一致（退化生效）→ 切回上海 default 精确复原为杭州/苏州/南京（零残留）。`test:visual` 24/24 零回归（数据文件序未变，闭合下拉外观不受新选项影响，无需重拍）。排序状态未接入分享 payload、彩蛋/扭蛋池/行程序均不受影响，边界符合 spec。review 安排：与用户商定后记档（见下）。 [cc]
 - **出发地入口修缮：页头胶囊→标语句尾内联（2026-07-22，用户反馈即修，不占模块号）**｜用户真机反馈胶囊在手机上白占一行：`#originPill` 从 title-row 迁入 `.subtitle` 句尾做内联文字钮（「上海出发」四字、去 🛫 前缀），虚线下划线 + hover 转实线示意可点，`::after` 外扩热区补足触达（.icon-btn 先例，无边框无需扣 --bw）；id 与 origin.ts/events.ts 接线不动，仅基座可选时隐藏逻辑照旧；design M22「切换入口」条同步改写。Verified（2026-07-22）：`bun run verify` 全绿（lint:agent + tsc + **290 前端** + **50 workerd**，退出码 0）；视觉基线按预期 UI 变化 `--update-snapshots=all` 重拍——字节变化 10 张=4 肤主页 + 带页头的 gacha-reveal/trip 数张，`bun run test:visual` 复跑 24/24 两轮全绿；期间 porcelain 详情偶发一次截图稳定超时，定向 `--repeat-each=3` 12/12 全绿证实为既有 flakiness 家族（同 M66/M71 记录）非本改动回归；新基线截图目检确认句尾蓝色加粗+虚线下划线呈现。 [cc]
 
 - **M22 — 自选出发城市·北京首发 [R2 · S3]（used: 机制段 fable in-session；数据批 opus×12 分片；review 修复批 sonnet×3+opus×2 按 finding 分波编排）**｜六期主件 + **S3 分支+PR 流首试**：`m22-beijing` worktree 分支实施 → PR #4 → gating ①用户目检（本地 `vite preview` 代行，Cloudflare 未开 Preview URLs）→ gating ②codex S3 共三轮（首轮 F78–F86 九项、复核轮 F79 在途扭蛋补+F87 分支冲突、终审 F88 重复发布文件；**F78–F88 全关、gate 通过**）→ rebase 并 main（15 commits 线性、远端分支已删）。机制修订均已入 design M22（注册表下沉 `data/registry-origins.json` 单一真相+构建强校验、分享路书固化 originId〔persist:false 不劫持访客偏好〕、本城卡对偶三咽喉一体、切换 latest-request-wins）与 checklist 七节（注册表登记/本城固定值强校验/时长带约机械审计/守卫双向互查）。数据面：origin-beijing.json 348 条北京视角 + 上海卡 + 京畿 12 卡（350km 密度 15→28，主题口径六项全有着落）；裁定 1 例=单对超长直达列车不抬档（平潭）。终验（merge 时点合树）：build 零错误零警告、前端 290、workerd 50、build-assets 23/23、`test:visual` 24/24（基线已在合树定稿，原「合并后重跑 update」遗留项就此了结）、真实浏览器双出发地全链路通过（详见 git 历史 PR #4）。遗留：①京津承类线路北京视角首段「北京→北京 0km」显示待定夺（后续修缮批）②新卡 13 张插画待插画轨道补 ③iCloud 目录「 2」副本风险——发布产物提交一律显式路径，禁宽泛 add。复卡：M22 批 7 项已挂高时效清单（见 ⏭ 复卡条目）。 [cc]
@@ -76,9 +77,7 @@
 
 ## 🔜 Next batch（六期收尾）
 
-M22 已并 main（S3 三轮全关，见 ✅）；皮肤面 review gate（M61+M62+M71）已通过（见 ✅）；本节剩 M73 尾插小功能一项。 [cc]
-
-- **M73 — 距离排序 + 视角默认序 [R1 · S2 · 🌫️] → cc 新会话（档位按拨号自估，sonnet 档预期）**｜2026-07-22 用户点名六期尾插：推荐排序缺「距出发城市」维度；且北京/上海视角下「推荐顺序」默认序应不同（现 default=数据文件序=上海视角编排产物）。M22 已并 main，依赖就位。🌫️=per-origin 默认序方案开工 AskUserQuestion 拍板；落地后 review 挂小单独轮或并七期首轮（开工会话与用户商定记档）。spec 见 design M73。 [cc]
+M22 已并 main（S3 三轮全关，见 ✅）；皮肤面 review gate（M61+M62+M71）已通过（见 ✅）；~~M73 距离排序+视角默认序~~ ✅落地（2026-07-22，见 ✅）——**六期全部模块落地**，只待 M73 review 安排（小单独轮或并七期首轮，需与用户商定）。 [cc]
 
 - 六期 review gate（2026-07-21 为 loop 连跑重排——用户要求少打断、一次多落几个模块）：**代码面合并一轮**（M63+M64+M66+M67+M68+M69，排 M68 后、M61 前；原「M64 后扭蛋面一轮」并入）**已收口**（F70–F77 修复 + codex 确认轮 baseline 9322468 全关，见 Review backlog）→ 皮肤面一轮 **M61+M62+M71 合并（同 M46/M52 先例）——M62 落地后现已可开工**，待用户开 codex 会话跑；M22 的 S3 单独一轮**已收口**（F78–F88 三轮全关、PR #4 已并，见 ✅）。M64 的用户目检改为落地后异步（部署站上看，反馈走修缮批），不阻塞 loop 批次。 [cc]
 
@@ -107,6 +106,7 @@ M22 已并 main（S3 三轮全关，见 ✅）；皮肤面 review gate（M61+M62
 
 ## 📋 拍板档案
 
+- **2026-07-22 M73 开工两问拍板**（用户，AskUserQuestion，均选推荐项）：①per-origin 默认序=**非基座视角 default 退化为距离序**（出发地≠上海时「推荐顺序」直接等于新增的距离排序；上海视角 default 不变，仍为数据文件序）——「距离分层内保留原推荐序」「视角文件显式序权重」两候选未采纳（前者区间断点仍是新主观口径且区间内序仍是上海遗留，后者牵连 schema/构建强校验、意味着每开一个新出发地都要人工编排全量顺序权重，均判过度设计）；②新排序选项文案=**「距离近 → 远」**（与既有「天数短 → 长」同构，二字属性词最短一致）。机制全文见 design M73。 [cc]
 - **2026-07-21 M22 开工四问拍板**（用户，AskUserQuestion；①③选推荐项，②④用户扩展）：①per-origin schema=**独立视角文件** `data/origin-beijing.json`（id→{transit,difficulty}，build 强校验全量覆盖+枚举+守卫互查，发布独立 chunk 按需 fetch，基座恒上海视角）；②京畿补卡名单=cc 提的 12 张候选**全进调研批**，用户明示「只是举例，可以扩展」——调研中可增删、按「值得住」红线淘汰；③切换入口=**页头出发地胶囊**（足迹胶囊同区同语言，localStorage 记忆）；④本城卡=**对偶隐藏 + 新增上海城市卡**（用户点名：出发地=北京时隐北京卡显上海卡，出发地=上海时隐上海卡显北京卡；崇明不算上海卡）。机制全文见 design M22。 [cc]
 - **2026-07-21 M22 提前并行拍板**（用户）：「61/62 先慢慢搞着不着急，我们来做 M22」——M22 与皮肤轨道并行开工；cc 核查冲突面（皮肤=src/skins/+assets，M22=logic/tools/data，零交集）确认可行，并行纪律记入 🔜 M22 条。 [cc]
 - **2026-07-21 App 化远期方向**（用户）：本站逐步变手机 App、从 PWA 起步 → goal 长期方向新增 + design M70 spec of record + P2 挂账；同轮用户要求 loop 连跑六期批次（少打断多落模块）→ 代码面 review gate 合并重排（见 review gate 行）。 [cc]

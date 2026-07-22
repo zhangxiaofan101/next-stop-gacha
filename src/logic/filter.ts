@@ -1,8 +1,8 @@
 // 过滤/排序/chip 语义/空池治理（design「决策机制·过滤」「空池治理」）。
 // 全部纯函数：data 与 state 显式传入，DOM 副作用（清搜索框/按钮高亮）由 UI 层按 action 描述符执行。
 import { CEIL_GROUPS, DAY_BUCKETS, GROUP_NAMES } from "./constants";
-import { hav } from "./geo";
-import { getOrigin } from "./origin";
+import { hav, havRaw } from "./geo";
+import { BASE_ORIGIN, getOrigin } from "./origin";
 import type { Destination, FilterState, GroupKey } from "./types";
 
 const group = (state: FilterState, k: GroupKey) => state[k];
@@ -105,9 +105,15 @@ export function relaxCandidates(data: Destination[], state: FilterState): RelaxC
 export function filtered(data: Destination[], state: FilterState, curSeason: string): Destination[] {
   let list = data.filter(d => matchOne(d, state, null, null));
   const crowdRank: Record<string, number> = { "小众": 0, "适中": 1, "热门": 2 };
-  if (state.sort === "hidden") list = [...list].sort((a, b) => crowdRank[a.crowd] - crowdRank[b.crowd]);
-  if (state.sort === "hot") list = [...list].sort((a, b) => crowdRank[b.crowd] - crowdRank[a.crowd]);
-  if (state.sort === "short") list = [...list].sort((a, b) => Math.min(...a.days) - Math.min(...b.days));
-  if (state.sort === "season") list = [...list].sort((a, b) => (b.seasons.includes(curSeason) ? 1 : 0) - (a.seasons.includes(curSeason) ? 1 : 0));
+  const origin = getOrigin();
+  // M73：「推荐顺序」（default）=数据文件序，是上海视角编排的产物；非基座出发地下这份编排不成立
+  // （出发地=北京时不该仍江浙沪打头），退化为距离序（拍板见 state 📋）。此处每次调用都读当前
+  // getOrigin()，不缓存距离——切出发地即用新坐标重排，不会残留旧视角的距离。
+  const sort = state.sort === "default" && origin.id !== BASE_ORIGIN.id ? "dist" : state.sort;
+  if (sort === "dist") list = [...list].sort((a, b) => havRaw(origin.coords, a.coords) - havRaw(origin.coords, b.coords));
+  if (sort === "hidden") list = [...list].sort((a, b) => crowdRank[a.crowd] - crowdRank[b.crowd]);
+  if (sort === "hot") list = [...list].sort((a, b) => crowdRank[b.crowd] - crowdRank[a.crowd]);
+  if (sort === "short") list = [...list].sort((a, b) => Math.min(...a.days) - Math.min(...b.days));
+  if (sort === "season") list = [...list].sort((a, b) => (b.seasons.includes(curSeason) ? 1 : 0) - (a.seasons.includes(curSeason) ? 1 : 0));
   return list;
 }
