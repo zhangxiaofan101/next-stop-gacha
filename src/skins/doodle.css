@@ -12,8 +12,12 @@
 :root[data-theme="doodle"] {
   --sky: #f6eedb;
   --sky-deep: #ecdfc0;
-  --sky-top: #f8f1e2;
-  --sky-mid: #f7efdd;
+  /* F89 review 修复：body 背景恒走 sky-top→mid→bot 三段渐变（style.css:9），本皮肤三值先前
+     取了三个相近但不同的色号，制造出肉眼难辨但真实存在的渐变——decor 母版全部不透明底（无
+     alpha），叠在这条渐变上会在装饰盒边缘露出与周边底色不同的硬矩形。三值统一钉死成 --paper
+     同一色号，让「页面恒定纯色」真正成立（不是仅注释声称），装饰盒边缘随之与页面同色消失。 */
+  --sky-top: #f6eedb;
+  --sky-mid: #f6eedb;
   --sky-bot: #f6eedb;
   --hill-1: #e8ddc0;
   --hill-2: #d9c8a0;
@@ -196,15 +200,13 @@
   --map-dot-visited: #4a6b3f;
   --map-heart: #b8613f;
 
-  /* ---- 共享集皮肤适配滤镜（M51）：F81 用户终审反馈——纯灰度太冷太素，不是「涂鸦」该有的暖调，
-     且反馈原图本身（未滤镜的水彩画风目的地共享集）都比灰度更贴合本皮肤气质。改用 doodleSketch
-     （见 index.html svg defs）：feGaussianBlur 把细节揉成色块 + feComponentTransfer discrete
-     阶梯量化色阶（保留原图色相，只是分块，不脱色）营造「涂鸦本上色」的扁平色块感；另起一路从
-     （较轻模糊后的）灰度取 feConvolveMatrix 拉普拉斯核抓边缘，线性阈值滤掉纹理噪点只留真正轮廓，
-     feMorphology erode 再抹掉散落单像素噪点，合成一层暖炭黑描边叠在色块图上——是「模糊成色块 +
-     强调深轮廓边缘」两句话的字面机器实现，不是重新画的资产。emoji 消费方已在下方 doodle 装饰块
-     解耦成独立字面量滤镜链，不跟着这条改（见该处大注释）。 ---- */
-  --dest-filter: url(#doodleSketch);
+  /* ---- 共享集皮肤适配滤镜（M51）：F81 曾改用 doodleSketch（模糊成色块+边缘描边的 SVG 滤镜）
+     试图贴近「暖调涂鸦」气质，F92 用户复看线上效果后否决——机器味太重、不耐看，原图（水彩画风
+     目的地共享集）本身反而最贴合本皮肤气质，改回 none 直接显原图，同 cream 先例（未落地任何滤镜
+     不等于消极兜底，是本皮肤定案）。doodleSketch 滤镜定义随之从 index.html svg defs 整体移除
+     （零消费方，避免留死代码）。emoji 消费方走独立字面量滤镜链，不受此改动影响（见下方 doodle
+     装饰块大注释）。 ---- */
+  --dest-filter: none;
 
   /* ---- M63 扭蛋壳件（SVG + 皮肤取色）：芥末黄上盖 + 暖纸下碗 + 炭黑描边 ---- */
   --cap-top: #d9a545;

@@ -1011,12 +1011,12 @@
   [data-theme="doodle"] .fab:active, [data-theme="doodle"] .big-btn:active, [data-theme="doodle"] .dock-go:active,
   [data-theme="doodle"] .stop .mini:active, [data-theme="doodle"] button.count-pill:active { opacity: .8; }
 
-  /* F81 用户反馈：目的地照片滤镜换成「模糊成色块+深色轮廓」的 SVG 滤镜（doodleSketch，见
-     index.html svg defs）后 --dest-filter 不再是简单的 grayscale 链，emoji 字形在这条重滤镜下于
-     小尺寸（16~26px）糊成一团色斑（同下方 .ge-photo 的问题同源）。emoji 与照片从此各走各的滤镜
-     ——不再共用 --dest-filter token，同 porcelain 结构先例（porcelainDuotone 是照片专用，emoji
-     另有一条独立字面量链，见上方 porcelain 段落）。本链保留城市代表 emoji 的去色识别度（用户认
-     「一眼认城市」的可用性，非装饰），同时把冷灰调暖到贴近 --paper 暖象牙的黄调（用户二轮反馈：
+  /* F81 用户反馈：doodle 的目的地照片一览滤镜曾一度较重（doodleSketch，F92 已改回 none 直接显
+     原图），当时顺手把城市代表 emoji 从 --dest-filter token 上解耦成独立字面量链，避免共用一条
+     滤镜时任何一侧调参都牵动另一侧（同 porcelain 结构先例：porcelainDuotone 是照片专用，emoji
+     另有一条独立字面量链，见上方 porcelain 段落）。F92 照片滤镜已改回 none，但这条解耦本身仍是
+     对的设计（两个消费方的诉求本就不同——emoji 要「一眼认城市」的去色识别度+贴纸底暖黄调，照片
+     现在干脆不滤镜），故保留独立链不并回。本链把冷灰调暖到贴近 --paper 暖象牙的黄调（用户反馈：
      「emoji 偏黄一点更好，和背景一致」）——grayscale 打底后叠 sepia 引入暖褐调，saturate 把 sepia
      染色显出来，不做到 porcelain 式的强饱和上色。滤镜只挂非空图标的 `.emo` 内层 span，含背景/边框
      的容器（.c-emoji/.dt-emoji/.stop）不进滤镜链，天然保持 --region-fallback 原色=--paper，不会
@@ -1026,12 +1026,6 @@
   [data-theme="doodle"] .gr-photo-emoji, [data-theme="doodle"] .ge-photo-emoji {
     filter: grayscale(.55) sepia(.45) saturate(1.5) contrast(1.1) brightness(1.02);
   }
-  /* 蛋堆备选条缩略图（.ge-photo，仅 48×40px）：doodleSketch 滤镜里的模糊/卷积半径是绝对像素值，
-     在这个尺寸下模糊核比图本身还大，糊成一坨看不出内容的色斑（同上）——蛋堆条的定位是「提醒堆里
-     装了谁」的小标签，不是「一览场景」的读图现场，直接退回原色缩略图，比强撑一个认不出主体的滤镜
-     版本更可用。主卡片网格（.c-photo）与开壳揭晓卡（.gr-photo，92px）尺寸够大、滤镜观感正常，
-     不受影响。 */
-  [data-theme="doodle"] .ge-photo { filter: none; }
   /* 用户反馈：拿去对比按钮换本皮肤的芥末黄强调色（--yellow），与母版红黄小件点缀同色系；其余
      皮肤走 --grad-btn-blue 基础色不变，只在 doodle 下覆盖。 */
   [data-theme="doodle"] .cmp-take { background: var(--yellow); color: var(--ink); }

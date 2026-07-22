@@ -21,16 +21,10 @@
      feComponentTransfer 两点表把明度斜坡映到 design 风格锁冻结的瓷白～钴蓝两端点
      （数值=两端点色值的 sRGB 归一化分量，color-interpolation-filters="sRGB" 保证计算色彩空间与
      取值时一致，不经默认 linearRGB 走样）；--dest-filter（porcelain.css）引用本 id，见 style.css
-     「M51」注释——缺失/失败时浏览器原生按 none 处理，天然优雅回退原图。doodleSketch（F81）：同一
-     机制的第二个消费方，效果换成「模糊成色块+深轮廓」而非双色映射——两路并行合成：①blockBlur 一路
-     feGaussianBlur 揉掉细节，feComponentTransfer type="discrete" 阶梯量化 RGB（B 通道阶梯整体比
-     R/G 低，压蓝提暖，不做灰度化，保留原图色相）得到色块图；②edgeBlur 一路先轻模糊抑掉像素级噪点
-     （不与①共用同一次模糊——边缘检测要的模糊量远小于色块要的，共用会顾此失彼，见 style.css
-     doodle.css 注释里记的调参过程)，取亮度转灰阶后过 feConvolveMatrix 拉普拉斯核（-1…8…-1）抓
-     边缘，feComponentTransfer type="linear" 线性阈值（负截距）滤掉纹理噪声只留真正轮廓，
-     feMorphology erode 抹掉残留单像素噪点，feColorMatrix 把该路的边缘强度接到暖炭黑的 alpha 通道
-     （0 0 0 0 <定值> 的写法=不管输入、只出常量色，配 alpha 行 1 0 0 0 0=把边缘强度原样接成透明度）
-     生成一层「有边缘才不透明」的描边图；feComposite operator="over" 把描边图叠在色块图上。 -->
+     「M51」注释——缺失/失败时浏览器原生按 none 处理，天然优雅回退原图。doodleSketch（F81 曾用，
+     F92 移除）：doodle 的目的地共享集滤镜一度换成「模糊成色块+深轮廓」的第二个消费方，用户复看
+     线上效果后否决（机器味重、不耐看，原图更贴合本皮肤气质），doodle.css 的 --dest-filter 已改
+     none 直接显原图，本滤镜定义随之整体删除，不留零消费方的死代码。 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <filter id="sealRough" x="-8%" y="-8%" width="116%" height="116%">
     <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="3"/>
@@ -47,33 +41,6 @@
       <feFuncG type="table" tableValues="0.302 0.961"/>
       <feFuncB type="table" tableValues="0.620 0.937"/>
     </feComponentTransfer>
-  </filter>
-  <filter id="doodleSketch" color-interpolation-filters="sRGB">
-    <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="blockBlur"/>
-    <feComponentTransfer in="blockBlur" result="blocks">
-      <feFuncR type="discrete" tableValues="0.16 0.34 0.52 0.7 0.86 0.97"/>
-      <feFuncG type="discrete" tableValues="0.12 0.3 0.48 0.66 0.82 0.94"/>
-      <feFuncB type="discrete" tableValues="0.06 0.2 0.36 0.52 0.68 0.82"/>
-    </feComponentTransfer>
-    <feGaussianBlur in="SourceGraphic" stdDeviation="1.1" result="edgeBlur"/>
-    <feColorMatrix in="edgeBlur" type="matrix" result="gray" values="
-      0.2126 0.7152 0.0722 0 0
-      0.2126 0.7152 0.0722 0 0
-      0.2126 0.7152 0.0722 0 0
-      0      0      0      1 0"/>
-    <feConvolveMatrix in="gray" order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" divisor="1" bias="0" preserveAlpha="true" result="edgeRaw"/>
-    <feComponentTransfer in="edgeRaw" result="edgeBoost">
-      <feFuncR type="linear" slope="7" intercept="-0.42"/>
-      <feFuncG type="linear" slope="7" intercept="-0.42"/>
-      <feFuncB type="linear" slope="7" intercept="-0.42"/>
-    </feComponentTransfer>
-    <feMorphology in="edgeBoost" operator="erode" radius="0.5" result="edgeClean"/>
-    <feColorMatrix in="edgeClean" type="matrix" result="ink" values="
-      0 0 0 0 0.16
-      0 0 0 0 0.13
-      0 0 0 0 0.10
-      1 0 0 0 0"/>
-    <feComposite in="ink" in2="blocks" operator="over"/>
   </filter>
 </svg>
 
