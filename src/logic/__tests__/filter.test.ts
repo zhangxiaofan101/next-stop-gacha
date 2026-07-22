@@ -58,6 +58,26 @@ describe("M68：aka 地理别名只进搜索 hay", () => {
   });
 });
 
+describe("省级地名搜索", () => {
+  it("省名精确查询走 province 字段，不被普通文本子串误命中", () => {
+    const s = mkState({ q: "山东" });
+    const hit = mkCity({ id: "qingdao", province: "山东" });
+    const falseSubstringHit = mkCity({ id: "yinchuan", province: "宁夏", highlights: ["\u8d3a\u5170\u5c71\u4e1c\u9e93酒庄"] });
+    expect(matchOne(hit, s)).toBe(true);
+    expect(matchOne(falseSubstringHit, s)).toBe(false);
+  });
+
+  it("跨省记录按 province 的「·」分段命中，仍不搜索其他字段", () => {
+    const s = mkState({ q: "四川" });
+    expect(matchOne(mkCity({ id: "border", province: "云南·四川交界" }), s)).toBe(true);
+  });
+
+  it("非省名仍保留普通全文子串搜索", () => {
+    const s = mkState({ q: "酒庄" });
+    expect(matchOne(mkCity({ id: "yinchuan", highlights: ["\u8d3a\u5170\u5c71\u4e1c\u9e93酒庄"] }), s)).toBe(true);
+  });
+});
+
 describe("M68：distMode 按距出发地（SH）直线距离派生", () => {
   // SH 坐标 [31.23, 121.47]（constants.ts），havRaw 实算：near ≈165km（短途阈值内）、
   // far ≈2905km（拉萨附近，远超长途阈值）
@@ -166,5 +186,12 @@ describe("真实数据回归", () => {
   it("F76：搜「苏南」命中南京——江苏省统计局口径「苏南五市」明确列入南京，M68 批漏标", () => {
     const s = mkState({ q: "苏南" });
     expect(filtered(data, s, "夏").some(d => d.id === "nanjing")).toBe(true);
+  });
+  it("搜「山东」只命中 province=山东 的城市与线路卡，不误收银川", () => {
+    const hits = filtered(data, mkState({ q: "山东" }), "夏");
+    expect(hits.some(d => d.id === "yinchuan")).toBe(false);
+    expect(hits.some(d => !d.stops && d.province === "山东")).toBe(true);
+    expect(hits.some(d => !!d.stops && d.province === "山东")).toBe(true);
+    expect(hits.every(d => d.province === "山东")).toBe(true);
   });
 });

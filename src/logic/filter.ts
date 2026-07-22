@@ -13,6 +13,17 @@ const group = (state: FilterState, k: GroupKey) => state[k];
 export const SHORT_TRIP_KM = 500;
 export const LONG_TRIP_KM = 1000;
 
+// 省级地名是结构化筛选意图，不应被普通文本中的连续同名字样误命中。仅列当前数据集中
+// 实际出现的单一省级行政区名称；线路卡的 province 可用「·」连接多个省级区，仍只在该
+// 结构化字段内按分段匹配。
+const PROVINCIAL_LEVEL_NAMES = new Set([
+  "北京", "天津", "上海", "重庆", "河北", "山西", "内蒙古", "辽宁", "吉林", "黑龙江",
+  "江苏", "浙江", "安徽", "福建", "江西", "山东", "河南", "湖北", "湖南", "广东", "广西",
+  "海南", "四川", "贵州", "云南", "西藏", "陕西", "甘肃", "青海", "宁夏", "新疆", "香港", "澳门",
+]);
+
+const isProvinceQuery = (query: string) => PROVINCIAL_LEVEL_NAMES.has(query.trim());
+
 // 单条记录是否命中；okey/oset 可临时覆盖某一组条件（okey="q"/"onlyFav"/"noAlt"/"hideVisited"/"distMode" 时表示清掉该项），
 // 供 chip 实时计数与空态定向放宽做"如果改这一个条件会怎样"的假设计算。
 export function matchOne(d: Destination, state: FilterState, okey: string | null = null, oset: Set<string> | null = null): boolean {
@@ -45,9 +56,11 @@ export function matchOne(d: Destination, state: FilterState, okey: string | null
   if (g("companions").size && d.companions.length && !d.companions.some(x => g("companions").has(x))) return false;
   if (g("tags").size && ![...g("tags")].every(t => d.tags.includes(t))) return false;
   if (q) {
+    const query = q.trim();
+    if (isProvinceQuery(query)) return d.province.split("·").some(segment => segment.startsWith(query));
     // M68：aka（地理别名，如「川西」「胶东」）只进搜索 hay，不参与任何展示
     const hay = [d.name, d.province, d.tagline, ...d.tags, ...d.food, ...d.highlights, ...d.architecture, ...d.museums, ...(d.aka || [])].join(" ").toLowerCase();
-    if (!hay.includes(q.toLowerCase())) return false;
+    if (!hay.includes(query.toLowerCase())) return false;
   }
   return true;
 }
