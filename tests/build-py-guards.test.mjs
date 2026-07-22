@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -29,18 +29,16 @@ function withTmpDataCopy(fn) {
 }
 
 function runBuildPy(dataDir, publicDataDir) {
-  try {
-    execFileSync("python3", [SCRIPT], {
-      env: { ...process.env, BUILD_DATA_DIR: dataDir, BUILD_PUBLIC_DATA_DIR: publicDataDir },
-      stdio: "pipe",
-    });
-    return { code: 0, stderr: "" };
-  } catch (e) {
-    return { code: e.status ?? 1, stderr: e.stderr?.toString() ?? "" };
-  }
+  // spawnSync（非 execFileSync）以便在退出码 0（含非阻塞 warning）时仍能读到 stderr——
+  // build.py 把 warning 打到 stderr 但不改退出码，机械审计用例据此断言。
+  const r = spawnSync("python3", [SCRIPT], {
+    env: { ...process.env, BUILD_DATA_DIR: dataDir, BUILD_PUBLIC_DATA_DIR: publicDataDir },
+    encoding: "utf8",
+  });
+  return { code: r.status ?? 1, stderr: r.stderr ?? "" };
 }
 
-test("隔离目录下真实数据副本零改动仍零违规通过（钉住当前 282 城+53 线零 norail/slowrail 冲突）", () => {
+test("隔离目录下真实数据副本零改动仍零违规通过（钉住当前 295 城+53 线=348 零 norail/slowrail 冲突）", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
     const result = runBuildPy(dataDir, publicDataDir);
     assert.equal(result.code, 0, `真实数据副本必须零退出通过，stderr: ${result.stderr}`);
@@ -96,15 +94,18 @@ function allIds(dataDir) {
   return ids;
 }
 
-function fullView(dataDir) {
+// 全量覆盖的视角。传 homeCardId 时把该本城条目置为构建强校验的固定值（F85），
+// 其余条目用通用「高铁约2h/直达」（transit 带「约」，避免机械审计误伤别的用例）。
+function fullView(dataDir, homeCardId) {
   const view = {};
   for (const id of allIds(dataDir)) view[id] = { transit: "高铁约2h", difficulty: "直达" };
+  if (homeCardId) view[homeCardId] = { transit: "本地出发·市内交通", difficulty: "直达" };
   return view;
 }
 
 test("M22：全量覆盖的视角文件通过并发布 hash chunk + origins.json 索引", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
-    const view = fullView(dataDir);
+    const view = fullView(dataDir, "beijing");
     writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
     const result = runBuildPy(dataDir, publicDataDir);
     assert.equal(result.code, 0, `全量视角文件应通过，stderr: ${result.stderr}`);
@@ -117,16 +118,22 @@ test("M22：全量覆盖的视角文件通过并发布 hash chunk + origins.json
 
 test("M22：无视角文件时 origins.json 为空对象（基座-only 形态）", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
+    // withTmpDataCopy 会带入真实 origin-*.json（如 origin-beijing.json）；基座-only 形态须删除
+    // 全部视角文件（别写死单个城名），但保留 registry-origins.json——基座-only 也需注册表在场。
+    for (const f of readdirSync(dataDir)) {
+      if (/^origin-.*\.json$/.test(f)) rmSync(join(dataDir, f));
+    }
     const result = runBuildPy(dataDir, publicDataDir);
-    assert.equal(result.code, 0);
+    assert.equal(result.code, 0, `基座-only 应通过，stderr: ${result.stderr}`);
     assert.deepEqual(JSON.parse(readFileSync(join(publicDataDir, "origins.json"), "utf8")), {});
   });
 });
 
 test("M22：覆盖缺一条必须非零退出并报缺失数", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
-    const view = fullView(dataDir);
-    delete view[Object.keys(view)[0]];
+    const view = fullView(dataDir, "beijing");
+    // 删首个非本城 id，保留 beijing 本城固定条目在场，纯验「覆盖不全」这一条
+    delete view[allIds(dataDir).find(id => id !== "beijing")];
     writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
     const result = runBuildPy(dataDir, publicDataDir);
     assert.notEqual(result.code, 0, "覆盖不全必须拦截");
@@ -136,7 +143,7 @@ test("M22：覆盖缺一条必须非零退出并报缺失数", () => {
 
 test("M22：未知 id / 非法 difficulty / 多余字段 各自拦截", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
-    const view = fullView(dataDir);
+    const view = fullView(dataDir, "beijing");
     view["no-such-city"] = { transit: "x", difficulty: "直达" };
     const someId = allIds(dataDir)[0];
     view[someId] = { transit: "高铁约2h", difficulty: "很难" };
@@ -148,5 +155,66 @@ test("M22：未知 id / 非法 difficulty / 多余字段 各自拦截", () => {
     assert.match(result.stderr, /引用不存在的 id/);
     assert.match(result.stderr, /difficulty 非法: 很难/);
     assert.match(result.stderr, /恰含 transit\+difficulty/);
+  });
+});
+
+test("F85：未在注册表登记的出发地视角文件（origin-guangzhou.json）必须报错退出", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    // guangzhou 是真实存在的目的地卡，但未在 registry-origins.json 注册为出发地
+    const view = fullView(dataDir, "guangzhou");
+    writeFileSync(join(dataDir, "origin-guangzhou.json"), JSON.stringify(view));
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.notEqual(result.code, 0, "未注册出发地必须拦截");
+    assert.match(result.stderr, /未在注册表/);
+  });
+});
+
+test("F85：本城固定条目被篡改（transit / difficulty）必须报错", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    // transit 篡改
+    let view = fullView(dataDir, "beijing");
+    view.beijing = { transit: "瞬移到天安门", difficulty: "直达" };
+    writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
+    let result = runBuildPy(dataDir, publicDataDir);
+    assert.notEqual(result.code, 0, "本城 transit 篡改必须拦截");
+    assert.match(result.stderr, /本城 transit 必须固定/);
+
+    // difficulty 改「折腾」
+    view = fullView(dataDir, "beijing");
+    view.beijing = { transit: "本地出发·市内交通", difficulty: "折腾" };
+    writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
+    result = runBuildPy(dataDir, publicDataDir);
+    assert.notEqual(result.code, 0, "本城 difficulty 篡改必须拦截");
+    assert.match(result.stderr, /本城 difficulty 必须固定/);
+  });
+});
+
+test("F84 合同：注册表加第三城 + 其全量视角文件 → build 通过且 origins.json 含该城（零 src 改动）", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    // 注册表加天津（cardId 指向真实存在的目的地卡 'tianjin'）
+    const regPath = join(dataDir, "registry-origins.json");
+    const reg = JSON.parse(readFileSync(regPath, "utf8"));
+    reg.push({ id: "tianjin", name: "天津", region: "华北", coords: [39.1, 117.2], cardId: "tianjin" });
+    writeFileSync(regPath, JSON.stringify(reg));
+    // 程序化生成天津全量视角（含本城固定条目）
+    writeFileSync(join(dataDir, "origin-tianjin.json"), JSON.stringify(fullView(dataDir, "tianjin")));
+
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.equal(result.code, 0, `第三城应过闸（合同：加数据不改 src），stderr: ${result.stderr}`);
+    const index = JSON.parse(readFileSync(join(publicDataDir, "origins.json"), "utf8"));
+    assert.match(index.tianjin, /^origin-tianjin-[0-9a-f]{10}\.json$/);
+  });
+});
+
+test("F83 机械审计：视角文案时长未带「约」触发非阻塞 warning（build 仍零退出）", () => {
+  withTmpDataCopy((dataDir, publicDataDir) => {
+    const view = fullView(dataDir, "beijing");
+    // 挑一个非本城 id，注入裸时长（无「约」）——历史坏例形态「转车1h到…」
+    const someId = allIds(dataDir).find(id => id !== "beijing");
+    view[someId] = { transit: "转车1h到景区", difficulty: "直达" };
+    writeFileSync(join(dataDir, "origin-beijing.json"), JSON.stringify(view));
+    const result = runBuildPy(dataDir, publicDataDir);
+    assert.equal(result.code, 0, `非阻塞 warning 不应改变退出码，stderr: ${result.stderr}`);
+    assert.match(result.stderr, /疑似未带「约」/);
   });
 });

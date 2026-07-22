@@ -2,6 +2,7 @@
 // distMode 随出发地换锚、行程起点/彩蛋起点参数化。出发地是模块级环境态——每例后必须复位基座，
 // 违者会横向污染整套单测（afterEach 强制）。
 import { afterEach, describe, expect, it } from "vitest";
+import { SH } from "../constants";
 import { matchOne } from "../filter";
 import { nearestNeighborOrder, onwaySuggestions, tripLegs, tripStops } from "../itinerary";
 import { BASE_ORIGIN, getOrigin, ORIGINS, originById, resolveOrigin, setOrigin } from "../origin";
@@ -18,6 +19,12 @@ describe("注册表与解析", () => {
     expect(BASE_ORIGIN.cardId).toBe("shanghai");
     expect(BEIJING.cardId).toBe("beijing");
     expect(ORIGINS.length).toBeGreaterThanOrEqual(2);
+  });
+  it("防漂移 pin：注册表基座条目与 SH 常量逐字段相等（两处真相物理分离，锁住不分叉）", () => {
+    // SH 是行程引擎的 Place，注册表基座是出发地表——两份物理真相，pin 保证同城不分叉
+    expect(BASE_ORIGIN.name).toBe(SH.name);
+    expect(BASE_ORIGIN.region).toBe(SH.region);
+    expect(BASE_ORIGIN.coords).toEqual(SH.coords);
   });
   it("resolveOrigin：脏值/未注册/未发布一律回基座，已发布才生效", () => {
     expect(resolveOrigin(null, {}).id).toBe("shanghai");
