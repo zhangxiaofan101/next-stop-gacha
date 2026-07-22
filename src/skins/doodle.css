@@ -196,10 +196,15 @@
   --map-dot-visited: #4a6b3f;
   --map-heart: #b8613f;
 
-  /* ---- 共享集皮肤适配滤镜（M51）：灰度线稿化（design 已定方向）——grayscale 去色+contrast
-     提升，贴近「钢笔线描」的黑白速写质感，比青花的双色映射更简单直接（不做色相映射）；色调
-     映射改的是色不是笔触，局限见 design「共享集皮肤适配滤镜」诚实记录。 ---- */
-  --dest-filter: grayscale(1) contrast(1.15);
+  /* ---- 共享集皮肤适配滤镜（M51）：F81 用户终审反馈——纯灰度太冷太素，不是「涂鸦」该有的暖调，
+     且反馈原图本身（未滤镜的水彩画风目的地共享集）都比灰度更贴合本皮肤气质。改用 doodleSketch
+     （见 index.html svg defs）：feGaussianBlur 把细节揉成色块 + feComponentTransfer discrete
+     阶梯量化色阶（保留原图色相，只是分块，不脱色）营造「涂鸦本上色」的扁平色块感；另起一路从
+     （较轻模糊后的）灰度取 feConvolveMatrix 拉普拉斯核抓边缘，线性阈值滤掉纹理噪点只留真正轮廓，
+     feMorphology erode 再抹掉散落单像素噪点，合成一层暖炭黑描边叠在色块图上——是「模糊成色块 +
+     强调深轮廓边缘」两句话的字面机器实现，不是重新画的资产。emoji 消费方已在下方 doodle 装饰块
+     解耦成独立字面量滤镜链，不跟着这条改（见该处大注释）。 ---- */
+  --dest-filter: url(#doodleSketch);
 
   /* ---- M63 扭蛋壳件（SVG + 皮肤取色）：芥末黄上盖 + 暖纸下碗 + 炭黑描边 ---- */
   --cap-top: #d9a545;

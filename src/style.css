@@ -355,16 +355,25 @@
     background: var(--panel-warm-bg); border-right: var(--bw-thick) solid var(--panel-warm-border);
     border-bottom: var(--bw-thick) solid var(--panel-warm-border); transform: rotate(45deg);
   }
-  .g-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; min-height: 148px; }
+  /* F81 用户反馈（横跨 ink/porcelain/doodle 三套有 mascot-cutout 资产的皮肤，落在共享块修一处三
+     处生效）：.g-scene 原是 display:flex + justify-content:center 但没收窄宽度——块级 flex 容器
+     默认撑满 .machine 面板全宽（.gacha-box max-width:560px），.g-illust 机器图在这个宽盒子里居中，
+     .g-kara 却是 `position:absolute; right:2px` 相对整个宽盒子的右边，于是咔啦被钉在面板右边缘，
+     跟真正居中的机器之间空出一大段——「离机器很远」正是这段量出来的空隙。width:fit-content 把
+     .g-scene 收窄到与其唯一在文档流内的子元素（.g-illust，被 .g-kara 的 absolute 抽出流外不计入）
+     等宽，.g-kara 的 right 偏移从此量的是机器自己的右边缘，天然贴到机器旁边。 */
+  .g-scene { position: relative; display: flex; justify-content: center; align-items: flex-end; min-height: 148px; width: fit-content; margin: 0 auto; }
   .g-scene .g-illust { display: flex; justify-content: center; }
   .g-scene .illust-fallback { display: grid; place-items: center; width: 180px; height: 180px; font-size: 82px; } /* cream: 🎰 */
   .g-machine { width: 180px; height: 180px; object-fit: contain; transition: width .25s ease, height .25s ease; }
-  .g-kara { position: absolute; right: 2px; bottom: -4px; width: 100px; line-height: 0; }
+  .g-kara { position: absolute; right: 4px; bottom: -4px; width: 100px; line-height: 0; }
   .g-kara .illust { width: 100%; height: auto; object-fit: contain; transform: scaleX(-1); }
-  /* 有蛋堆时机器收窄给蛋堆让位（design M63 拍板） */
+  /* 有蛋堆时机器收窄给蛋堆让位（design M63 拍板）——机器尺寸变化是必要的（给蛋堆区腾地方），但
+     用户反馈「扭之前扭出来之后位置变可以，尺寸跟着变很奇怪」：咔啦不再跟着 .has-pile 一起缩小，
+     只保留原尺寸，随 .g-scene 收窄自然改变贴靠位置（机器变小→咔啦相对更近/更靠内），单一变量
+     不再叠加成「近了但也小了」的双重变化。 */
   .machine.has-pile .g-scene { min-height: 118px; }
   .machine.has-pile .g-machine, .machine.has-pile .g-scene .illust-fallback { width: 138px; height: 138px; }
-  .machine.has-pile .g-kara { width: 82px; }
 
   .g-window {
     background: var(--grad-window); border: var(--bw-xthick) solid var(--ink); border-radius: var(--radius-window);
@@ -1002,14 +1011,30 @@
   [data-theme="doodle"] .fab:active, [data-theme="doodle"] .big-btn:active, [data-theme="doodle"] .dock-go:active,
   [data-theme="doodle"] .stop .mini:active, [data-theme="doodle"] button.count-pill:active { opacity: .8; }
 
-  /* F80 同款处理（M71 教训直接抄卷）：城市代表 emoji 灰度线稿化套色，滤镜只挂非空图标的 `.emo`
-     内层 span，含背景/边框的容器（.c-emoji/.dt-emoji/.stop）不进滤镜链，天然保持 --region-fallback
-     原色=--paper，不会被染出一圈色差。.gr-photo-emoji/.ge-photo-emoji 是扭蛋大图/蛋堆关图开关下
-     的应急兜底，同 porcelain 处理——纯文本无背景框，直接整个进滤镜链。 */
+  /* F81 用户反馈：目的地照片滤镜换成「模糊成色块+深色轮廓」的 SVG 滤镜（doodleSketch，见
+     index.html svg defs）后 --dest-filter 不再是简单的 grayscale 链，emoji 字形在这条重滤镜下于
+     小尺寸（16~26px）糊成一团色斑（同下方 .ge-photo 的问题同源）。emoji 与照片从此各走各的滤镜
+     ——不再共用 --dest-filter token，同 porcelain 结构先例（porcelainDuotone 是照片专用，emoji
+     另有一条独立字面量链，见上方 porcelain 段落）。本链保留城市代表 emoji 的去色识别度（用户认
+     「一眼认城市」的可用性，非装饰），同时把冷灰调暖到贴近 --paper 暖象牙的黄调（用户二轮反馈：
+     「emoji 偏黄一点更好，和背景一致」）——grayscale 打底后叠 sepia 引入暖褐调，saturate 把 sepia
+     染色显出来，不做到 porcelain 式的强饱和上色。滤镜只挂非空图标的 `.emo` 内层 span，含背景/边框
+     的容器（.c-emoji/.dt-emoji/.stop）不进滤镜链，天然保持 --region-fallback 原色=--paper，不会
+     被染出一圈色差（F80 教训）。.gr-photo-emoji/.ge-photo-emoji 是扭蛋大图/蛋堆关图开关下的应急
+     兜底，同 porcelain 处理——纯文本无背景框，直接整个进滤镜链。 */
   [data-theme="doodle"] .emo, [data-theme="doodle"] .gr-em,
   [data-theme="doodle"] .gr-photo-emoji, [data-theme="doodle"] .ge-photo-emoji {
-    filter: var(--dest-filter);
+    filter: grayscale(.55) sepia(.45) saturate(1.5) contrast(1.1) brightness(1.02);
   }
+  /* 蛋堆备选条缩略图（.ge-photo，仅 48×40px）：doodleSketch 滤镜里的模糊/卷积半径是绝对像素值，
+     在这个尺寸下模糊核比图本身还大，糊成一坨看不出内容的色斑（同上）——蛋堆条的定位是「提醒堆里
+     装了谁」的小标签，不是「一览场景」的读图现场，直接退回原色缩略图，比强撑一个认不出主体的滤镜
+     版本更可用。主卡片网格（.c-photo）与开壳揭晓卡（.gr-photo，92px）尺寸够大、滤镜观感正常，
+     不受影响。 */
+  [data-theme="doodle"] .ge-photo { filter: none; }
+  /* 用户反馈：拿去对比按钮换本皮肤的芥末黄强调色（--yellow），与母版红黄小件点缀同色系；其余
+     皮肤走 --grad-btn-blue 基础色不变，只在 doodle 下覆盖。 */
+  [data-theme="doodle"] .cmp-take { background: var(--yellow); color: var(--ink); }
   /* 详情页深读场景整体退出滤镜（design「共享集皮肤适配滤镜」分层口径，M71 三轮用户反馈定案）——
      doodle 的全灰度同样会丢色彩线索、削弱头图可辨度，比照 porcelain 从落地起就应用同一条退出
      规则，不必等用户在本皮肤上重新报一遍。#detailOverlay 是头图与 dt-emoji/途经站点 emoji 的
