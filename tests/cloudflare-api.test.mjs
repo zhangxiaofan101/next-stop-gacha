@@ -96,6 +96,53 @@ test("rejects malformed trip payload items (bad days / bad shape)", async () => 
   expect(notArray.status).toBe(400);
 });
 
+// F78：短链固化分享者出发地。worker 只做 originId 的**结构**校验（合法字符形状），不硬编码城市枚举
+// ——城市是数据驱动的，worker 侧无数据集可查（见 validateTripPayload 注）。
+test("F78: a trip payload with a well-formed originId roundtrips through create+GET", async () => {
+  const body = { type: "trip", payload: { trip: [{ id: "hangzhou", days: 3 }], tripStart: "2026-08-01", originId: "beijing" } };
+  const createRes = await handleRequest(post("/api/share", body), env);
+  expect(createRes.status).toBe(200);
+  const { code } = await createRes.json();
+  const getRes = await handleRequest(req(`/api/share/${code}`), env);
+  expect(await getRes.json()).toEqual(body); // originId 原样保留
+});
+
+test("F78: originId is optional — a trip payload without it is still accepted (historical short links)", async () => {
+  const res = await handleRequest(post("/api/share", { type: "trip", payload: { trip: [{ id: "hangzhou", days: 2 }] } }), env);
+  expect(res.status).toBe(200);
+});
+
+test("F78: rejects a non-string originId", async () => {
+  const num = await handleRequest(post("/api/share", { type: "trip", payload: { trip: [{ id: "hangzhou", days: 2 }], originId: 123 } }), env);
+  expect(num.status).toBe(400);
+  const obj = await handleRequest(post("/api/share", { type: "trip", payload: { trip: [{ id: "hangzhou", days: 2 }], originId: { id: "beijing" } } }), env);
+  expect(obj.status).toBe(400);
+});
+
+test("F78: rejects originId strings that violate the id character pattern", async () => {
+  const bad = [
+    "Beijing",              // 大写
+    "1city",                // 数字开头
+    "北京",                  // 非 ASCII
+    "",                     // 空串
+    "bei jing",             // 空格
+    "beijing_1",            // 下划线
+    "a".repeat(33),         // 超过 32 字符（[a-z] + {0,31}）
+  ];
+  for (const originId of bad) {
+    const res = await handleRequest(post("/api/share", { type: "trip", payload: { trip: [{ id: "hangzhou", days: 2 }], originId } }), env);
+    expect(res.status, `originId=${JSON.stringify(originId)} should be rejected`).toBe(400);
+  }
+});
+
+test("F78: accepts boundary-legal originId forms (single char, hyphens, digits, 32-char max)", async () => {
+  const ok = ["a", "x-1", "us-west-2", "a".repeat(32)];
+  for (const originId of ok) {
+    const res = await handleRequest(post("/api/share", { type: "trip", payload: { trip: [{ id: "hangzhou", days: 2 }], originId } }), env);
+    expect(res.status, `originId=${JSON.stringify(originId)} should be accepted`).toBe(200);
+  }
+});
+
 test("rate limits after the daily cap per IP (real Durable Object counting)", async () => {
   const body = { type: "marks", payload: { favs: [], visited: [] } };
   let last;

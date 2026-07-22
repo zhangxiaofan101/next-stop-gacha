@@ -60,6 +60,11 @@ function validateMarksPayload(payload) {
 function validateTripPayload(payload) {
   if (!payload || !Array.isArray(payload.trip)) return false;
   if (payload.tripStart !== undefined && typeof payload.tripStart !== "string") return false;
+  // F78 originId（分享者出发地）：只做结构校验（出发地 id 的合法字符形状），**不硬编码城市枚举**——
+  // 可选城市是数据驱动的（tools/build.py 产出的 origins 索引才是权威城市表），worker 侧无数据集可查、
+  // 也不该背一份会漂移的城市表。undefined 允许（历史短链无此字段）；否则须是匹配该模式的字符串。
+  if (payload.originId !== undefined &&
+    !(typeof payload.originId === "string" && /^[a-z][a-z0-9-]{0,31}$/.test(payload.originId))) return false;
   return payload.trip.every((t) =>
     t && typeof t.id === "string" && Number.isInteger(t.days) && t.days >= 1 && t.days <= 14 &&
     (t.r === undefined || typeof t.r === "string"));

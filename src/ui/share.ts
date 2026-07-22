@@ -2,6 +2,7 @@
    M40 短链（后端增强形态）也走这里：生成短链复用同一份 marks payload，打开短链复用同一条并集合并路径。
    M41 同步码云同步（design「后端·同步码云同步」）同样复用 mergeUnion/parseShare 这套并集合并信任边界——
    区别只是触发方式（用户主动点「同步」，不是被动打开一条别人发来的链接），故直接合并不再弹确认条。 */
+import { getOrigin, originById } from "../logic/origin";
 import { sanitizeTripItems } from "../logic/persist";
 import { qrEncode } from "../logic/qr";
 import { mergeUnion, parseImportJSON, parseShare, serializeShare, type SharePayload } from "../logic/share";
@@ -11,6 +12,7 @@ import { clearSyncCode, DATA, getSyncCode, saveLS, setSyncCode, state } from "..
 import { copyText } from "./clipboard";
 import { $ } from "./dom";
 import { render } from "./render";
+import { switchOrigin } from "./origin";
 import { openSharedRoadbook } from "./roadbook";
 import { toast } from "./toast";
 
@@ -61,7 +63,24 @@ export async function checkShareCode() {
     showImportBar(p);
   } else {
     const trip = sanitizeTripItems(share.payload.trip, DATA);
-    if (trip.length) openSharedRoadbook(trip, share.payload.tripStart || "");
+    if (!trip.length) return;
+    // F78：短链固化了分享者的出发地——先切到该视角再渲染，否则访客的默认（上海）视角会把首末段/
+    // 交通/预算按「上海往返」无声重算，违反「分享副本保持原义」。无 originId 字段=旧版短链，按 M22
+    // 前唯一存在的基座上海解释。
+    const oid = share.payload.originId ?? "shanghai";
+    if (oid !== getOrigin().id) {
+      // persist:false 不写 localStorage——「按分享者视角看一眼」绝不覆盖访客自己的出发地偏好；
+      // silent:true 关掉 switchOrigin 默认切换 toast，换成下面这条解释「视角为何变了」的定制提示。
+      const ok = await switchOrigin(oid, { silent: true, persist: false });
+      if (ok) {
+        toast(`路书按分享者的出发地展示：从${originById(oid)!.name}出发 🛫`);
+      } else {
+        // 切换失败（oid 未注册/未发布/fetch 失败）——分享功能哲学=任何失败都优雅降级：仍打开路书，
+        // 但诚实告知它按访客当前出发地重算（switchOrigin 失败不改 getOrigin()，与路书实际渲染口径一致）。
+        toast(`分享者的出发地视角加载失败，路书按从${getOrigin().name}出发重算`);
+      }
+    }
+    openSharedRoadbook(trip, share.payload.tripStart || "");
   }
 }
 
