@@ -41,3 +41,8 @@ curl -sL -o fonts/source/LXGWWenKai-Regular.ttf \
 懒取值行为自动懒加载（`--round`/`--sans` 只有在 `data-theme="ink"` 时才解析成这两个 family，
 奶油皮肤下浏览器永远不会去发起这两个 woff2 的请求）；字体失败或未布置时 `font-family` 栈里的
 系统字体兜底（`font-display: swap`），排版不塌。
+
+毛笔标题字体中经实际页面确认容易被误读的字形列在
+`src/skins/fonts/ink/title-fallback.txt`。它们仍保留正确文本，但不进 `title.woff2`，浏览器会按
+`--round` 字体栈改用 `Ink Body` 的清晰字形；比在各个 UI 模板里单独包字符更稳定，也能覆盖卡片、
+详情、扭蛋结果与路书等所有标题消费位。

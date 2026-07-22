@@ -12,7 +12,8 @@
 文案（那些走 `--sans`）；马善政毛笔体单字笔画点数远高于霞鹜文楷，若也按「data 全量文本」算字符集
 会撑破 1MB 预算（实测 3043 字→1.19MB）。故标题字体的语料 = UI 文案（index.html + src/**/*.ts）∪
 仅 `name`/`province` 两个数据字段（--round 实际消费到的数据字段，逐个 var(--round) 选择器核对过：
-城市/线路名、`.c-route` 拼的「上海 ✈ 某省 · 某区」）；正文字体的语料 = UI 文案 ∪ **data 全量文本**
+城市/线路名、`.c-route` 拼的「上海 ✈ 某省 · 某区」），再减去已确认易误读、改由正文字体回退的字形；
+正文字体的语料 = UI 文案 ∪ **data 全量文本**
 （--sans 覆盖数据里的一切其余字段，必须全量，宁可语料偏大不可漏字）。两档都再并上全部可打印 ASCII
 （覆盖数字/英文标签，如「citywalk」「D1」「267 个目的地」）。
 """
@@ -26,6 +27,7 @@ SRC_DIR = os.path.join(ROOT, "fonts", "source")
 # CSS url()，必须留在 src/ 下让 Vite 当模块资产处理（哈希文件名 + 正确带 base 拷进 dist/assets/），
 # 否则会重演 F39 那次「base 配错导致资产 404」的事故形状。见 src/skins/ink.css 里的 @font-face。
 OUT_DIR = os.path.join(ROOT, "src", "skins", "fonts", "ink")
+TITLE_FALLBACK_PATH = os.path.join(OUT_DIR, "title-fallback.txt")
 MAX_BYTES = 1024 * 1024  # design「主题皮肤系统」：单字重 ≤1MB woff2
 
 # (输出文件名, 源字体, 标签, 是否用全量 data 文本——False=只取 name/province 字段)
@@ -82,6 +84,15 @@ def collect_ui_text() -> set:
     return chars
 
 
+def load_title_fallback() -> set:
+    """毛笔标题字体中已确认易与其他字混淆的字形：不改文本，只从标题子集排除，
+    交给 --round 的下一档 Ink Body 稳定回退。"""
+    if not os.path.exists(TITLE_FALLBACK_PATH):
+        print(f"!! 缺 {os.path.relpath(TITLE_FALLBACK_PATH, ROOT)}", file=sys.stderr)
+        sys.exit(1)
+    return {ch for ch in open(TITLE_FALLBACK_PATH, encoding="utf-8").read() if not ch.isspace()}
+
+
 def main():
     if not os.path.isdir(SRC_DIR) or not any(
         os.path.exists(p) for _, p, _, _ in FONTS
@@ -92,12 +103,14 @@ def main():
     chunks = load_chunks()
     ui_text = collect_ui_text()
     ascii_printable = {chr(c) for c in range(0x20, 0x7F)}
-    narrow_charset = ui_text | collect_data_text_names(chunks) | ascii_printable
-    full_charset = ui_text | collect_data_text_full(chunks) | ascii_printable
+    title_fallback = load_title_fallback()
+    narrow_charset = (ui_text | collect_data_text_names(chunks) | ascii_printable) - title_fallback
+    full_charset = ui_text | collect_data_text_full(chunks) | ascii_printable | title_fallback
 
     os.makedirs(OUT_DIR, exist_ok=True)
     print(f"标题语料：{len(narrow_charset)} 字符（UI 文案 + name/province）；"
-          f"正文语料：{len(full_charset)} 字符（UI 文案 + data 全量文本）")
+          f"正文语料：{len(full_charset)} 字符（UI 文案 + data 全量文本）；"
+          f"标题易混字回退：{''.join(sorted(title_fallback)) or '无'}")
     ok = True
     for out_name, src_path, label, use_full in FONTS:
         if not os.path.exists(src_path):
