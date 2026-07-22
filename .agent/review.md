@@ -18,10 +18,6 @@
 
 ## Active findings
 
-> Final confirmation baseline: PR #4 `m22-beijing` head `1858308`，GitHub base `main@8c3916a`，Codex/GPT reviewer，2026-07-22。**F79 与 F87 均已验证关闭并按协议删除**：出发地切换与 `openGacha()` 共用 `invalidateInFlightRoll()`，非 reduced-motion fake-timer 双向回归通过；GitHub 当前为 `MERGEABLE / CLEAN`，verify 与 Workers Builds 均 SUCCESS。终审另发现 F88，故当前仍有 1 个 P2，M22 S3 review gate 尚未通过，PR #4 暂不可合并。
+> Confirmation baseline: PR #4 `m22-beijing` head `80f5aeb`，GitHub base `main@8c3916a`，Codex/GPT reviewer，2026-07-22。**F78–F88 已全部验证关闭，当前无 Active findings；M22 S3 review gate 通过，PR #4 可以合并。** GitHub 当前为 `MERGEABLE / CLEAN`，verify 与 Workers Builds 均 SUCCESS。
 >
-> 独立门禁（从 `1858308` 导出的干净提交树）：F79 focused suite 7/7；`bun run verify` 全绿（前端 290/290 + workerd 50/50）；`bun run test:build-assets` 23/23；`python3 tools/build.py` 通过（295 城 + 53 线 = 348 条，9 chunks，零警告）；`bun run test:visual` 24/24；`git diff --check 8c3916a..1858308` 通过。doodle 主页基线在 PR 中仅该一张发生预期更新，实图确认新增页头「上海出发」胶囊且布局正常。此前 F78、F80–F86 的关闭结论维持不变。
-
-### F88 — P2 — 最后一次字体提交误纳入 10 个带 ` 2` 后缀的重复发布数据
-
-`1858308` 除字体 corpus/woff2 外，还新增了 `public/data/chunk-1-e41f41f901 2.json` 至 `chunk-8-ac008cc1c4 2.json`、`origin-beijing-162ab1a000 2.json`、`origins 2.json`。逐对 `cmp` 确认它们与不带 ` 2` 的正规文件完全相同，合计约 580KB；manifest 不引用这些名字，但 Vite 会把 `public/` 原样复制进部署产物，因此它们会成为无用的线上负载与仓库噪音。应从分支删除这 10 个已跟踪副本，仅保留正规 hash 文件；同时留意该 worktree 还有多份未跟踪的同形 `data/src/* 2.*` 云同步副本，修复提交不要再次用宽泛 `git add` 把它们带入。删除后至少重跑 `git diff --check` 与 `bun run test:build-assets`，确认 PR 只剩预期发布文件。
+> 独立门禁：`1858308` 的完整 S3 复核维持全绿——F79 focused 7/7、前端 290/290、workerd 50/50、build-assets 23/23、348 条数据构建零警告、visual 24/24。F88 修复 `80f5aeb` 相对该基线只删除 10 个逐字节重复的 `public/data/* 2.json`；`git ls-files` 与 Vite 生产构建的 `dist/data` 均确认同形副本归零，`bun run test:build-assets` 复跑 23/23，`git diff --check 8c3916a..80f5aeb` 通过。doodle 主页基线仍仅含预期的「上海出发」胶囊更新；此前所有内容与机制关闭结论维持不变。
