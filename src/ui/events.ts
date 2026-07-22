@@ -100,7 +100,7 @@ export function wireEvents() {
   $("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
   $("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
   $("footPill").addEventListener("click", openMap); // 足迹统计胶囊本身即地图入口（M50 修订）
-  $("originPill").addEventListener("click", openOrigin); // M22 出发地胶囊即选择器入口
+  $("originPill").addEventListener("click", openOrigin); // M22 出发地内联入口即选择器入口
   $("shareBtn").addEventListener("click", openShare);
   $("skinBtn").addEventListener("click", openSkin);
   $("fabGacha").addEventListener("click", () => openGacha()); // 全量池入口；直传 openGacha 会把 MouseEvent 当成 cmpPool 参数传入，必须包一层

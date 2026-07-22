@@ -1,4 +1,4 @@
-/* M22 出发地切换：页头胶囊入口（足迹胶囊同区同语言）+ 弹层选择器（同 skin.ts 习语）。
+/* M22 出发地切换：标语句尾内联文字钮入口 + 弹层选择器（同 skin.ts 习语）。
    视角文件按需 fetch + 内存缓存；fetch 失败提示并维持原出发地——视角文件与核心数据同一
    可用性等级，绝不静默显示错视角（design M22）。 */
 import { BASE_ORIGIN, getOrigin, ORIGINS, originById, resolveOrigin, type Origin } from "../logic/origin";
@@ -79,8 +79,8 @@ export async function restoreOrigin(idx: Record<string, string>) {
 
 export function updateOriginPill() {
   const pill = $("originPill");
-  pill.textContent = `🛫 ${getOrigin().name}出发`;
-  // 只有基座一个可选项时选择器没有意义，胶囊整个不出（视角文件发布后自动出现）
+  pill.textContent = `${getOrigin().name}出发`;
+  // 只有基座一个可选项时选择器没有意义，入口整个不出（视角文件发布后自动出现）
   pill.style.display = availableOrigins().length > 1 ? "" : "none";
 }
 

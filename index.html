@@ -84,8 +84,6 @@
     <div class="title-row">
       <h1 class="logo"><span class="plane">✈️</span> 下一站，去哪玩</h1>
       <span class="count-pill" id="countPill">…</span>
-      <!-- M22 出发地胶囊：全站数据视角开关（足迹胶囊同区同语言）；只有基座可选时 JS 隐藏 -->
-      <button class="count-pill" id="originPill" style="display:none" title="切换出发地"></button>
       <span class="foot-group">
         <button class="count-pill" id="footPill" style="display:none" title="打开足迹地图"></button>
         <!-- 静态按钮的线形图标与 src/ui/icons.ts 同款内联（模块脚本注入会闪一帧空按钮），改图形时两处同步 -->
@@ -95,7 +93,8 @@
         <img class="illust" data-illust="mascot" alt="" loading="lazy" data-fallback="hide">
       </span>
     </div>
-    <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。<span class="ink-seal"><svg class="ink-seal-svg" viewBox="0 0 34 34" aria-hidden="true"><g filter="url(#sealRough)"><rect x="1.5" y="1.5" width="31" height="31" rx="3" fill="var(--red)"/><text x="17" y="14.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">下一</text><text x="17" y="27.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">站</text></g></svg><img class="illust ink-seal-img" data-illust="seal-nextstop" data-fallback="hide" alt="" aria-hidden="true"></span></p>
+    <!-- M22 出发地入口：全站数据视角开关，标语句尾内联文字钮；只有基座可选时 JS 隐藏（origin.ts updateOriginPill） -->
+    <p class="subtitle">选择困难症救星：<b>筛一筛</b>慢慢比、<b>扭一个</b>听天由命，或者把几站<b>串成行程</b>直接出路书。<button class="origin-inline" id="originPill" style="display:none" title="切换出发地"></button><span class="ink-seal"><svg class="ink-seal-svg" viewBox="0 0 34 34" aria-hidden="true"><g filter="url(#sealRough)"><rect x="1.5" y="1.5" width="31" height="31" rx="3" fill="var(--red)"/><text x="17" y="14.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">下一</text><text x="17" y="27.5" text-anchor="middle" font-size="11" font-family="var(--round)" fill="var(--paper)">站</text></g></svg><img class="illust ink-seal-img" data-illust="seal-nextstop" data-fallback="hide" alt="" aria-hidden="true"></span></p>
   </header>
 
   <section class="console" id="console"></section>

@@ -79,6 +79,15 @@
   }
   .subtitle { margin: 8px 0 0; color: var(--ink-soft); font-size: 15px; }
   .subtitle b { color: var(--blue-deep); font-weight: 600; }
+  /* M22 出发地内联入口：随标语行内排版，虚线下划线示意可点可改；视觉是四个字，
+     触达经伪元素外扩补足（同 .icon-btn 先例；无边框故无需扣 --bw） */
+  .origin-inline {
+    background: none; border: 0; padding: 0; margin-left: 4px; font: inherit; font-weight: 600;
+    color: var(--blue-deep); cursor: pointer; position: relative;
+    text-decoration: underline dashed; text-underline-offset: 4px; text-decoration-thickness: 1px;
+  }
+  .origin-inline::after { content: ""; position: absolute; inset: -12px -8px; }
+  .origin-inline:hover { text-decoration-style: solid; }
 
   /* ---- 筛选面板 ---- */
   .console {
