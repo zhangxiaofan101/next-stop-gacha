@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkCity } from "../../logic/__tests__/helpers";
 import { BASE_ORIGIN, ORIGINS, setOrigin } from "../../logic/origin";
 import { setData, state } from "../../store";
-import { _drawablePool, _resetGachaSession, openGacha, purgePileForOrigin, roll } from "../gacha";
+import { _drawablePool, _resetGachaSession, getLastPick, openGacha, purgePileForOrigin, roll } from "../gacha";
 
 const BEIJING = ORIGINS.find(o => o.id === "beijing")!;
 
@@ -129,5 +129,65 @@ describe("F79 扭蛋对比池覆盖：本城卡对偶隐藏", () => {
     expect(ids).toContain("beijing"); // 对偶方向：上海出发时北京卡不是本城卡，正常可抽
     expect(ids).toContain("hangzhou");
     expect(document.getElementById("gachaScope")!.innerHTML).toContain("共 <b>2</b> 颗");
+  });
+});
+
+// F79 复核（codex）：只滤 pile 不够——非 reduced-motion 的 ~2s 老虎机动画结算前，pile 还没拿到
+// 这次的结果，purgePileForOrigin 若不顺带作废在途 roll（gachaGen++ + clearTimeout(rollTimer)），
+// settle() 的 myGen !== gachaGen 早退形同虚设，动画走完后旧本城卡照样落堆。用假时钟真实驱动
+// setTimeout 动画链复现这个窗口（reduced-motion 同步结算天然绕开它，同 gacha-race.test.ts 的
+// F70 回归惯例）。matchMedia stub 与 Math.random mock 均沿用该文件已验证过的做法。
+describe("F79 复核：非 reduced-motion 飞行中的 roll 撞上出发地切换", () => {
+  beforeEach(() => {
+    document.body.innerHTML = GACHA_DOM;
+    resetState();
+    _resetGachaSession();
+    vi.stubGlobal("matchMedia", () => ({ matches: false })); // 非 reduced-motion：走真动画路径
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0); // gachaPick 恒选池第 0 个，结果可预期
+    // settle() 会触发彩带（非 reduced-motion 时不早退）；happy-dom 无 canvas 2d 上下文实现，
+    // 垫一个 no-op 上下文（同 gacha-race.test.ts），测试只关心作废语义，不是在验证彩带本身
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      clearRect: () => {}, save: () => {}, translate: () => {}, rotate: () => {}, fillRect: () => {}, restore: () => {},
+    } as unknown as CanvasRenderingContext2D);
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    setOrigin(BASE_ORIGIN);
+    vi.unstubAllGlobals();
+  });
+
+  it("上海→北京：settle 前切到北京并 purge，旧本城卡（北京）不落堆，rolling 正常复位", () => {
+    setOrigin(BASE_ORIGIN); // 上海出发起手：北京只是普通城市
+    setData([mkCity({ id: "beijing" }), mkCity({ id: "hangzhou" })]); // random 恒 0 → 池第 0 个 beijing 被抽中
+    openGacha();
+    roll();
+    vi.advanceTimersByTime(500); // 动画进行中（totalMs=2000），远未到结算
+    setOrigin(ORIGINS.find(o => o.id === "beijing")!); // 切到北京：北京卡此刻变成本城卡
+    purgePileForOrigin();                              // F79 修复点：须作废这次飞行中的 roll，不只是滤 pile
+    vi.advanceTimersByTime(3000); // 走满旧动画本该耗时——若未被真正取消，settle() 会在此把北京卡判定为同世代落堆
+    expect(getLastPick()).toBeNull();  // 旧结果没有落地
+    expect(eggIds()).toHaveLength(0);  // pile 不含本城卡
+    // rolling 已正确复位：紧接着的新一轮 roll() 不会被残留的 rolling=true 拦住，能对新池正常抽取
+    roll();
+    vi.advanceTimersByTime(3000);
+    expect(eggIds()).toEqual(["hangzhou"]); // 北京已被 basePool 排除，新抽中的是池里唯一剩下的候选
+  });
+
+  it("北京→上海（对偶方向）：settle 前切到上海并 purge，旧本城卡（上海）不落堆，rolling 正常复位", () => {
+    setOrigin(ORIGINS.find(o => o.id === "beijing")!); // 北京出发起手：上海只是普通城市
+    setData([mkCity({ id: "shanghai" }), mkCity({ id: "hangzhou" })]); // random 恒 0 → 池第 0 个 shanghai 被抽中
+    openGacha();
+    roll();
+    vi.advanceTimersByTime(500);
+    setOrigin(BASE_ORIGIN); // 切回上海：上海卡此刻变成本城卡
+    purgePileForOrigin();
+    vi.advanceTimersByTime(3000);
+    expect(getLastPick()).toBeNull();
+    expect(eggIds()).toHaveLength(0);
+    roll();
+    vi.advanceTimersByTime(3000);
+    expect(eggIds()).toEqual(["hangzhou"]);
   });
 });
