@@ -255,6 +255,12 @@ cartoon outlines.
 - **QA 并排新增一轴**：除“同画师 / 文字 / 安全区”外，逐张检查“遮住文件名还能否凭主角认出该城”以及“与同区域任一张是否共享三项以上**具体空间关系**（例如同一视点下的开阔水面、前景小船、孤塔、远山层叠）”。朱红、飞檐、城门、塔、亭等单个建筑类别不计项；数据卡明确点名且形制可信的本地地标不因同类建筑多而返工。命中三项具体空间关系且当地地标仍不成主角时才返工，不以单张好看为放行理由
 - **防漂移**：任一批与基准并排出现「换画师」感即停批报告，不硬画完；模型/参数换代必须先重画基准三张之一比对，通过才继续
 
+### Batch 17 — M22 新增 13 城（2026-07-22，已终审转正）
+
+- 数据差集只含 13 个新 cityid：`shanghai` / `baiyangdian` / `cuandixia-jingxi` / `fengning-bashang` / `zhangbei-caoyuantianlu` / `gubei-shuizhen` / `jinshanling-changcheng` / `jizhou-panshan` / `zunhua-qingdongling` / `laiyuan-baishishan` / `shidu` / `yesanpo` / `wulingshan-xinglong`；既有 282 个 picked 永久跳过、未重画未覆盖。
+- 用户看 `qa-m44-b17.png` 与 `qa-m44-b17-huabei-cluster.png` 后确认全部通过；13 张 v1 已转 q90 WebP 入 `picked/dest/`，M42 管线同步生成 public 卡位产物。
+- 全量结果：295/295 城同时具备 picked 母版和 public 产物；13 张新卡位均为 640×427、22.5–38.4KiB，未开 40KiB 预算例外；`build_illustrations.py` 零违规，资产门测试 23/23 通过。
+
 ## A6 山水皮肤固定资产批（M46 消费；2026-07-19 皮肤化拍板后首个皮肤资产批）
 
 > 方向参照=用户已认可的水墨整页 mock（codex 自产）。**开批第一步：把该 mock 原图存为 `raw/ink/style-ref-mock.png`**，后续每张生成都以它为 image reference（挑版时 cc 转 webp 入 `picked/ink/` 永久锚定）；下述风格锁批内一字不改。产出进 **`assets/illustrations/raw/ink/`**（QA 总览进 `raw/ink/qa/`；结构见 assets/illustrations/README.md），等用户挑版，挑版后 cc 转 `picked/ink/` 接入。
