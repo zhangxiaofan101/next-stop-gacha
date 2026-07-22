@@ -21,6 +21,25 @@ let rolling = false;
 let gachaGen = 0;
 let rollTimer: ReturnType<typeof setTimeout> | null = null;
 
+// F70 openGacha 的「作废在途 roll」三连抽成公共 helper：任何「这次操作后，旧结果不该再落地」的
+// 入口都得走它——世代号 + 定时器句柄必须一起清，只清动画态（rolling/DOM class）而不碰世代号，
+// settle() 的 myGen !== gachaGen 早退就形同虚设。F79 复核（codex）踩中的正是这个坑：
+// purgePileForOrigin 一开始只滤了已落袋的 pile，没做这三步——上海视角对着「仅含北京卡」的池
+// 起手一次非 reduced-motion 抽取（2s 老虎机动画），动画结算前切到北京并触发 purge，
+// pile 当时还是空的（没东西可滤），旧世代号原封不动，~2s 后 settle() 照常把北京卡判定为
+// "同世代"结果落堆——本城卡对偶隐藏被绕过。返回值＝是否真的腰斩了一个飞行中的 roll，
+// 供调用方决定要不要为此多触发一次 renderAll（世代号本身每次调用都递增，无条件，递增本身
+// 无副作用，只有和某次 roll() 捕获的 myGen 比较时才有意义）。
+function invalidateInFlightRoll(): boolean {
+  gachaGen++;                                  // 作废任何飞行中的旧世代 roll（无条件，纯计数器自增无害）
+  if (rollTimer !== null) { clearTimeout(rollTimer); rollTimer = null; }
+  if (!rolling) return false;                  // 没有在飞行中的动画，下面的 DOM 清理不必做
+  rolling = false;                              // 旧 roll 被腰斩：清掉它留下的动画态，交由调用方按需 renderAll 重算
+  $("gCity").classList.remove("spin");
+  $<HTMLButtonElement>("gKnob").classList.remove("turn");
+  return true;
+}
+
 // 蛋堆＝页内会话态（design M63「存续」）：不进 localStorage，刷新即散；关弹层再开仍在＝模块级
 // 变量天然满足；改筛选不清堆（蛋已出机）。揭晓卡＝蛋堆最新一颗的放大展示（同一颗，不另存「游离
 // 蛋」状态，避免落堆前后两套真相），故 lastPick 就是堆尾。
@@ -186,15 +205,9 @@ function renderPile() {
 function renderAll() { renderScope(); renderStage(); renderReveal(); renderPile(); }
 
 export function openGacha(cmpPool?: Destination[]) {
-  gachaGen++;                                  // 作废任何飞行中的旧世代 roll
-  if (rollTimer !== null) { clearTimeout(rollTimer); rollTimer = null; }
-  if (rolling) {                               // 旧 roll 被腰斩：清掉它留下的动画态，交由下面 renderAll 按新池重算
-    rolling = false;
-    $("gCity").classList.remove("spin");
-    $<HTMLButtonElement>("gKnob").classList.remove("turn");
-  }
+  invalidateInFlightRoll();       // 旧 roll 被腰斩：动画态已在 helper 里清掉，交由下面 renderAll 按新池重算
   cmpPoolOverride = cmpPool ?? null;
-  renderAll();                    // 蛋堆跨 open/close 存续；仅池覆盖随本次入口更新
+  renderAll();                    // 蛋堆跨 open/close 存续；仅池覆盖随本次入口更新（无条件渲染，与腰斩与否无关）
   $("gachaOverlay").classList.add("show");
 }
 
@@ -259,10 +272,17 @@ export function clearPile() {
 // 切出发地前用旧出发地视角抽到的蛋，可能恰好等于切换后的新本城卡（例如上海视角抽到北京卡
 // 落堆，再切到北京出发）。basePool() 的排除只挡「以后再抽」，堆里已落地的旧蛋得单独清一次。
 // 调用方：main.ts wireOriginSwitch 回调，每次出发地切换都跑。
+//
+// F79 复核（codex）补丁：先 invalidateInFlightRoll() 再滤 pile——只滤 pile 不够，飞行中的 roll
+// （非 reduced-motion，~2s 老虎机动画尚未 settle）此刻还没把结果推进 pile，滤了个寂寞；旧世代号
+// 原封不动，动画走完后 settle() 的 myGen !== gachaGen 早退失效，把即将成为本城卡的旧结果照常
+// 落堆。两处扫尾（腰斩飞行中的 roll / 滤掉已落堆的本城卡）合起来才是完整的第三处收尾，
+// renderAll 也相应改成「腰斩了 roll 或 pile 真的变了」才触发，避免每次切出发地都白渲染一次。
 export function purgePileForOrigin() {
+  const cancelled = invalidateInFlightRoll();
   const before = pile.length;
   pile = pile.filter(d => d.id !== getOrigin().cardId);
-  if (pile.length !== before) renderAll();
+  if (cancelled || pile.length !== before) renderAll();
 }
 
 // 整堆写入对比池并开对比表（M69：直接覆盖旧池不弹确认——对比池可随手重建，confirm 打断心流不值）
