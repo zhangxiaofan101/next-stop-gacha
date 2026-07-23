@@ -9,14 +9,14 @@
 
 | 用途 | 字体 | 来源 | 版本/commit | 许可 |
 |------|------|------|------|------|
-| 标题（马善政毛笔体档） | Ma Shan Zheng | https://github.com/googlefonts/mashanzheng | `master` 分支 `fonts/ttf/MaShanZheng-Regular.ttf` | SIL OFL 1.1（可商用） |
+| 标题（马善政毛笔体档） | Ma Shan Zheng | https://github.com/googlefonts/mashanzheng | `2.003` / `75b438a3beb0`（含 U+6DC0「淀」字形修复） | SIL OFL 1.1（可商用） |
 | 正文（霞鹜文楷档） | LXGW WenKai Regular | https://github.com/lxgw/LxgwWenKai/releases | `v1.522` | SIL OFL 1.1（可商用；附加条款明确允许子集化为 webfont 分发，见 `OFL.txt`） |
 
 下载命令（`tools/build_fonts.py` 需要这两个文件存在于 `fonts/source/` 才能跑）：
 
 ```
 curl -sL -o fonts/source/MaShanZheng-Regular.ttf \
-  https://raw.githubusercontent.com/googlefonts/mashanzheng/master/fonts/ttf/MaShanZheng-Regular.ttf
+  https://raw.githubusercontent.com/googlefonts/mashanzheng/75b438a3beb06805e6a509132d178d252e8cf583/fonts/ttf/MaShanZheng-Regular.ttf
 curl -sL -o fonts/source/LXGWWenKai-Regular.ttf \
   https://github.com/lxgw/LxgwWenKai/releases/download/v1.522/LXGWWenKai-Regular.ttf
 ```
