@@ -11,7 +11,7 @@ import { clearPile, getLastPick, openGacha, pileToCompare, roll, tossEgg } from 
 import { openMap } from "./mapview";
 import { openOrigin, selectOrigin } from "./origin";
 import { applyIntent, applyRelax, clearDistModeFilter, render } from "./render";
-import { currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
+import { applyOptimalToRoadbook, currentRoadbookText, openRoadbook, shareCurrentRoadbook } from "./roadbook";
 import { forgetSync, generateShareCode, importJSON, openShare, renderShareQR, shareJSON, shareLink, syncNow } from "./share";
 import { openSkin, selectSkin } from "./skin";
 import { toast } from "./toast";
@@ -59,6 +59,7 @@ export function wireEvents() {
     if (t.id === "copyRbBtn") { copyText(currentRoadbookText()); return; }
     if (t.id === "printRbBtn") { window.print(); return; }
     if (t.id === "shareRbBtn") { shareCurrentRoadbook(); return; }
+    if (t.id === "rbApplyOptimalBtn") { applyOptimalToRoadbook(); return; }
     const vis = t.closest<HTMLElement>("[data-visited]");
     if (vis) { e.stopPropagation(); toggleVisited(vis.dataset.visited!); if (vis.closest("#detailBody")) openDetail(vis.dataset.visited!); return; }
     const mapDot = t.closest<HTMLElement>("[data-mapdot]");

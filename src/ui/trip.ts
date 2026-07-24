@@ -1,7 +1,8 @@
 /* 行程规划（行程单渲染 + 顺路彩蛋展示；决策全部在 logic/itinerary） */
 import { getOrigin } from "../logic/origin";
 import { REGION_COLOR, TRIP_MAX } from "../logic/constants";
-import { bestInsertion, nearestNeighborOrder, onwaySuggestions, tripLegs, tripStops } from "../logic/itinerary";
+import { bestInsertion, onwaySuggestions, tripLegs, tripStops } from "../logic/itinerary";
+import { optimalTripOrder } from "../logic/routeOptimal";
 import { tripBudget } from "../logic/budget";
 import { fmtH } from "../logic/transport";
 import { byId, DATA, saveLS, state } from "../store";
@@ -10,8 +11,10 @@ import { ICONS } from "./icons";
 import { render } from "./render";
 import { toast } from "./toast";
 
+// M79：块感知精确解（Held-Karp）取代原最近邻贪心——贪心逐站重排会拆散整线组，
+// 块原子性让完整线路组的内部站序与方向天然保全（见 logic/routeOptimal.ts）。
 export function autoOrder() {
-  state.trip = nearestNeighborOrder(state.trip, byId);
+  state.trip = optimalTripOrder(state.trip, byId);
   saveLS(); renderTrip(); render();
   toast("已按顺路顺序重排 🧭");
 }

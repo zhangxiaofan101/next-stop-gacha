@@ -11,23 +11,8 @@ export function tripStops(trip: TripItem[], byId: ById): TripStopX[] {
   return trip.map(t => ({ ...byId(t.id)!, chosenDays: t.days, fromRoute: !!t.r, rid: t.r }));
 }
 
-// 顺路排序：以出发地为起点的最近邻贪心；返回新数组，不动入参。
-export function nearestNeighborOrder(trip: TripItem[], byId: ById): TripItem[] {
-  const rest = [...trip];
-  const ordered: TripItem[] = [];
-  let cur = getOrigin().coords;
-  while (rest.length) {
-    let bi = 0, bd = Infinity;
-    rest.forEach((t, i) => {
-      const km = havRaw(cur, byId(t.id)!.coords);
-      if (km < bd) { bd = km; bi = i; }
-    });
-    const next = rest.splice(bi, 1)[0];
-    ordered.push(next);
-    cur = byId(next.id)!.coords;
-  }
-  return ordered;
-}
+// 顺路排序（M79 升级为块感知精确解，见 logic/routeOptimal.ts 的 optimalTripOrder——
+// 原最近邻贪心逐站重排会拆散整线组，已随本模块移除）。
 
 // F18/F21：leg 是「线路上下文」文案（写死了前后站顺序），只有整条线路在行程里保持原样才成立：
 // 同一 rid 的全部 stop 必须齐全、连续、同序、天数=默认，才整组启用 leg；

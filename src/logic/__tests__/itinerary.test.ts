@@ -1,20 +1,14 @@
 // 不变式：leg 整组判定（F21）、进出门户（F31）、overland 段级禁飞（F29）、
-// 顺路彩蛋两类语义与开关（M28 二~四轮）、F34 锚点后并列判据、最近邻顺路排序。
+// 顺路彩蛋两类语义与开关（M28 二~四轮）、F34 锚点后并列判据。
+// M79：顺路排序升级为块感知精确解（Held-Karp），已移至 logic/__tests__/routeOptimal.test.ts。
 import { describe, expect, it } from "vitest";
-import { bestInsertion, legEligibleIndices, nearestNeighborOrder, onwaySuggestions, tripGateway, tripLegs, tripStops } from "../itinerary";
+import { bestInsertion, legEligibleIndices, onwaySuggestions, tripGateway, tripLegs, tripStops } from "../itinerary";
 import type { TripItem } from "../types";
 import { byIdOf, loadRealData, mkCity, mkState, tripOfRoute } from "./helpers";
 
 const data = loadRealData();
 const byId = byIdOf(data);
 const stopsOf = (trip: TripItem[]) => tripStops(trip, byId);
-
-describe("最近邻顺路排序（上海起点贪心）", () => {
-  it("成都/杭州/南京 → 杭州→南京→成都", () => {
-    const trip: TripItem[] = [{ id: "chengdu", days: 3 }, { id: "hangzhou", days: 2 }, { id: "nanjing", days: 2 }];
-    expect(nearestNeighborOrder(trip, byId).map(t => t.id)).toEqual(["hangzhou", "nanjing", "chengdu"]);
-  });
-});
 
 describe("F34：单站行程锚点前后并列时，插在锚点之后", () => {
   it("成都 + 乐山 → [成都, 乐山]（at=1，锚定成都）", () => {

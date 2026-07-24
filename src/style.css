@@ -523,6 +523,19 @@
   .rb-cover { text-align: center; border-bottom: var(--bw-thick) dashed var(--divider-cover); padding-bottom: 18px; }
   .rb-title { font-family: var(--round); font-size: 28px; margin: 0; }
   .rb-meta { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
+  /* M79 路线图：省界为底（细描边、低对比），出发地双圈 + 各站序号点，行程序连线，虚线收尾段返程；
+     svg 用 min-width 撑开在窄屏产生横向滚动而非挤压变形，与既有 .map-scroll 足迹地图同一处理手法。 */
+  .rb-map-wrap { overflow-x: auto; margin: 14px 0 8px; }
+  .rb-map-wrap svg { min-width: 300px; max-width: 480px; width: 100%; height: auto; display: block; margin: 0 auto; }
+  .rb-map-prov { fill: var(--map-prov); stroke: var(--map-stroke); opacity: .7; }
+  .rb-map-route { stroke: var(--red); }
+  .rb-map-return { stroke: var(--red); stroke-dasharray: 5 4; } /* 虚线：末站回出发地的返程段，区别去程实线 */
+  .rb-map-origin { stroke: var(--ink); }
+  .rb-map-dot { fill: var(--red); stroke: var(--paper); }
+  .rb-map-num { fill: var(--on-color); font-family: var(--sans); pointer-events: none; }
+  .rb-map-label { fill: var(--ink-soft); font-family: var(--sans); pointer-events: none; }
+  .rb-map-hint { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .rb-map-hint .btn { font-size: 12px; padding: 4px 10px; }
   /* M29 逐日速览骨架 */
   .rb-skel { margin-top: 16px; border: var(--bw-thin) dashed var(--info-blue-border); border-radius: var(--radius-panel-sm); padding: 10px 14px; background: var(--rb-skel-bg); }
   .rb-skel-t { font-family: var(--round); font-size: 14px; margin-bottom: 4px; }
@@ -1143,4 +1156,8 @@
     .overlay#rbOverlay .paper { box-shadow: none; border: none; padding: 0; }
     .overlay#detailOverlay, .overlay#gachaOverlay, .overlay#cmpOverlay, .overlay#tripOverlay { display: none !important; }
     .rb-actions, .sheet-close { display: none !important; }
+    /* M79：路线图默认 overflow-x:auto 撑最小宽度给窄屏滚动，打印没有滚动条，
+       原样带过去会把地图右侧裁掉——打印改回随页宽收缩，图不丢。 */
+    .rb-map-wrap { overflow: visible; }
+    .rb-map-wrap svg { min-width: 0; }
   }

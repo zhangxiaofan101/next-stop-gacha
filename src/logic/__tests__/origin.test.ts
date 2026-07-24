@@ -4,10 +4,11 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { SH } from "../constants";
 import { matchOne } from "../filter";
-import { nearestNeighborOrder, onwaySuggestions, tripLegs, tripStops } from "../itinerary";
+import { onwaySuggestions, tripLegs, tripStops } from "../itinerary";
 import { BASE_ORIGIN, getOrigin, ORIGINS, originById, resolveOrigin, setOrigin } from "../origin";
 import { applyView, captureBaseView } from "../originView";
 import { roadbookModel, roadbookText } from "../roadbook";
+import { tripStraightKm } from "../routeOptimal";
 import { byIdOf, mkCity, mkState } from "./helpers";
 
 const BEIJING = originById("beijing")!;
@@ -93,10 +94,13 @@ describe("行程起点参数化", () => {
     expect(legs[0].from.name).toBe("北京");
     expect(legs[legs.length - 1].to.name).toBe("北京");
   });
-  it("最近邻贪心起点随出发地翻转", () => {
-    expect(nearestNeighborOrder(trip, byId)[0].id).toBe("hangzhou"); // 上海起点先杭州
+  it("环线总里程（tripStraightKm）随当前出发地正确切换", () => {
+    // 两站的环线总里程（出发地→济南→杭州→出发地，或镜像方向）与走向无关只与出发地位置有关——
+    // 上海、北京到这两站的距离差异很大，总里程必然明显不同，钉住 getOrigin() 被正确读取。
+    const shTotal = tripStraightKm(getOrigin(), tripStops(trip, byId));
     setOrigin(BEIJING);
-    expect(nearestNeighborOrder(trip, byId)[0].id).toBe("jinan");    // 北京起点先济南
+    const bjTotal = tripStraightKm(getOrigin(), tripStops(trip, byId));
+    expect(Math.abs(bjTotal - shTotal)).toBeGreaterThan(100);
   });
   it("顺路彩蛋候选排除出发地自己的城市卡（距起点 0km 不得霸榜）", () => {
     setOrigin(BEIJING);
