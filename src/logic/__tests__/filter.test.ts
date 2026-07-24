@@ -162,7 +162,7 @@ describe("空池定向放宽（relaxCandidates）", () => {
   });
   it("countWith 的单条件覆盖：假设清掉该组后的命中数", () => {
     const s = mkState({ crowd: new Set(["小众"]), tags: new Set(["美食"]) });
-    expect(countWith(data, s, "crowd", new Set())).toBe(3); // 不限冷热 → a1/a2/c
+    expect(countWith(data, s, "crowd", new Set())).toBe(3); // 不限人气 → a1/a2/c
     expect(countWith(data, s, "tags", new Set())).toBe(3); // 不限玩法 → 小众 a1/a2/b
   });
 });

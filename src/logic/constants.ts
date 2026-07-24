@@ -35,7 +35,7 @@ export const SH: Place = { name: "上海", region: "江浙沪", coords: [31.23, 
 
 export const PER_DAY_COST: Record<string, number> = { "¥": 380, "¥¥": 680, "¥¥¥": 1150 };
 // 序数·容忍型筛选：点一档=天花板，自动含更省/更易达的所有低档（花费、抵达难度、M78 天数）。
-// 偏好型筛选（体力/冷热/地区/季节）不在此，走纯多选 OR。值按 低→高 排列。
+// 偏好型筛选（体力/人气/地区/季节）不在此，走纯多选 OR。值按 低→高 排列。
 // 注：cost/difficulty 仍是 3 档全量（数据枚举/卡面徽章不动）——M78 只裁撤了顶档在筛选
 // chip 行的展示，选中次档仍正确排除顶档（¥¥ 天花板不含 ¥¥¥、一次中转天花板不含折腾）。
 export const CEIL_GROUPS: Partial<Record<GroupKey, string[]>> = {
@@ -45,7 +45,7 @@ export const CEIL_GROUPS: Partial<Record<GroupKey, string[]>> = {
 };
 
 export const GROUP_NAMES: Partial<Record<GroupKey, string>> = {
-  region: "地区", season: "季节", days: "天数", crowd: "冷热",
+  region: "地区", season: "季节", days: "天数", crowd: "人气", // M81：原「冷热」紧邻「季节」易误读为气温，改「人气」（值仍为热门/适中/小众）
   cost: "花费", difficulty: "抵达难度", effort: "体力", companions: "同行",
 };
 

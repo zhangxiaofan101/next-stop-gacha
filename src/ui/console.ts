@@ -32,10 +32,12 @@ export function buildConsole() {
       <button class="btn" id="filterToggle" aria-expanded="false" aria-controls="consoleBody">筛选<i id="filterBadge"></i><span class="fcaret" aria-hidden="true">▼</span></button>
     </div>
     <div class="console-body" id="consoleBody">` +
+    // M81 行序=决策次序三段式：场景（地区/季节：去哪、何时）→ 资源约束（天数/花费/抵达：
+    // M78 容忍型三组，共用「不限」chip 语言，连排成块）→ 偏好（人气/体力/同行短行，
+    // 玩法 20 chip 最长行压底、紧邻「偏好」开关行）。chip 顺序即 UI 展示顺序的约定不变。
     group("地区", "region", REGIONS) +
     group("季节", "season", SEASONS) +
     group("天数", "days", [UNLIMITED_CHIP, ...DAY_BUCKETS.map(b => ({ label: b.label, v: b.key }))], b => b.v) +
-    group("冷热", "crowd", CROWDS) +
     // M78：天花板「以内」化+顶档裁撤——¥¥¥/折腾选中即全含=不限，冗余，chip 行不再单列；
     // 日均价从 PER_DAY_COST 拼出，不留第二份硬编码数字
     group("花费", "cost", [
@@ -48,6 +50,7 @@ export function buildConsole() {
       { label: "直达", v: "直达" },
       { label: "一次中转内", v: "一次中转" },
     ], c => c.v) +
+    group("人气", "crowd", CROWDS) +
     group("体力", "effort", EFFORTS) +
     group("同行", "companions", COMPANIONS) +
     group("玩法", "tags", TAGS) +

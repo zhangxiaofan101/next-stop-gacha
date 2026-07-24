@@ -88,7 +88,7 @@ describe("M78：「不限」chip 三态行为", () => {
     expect(chip("days", "7").textContent).toBe("最多1周");
   });
 
-  it("偏好型组（地区/季节/冷热/体力/同行/玩法）不加「不限」chip", () => {
+  it("偏好型组（地区/季节/人气/体力/同行/玩法）不加「不限」chip", () => {
     for (const key of ["region", "season", "crowd", "effort", "companions", "tags"]) {
       expect(document.querySelector(`.chips[data-key="${key}"] .chip[data-v=""]`)).toBeNull();
     }

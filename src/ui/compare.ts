@@ -12,7 +12,7 @@ export function openCompare() {
   <table class="cmp">
     <tr><th class="rowh">目的地</th>${ds.map(d => `<td class="cityh"><button class="cmp-del" data-rmcmp="${d.id}" aria-label="移出对比：${d.name}">✕</button><span class="emo">${d.emoji}</span> ${d.name}<br><span class="sm">${d.province} · ${d.region}</span></td>`).join("")}</tr>
     ${row("一句话", d => d.tagline)}
-    ${row("冷热 / 花费", d => `${d.crowd} · ${d.cost}`)}
+    ${row("人气 / 花费", d => `${d.crowd} · ${d.cost}`)}
     ${row("体力", d => (d.effort.length ? d.effort.join("、") : "怎么玩都行") + (d.alt ? " · ⛰️ 高海拔" : ""))}
     ${row("同行", d => d.companions.length ? d.companions.join("、") : "谁来都合适")}
     ${row("最佳季节", d => d.seasons.join("、") + `<br><span class="sm">${d.seasonNote}</span>`)}
