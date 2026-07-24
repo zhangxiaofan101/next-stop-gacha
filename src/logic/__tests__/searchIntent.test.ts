@@ -16,6 +16,10 @@ describe("matchIntent", () => {
     expect(matchIntent("避暑")?.action).toEqual({ type: "setGroup", key: "season", value: "夏" });
     expect(matchIntent("海岛")?.action).toEqual({ type: "setGroup", key: "tags", value: "海岛海滨" });
     expect(matchIntent("古镇")?.action).toEqual({ type: "setGroup", key: "tags", value: "古镇古村" });
+    expect(matchIntent("古建")?.action).toEqual({ type: "setGroup", key: "tags", value: "古建筑" });
+    expect(matchIntent("古建筑")?.action).toEqual({ type: "setGroup", key: "tags", value: "古建筑" });
+    expect(matchIntent("古建")?.label).toBe("古建");
+    expect(matchIntent("古建筑")?.label).toBe("古建");
     expect(matchIntent("亲子")?.action).toEqual({ type: "setGroup", key: "companions", value: "带娃" });
     expect(matchIntent("冬天")?.action).toEqual({ type: "setGroup", key: "season", value: "冬" });
   });

@@ -1,10 +1,17 @@
 /* 筛选面板 */
-import { CEIL_GROUPS, COMPANIONS, CROWDS, DAY_BUCKETS, EFFORTS, REGIONS, SEASONS, TAGS } from "../logic/constants";
+import { COMPANIONS, CROWDS, DAY_BUCKETS, EFFORTS, PER_DAY_COST, REGIONS, SEASONS, TAGS } from "../logic/constants";
 import { countWith, simulateChipClick } from "../logic/filter";
 import type { GroupKey } from "../logic/types";
 import { DATA, state } from "../store";
 import { $ } from "./dom";
 import { render } from "./render";
+
+// M78：三个容忍型组（花费/抵达/天数）行首显性「不限」chip，占位值 data-v=""——不与该组任何
+// 真实档位重叠，simulateChipClick 对天花板组传入组外值时天然清空（curCeil≠t 但补位区间为空），
+// 组已空时点它落在 curCeil===t(-1) 的 no-op 分支，三态行为不需要额外分支代码，只需渲染层按
+// 「组为空即点亮」补上 on/aria-pressed（不能沿用 state[key].has(v)，"" 永不在集合里）。
+const UNLIMITED_CHIP = { label: "不限", v: "" };
+const isChipOn = (key: GroupKey, v: string): boolean => v === "" ? state[key].size === 0 : state[key].has(v);
 
 export function buildConsole() {
   const el = $("console");
@@ -12,7 +19,11 @@ export function buildConsole() {
     <div class="fgroup">
       <div class="flabel">${label}</div>
       <div class="chips" data-key="${key}">
-        ${items.map(it => `<button class="chip" data-v="${valFn(it)}">${typeof it === "string" ? it : it.label}</button>`).join("")}
+        ${items.map(it => {
+          const v = valFn(it);
+          const aria = v === "" ? ` aria-pressed="false"` : "";
+          return `<button class="chip" data-v="${v}"${aria}>${typeof it === "string" ? it : it.label}</button>`;
+        }).join("")}
       </div>
     </div>`;
   el.innerHTML =
@@ -23,10 +34,20 @@ export function buildConsole() {
     <div class="console-body" id="consoleBody">` +
     group("地区", "region", REGIONS) +
     group("季节", "season", SEASONS) +
-    group("天数", "days", DAY_BUCKETS, b => b.key) +
+    group("天数", "days", [UNLIMITED_CHIP, ...DAY_BUCKETS.map(b => ({ label: b.label, v: b.key }))], b => b.v) +
     group("冷热", "crowd", CROWDS) +
-    group("花费", "cost", [{ label: "¥ 经济", v: "¥" }, { label: "¥¥ 适中", v: "¥¥" }, { label: "¥¥¥ 舍得花", v: "¥¥¥" }], c => c.v) +
-    group("抵达", "difficulty", CEIL_GROUPS.difficulty!) +
+    // M78：天花板「以内」化+顶档裁撤——¥¥¥/折腾选中即全含=不限，冗余，chip 行不再单列；
+    // 日均价从 PER_DAY_COST 拼出，不留第二份硬编码数字
+    group("花费", "cost", [
+      UNLIMITED_CHIP,
+      { label: `¥ ≈${PER_DAY_COST["¥"]}/天内`, v: "¥" },
+      { label: `¥¥ ≈${PER_DAY_COST["¥¥"]}/天内`, v: "¥¥" },
+    ], c => c.v) +
+    group("抵达", "difficulty", [
+      UNLIMITED_CHIP,
+      { label: "直达", v: "直达" },
+      { label: "一次中转内", v: "一次中转" },
+    ], c => c.v) +
     group("体力", "effort", EFFORTS) +
     group("同行", "companions", COMPANIONS) +
     group("玩法", "tags", TAGS) +
@@ -61,10 +82,11 @@ export function buildConsole() {
       // 天花板型：点第 t 档 → 选中 0..t 全部；再点当前天花板则清空。其余组 toggle。
       // 语义与「点下去还剩几个」计数共用 simulateChipClick 这一个源。
       state[key] = simulateChipClick(state, key, v);
-      box.querySelectorAll<HTMLElement>(".chip").forEach(c => c.classList.toggle("on", state[key].has(c.dataset.v!)));
+      syncBox(box, key);
       render();
     });
   });
+  syncChips(); // M78：「不限」chip 初始点亮态由当前 state 决定，不硬编码进模板
   $<HTMLInputElement>("searchBox").addEventListener("input", e => { state.q = (e.target as HTMLInputElement).value.trim(); render(); });
   $<HTMLSelectElement>("sortSel").addEventListener("change", e => { state.sort = (e.target as HTMLSelectElement).value; render(); });
   $("favToggle").addEventListener("click", e => {
@@ -99,17 +121,18 @@ export function resetFilters() {
   (["region", "season", "days", "crowd", "cost", "difficulty", "effort", "companions", "tags"] as GroupKey[]).forEach(k => state[k].clear());
   state.q = ""; state.onlyFav = false; state.noAlt = false; state.hideVisited = false; state.distMode = null;
   $<HTMLInputElement>("searchBox").value = "";
-  document.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"));
+  syncChips(); // 三组全空后「不限」chip 应重新点亮，不能只摘 .on（M78 前是直接摘，恰好没有需要重新点亮的 chip）
   render();
 }
 
-// 每个未选 chip 标注"点下去还剩几个"，0 置灰；已选 chip 不标（点它是取消）
+// 每个未选 chip 标注"点下去还剩几个"，0 置灰；已选 chip 不标（点它是取消）。
+// 「不限」chip 的 on 判定见 isChipOn：为空即已不限，非空时按 simulateChipClick 算清空该组能救回几个
 export function updateChipCounts() {
   document.querySelectorAll<HTMLElement>("#console .chips").forEach(box => {
     const key = box.dataset.key as GroupKey;
     box.querySelectorAll<HTMLElement>(".chip").forEach(btn => {
       const v = btn.dataset.v!;
-      const on = state[key].has(v);
+      const on = isChipOn(key, v);
       const n = on ? -1 : countWith(DATA, state, key, simulateChipClick(state, key, v));
       let i = btn.querySelector("i");
       if (!i) { i = document.createElement("i"); btn.appendChild(i); }
@@ -135,9 +158,16 @@ function updateFilterBadge() {
   badge.textContent = n > 0 ? String(n) : "";
 }
 
-export function syncChips() {
-  document.querySelectorAll<HTMLElement>("#console .chips").forEach(box => {
-    const set = state[box.dataset.key as GroupKey];
-    box.querySelectorAll<HTMLElement>(".chip").forEach(c => c.classList.toggle("on", set.has(c.dataset.v!)));
+// 单个 chip 行的 on/aria-pressed 同步——点击回调与 syncChips() 共用，避免两处判定漂移
+function syncBox(box: HTMLElement, key: GroupKey) {
+  box.querySelectorAll<HTMLElement>(".chip").forEach(c => {
+    const v = c.dataset.v!;
+    const on = isChipOn(key, v);
+    c.classList.toggle("on", on);
+    if (v === "") c.setAttribute("aria-pressed", String(on)); // 仅「不限」chip 补 aria——其余 chip 的读屏语言不在本次改动范围内
   });
+}
+
+export function syncChips() {
+  document.querySelectorAll<HTMLElement>("#console .chips").forEach(box => syncBox(box, box.dataset.key as GroupKey));
 }

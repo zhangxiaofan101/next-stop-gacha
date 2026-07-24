@@ -15,12 +15,15 @@ export const REGION_SLUG: Record<string, string> = Object.fromEntries(
   Object.entries(REGION_COLOR).map(([region, token]) => [region, token.match(/--region-([\w-]+)\)/)![1]]),
 );
 export const SEASONS = ["春", "夏", "秋", "冬"];
+// M78：天数从固定分段多选改判容忍型天花板——时间预算是单调判据（时间充裕者必然接受更短
+// 行程），点第 t 档＝该目的地最短方案落在天花板内即命中（min(days) ≤ cap），与花费/抵达
+// 难度同一「点档＝含所有更省档」机制（CEIL_GROUPS 收编，见下）。原「2周+」档（key "14"）
+// 天花板语义等价不限，随顶档裁撤条款一并退场；原 "45" 键改判为「最多5天」cap，键改 "5"。
 export const DAY_BUCKETS: { key: string; label: string; test: (d: number[]) => boolean }[] = [
-  { key: "2", label: "2天", test: d => d.includes(2) },
-  { key: "3", label: "3天", test: d => d.includes(3) },
-  { key: "45", label: "4-5天", test: d => d.includes(4) || d.includes(5) },
-  { key: "7", label: "1周", test: d => d.includes(7) },
-  { key: "14", label: "2周+", test: d => d.includes(10) || d.includes(14) },
+  { key: "2", label: "最多2天", test: d => d.some(x => x <= 2) },
+  { key: "3", label: "最多3天", test: d => d.some(x => x <= 3) },
+  { key: "5", label: "最多5天", test: d => d.some(x => x <= 5) },
+  { key: "7", label: "最多1周", test: d => d.some(x => x <= 7) },
 ];
 export const CROWDS = ["热门", "适中", "小众"];
 // 玩法 chip 列表：数据里仍保留「亲子」tag（搜索可命中），但 chip 不再展示——同行组「带娃」承载该场景（2026-07-14 用户拍板：UI 隐藏、数据保留）
@@ -31,11 +34,14 @@ export const EFFORTS = ["躺平", "正常", "费腿", "硬核"]; // 偏好型多
 export const SH: Place = { name: "上海", region: "江浙沪", coords: [31.23, 121.47] }; // region 供 M30 江浙沪自驾判定
 
 export const PER_DAY_COST: Record<string, number> = { "¥": 380, "¥¥": 680, "¥¥¥": 1150 };
-// 序数·容忍型筛选：点一档=天花板，自动含更省/更易达的所有低档（花费、抵达难度）。
+// 序数·容忍型筛选：点一档=天花板，自动含更省/更易达的所有低档（花费、抵达难度、M78 天数）。
 // 偏好型筛选（体力/冷热/地区/季节）不在此，走纯多选 OR。值按 低→高 排列。
+// 注：cost/difficulty 仍是 3 档全量（数据枚举/卡面徽章不动）——M78 只裁撤了顶档在筛选
+// chip 行的展示，选中次档仍正确排除顶档（¥¥ 天花板不含 ¥¥¥、一次中转天花板不含折腾）。
 export const CEIL_GROUPS: Partial<Record<GroupKey, string[]>> = {
   cost: ["¥", "¥¥", "¥¥¥"],
   difficulty: ["直达", "一次中转", "折腾"],
+  days: DAY_BUCKETS.map(b => b.key),
 };
 
 export const GROUP_NAMES: Partial<Record<GroupKey, string>> = {

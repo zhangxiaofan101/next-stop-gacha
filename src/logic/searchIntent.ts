@@ -21,6 +21,8 @@ const INTENT_WORDS: Record<string, IntentEntry> = {
   "避暑": { label: "避暑", action: { type: "setGroup", key: "season", value: "夏" } },
   "海岛": { label: "海岛", action: { type: "setGroup", key: "tags", value: "海岛海滨" } },
   "古镇": { label: "古镇", action: { type: "setGroup", key: "tags", value: "古镇古村" } },
+  "古建": { label: "古建", action: { type: "setGroup", key: "tags", value: "古建筑" } },
+  "古建筑": { label: "古建", action: { type: "setGroup", key: "tags", value: "古建筑" } },
   "亲子": { label: "亲子", action: { type: "setGroup", key: "companions", value: "带娃" } },
   "冬天": { label: "冬天", action: { type: "setGroup", key: "season", value: "冬" } },
 };

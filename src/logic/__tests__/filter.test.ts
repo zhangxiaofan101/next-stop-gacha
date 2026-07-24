@@ -1,5 +1,6 @@
 // 不变式：容忍型天花板（点一档=含所有低档）、偏好型 OR/空数组通配、玩法 AND、空池定向放宽。
 import { afterEach, describe, expect, it } from "vitest";
+import { CEIL_GROUPS, DAY_BUCKETS } from "../constants";
 import { countWith, filtered, matchOne, relaxCandidates, simulateChipClick } from "../filter";
 import { havRaw } from "../geo";
 import { BASE_ORIGIN, originById, setOrigin } from "../origin";
@@ -28,6 +29,37 @@ describe("容忍型天花板（cost/difficulty）", () => {
     expect(matchOne(mkCity({ id: "a", cost: "¥" }), s)).toBe(true);
     expect(matchOne(mkCity({ id: "b", cost: "¥¥" }), s)).toBe(true);
     expect(matchOne(mkCity({ id: "c", cost: "¥¥¥" }), s)).toBe(false);
+  });
+});
+
+describe("M78：天数改判容忍型天花板（点档=min(days)≤cap）", () => {
+  it("档位与旧固定分段不同：CEIL_GROUPS/DAY_BUCKETS 只剩 2/3/5/7，原 45/14 键裁撤", () => {
+    expect(CEIL_GROUPS.days).toEqual(["2", "3", "5", "7"]);
+    expect(DAY_BUCKETS.map(b => b.key)).toEqual(["2", "3", "5", "7"]);
+  });
+  it("点第 t 档选中 0..t 全部，填充链与花费/抵达同机制", () => {
+    const s = mkState();
+    expect([...simulateChipClick(s, "days", "5")].sort()).toEqual(["2", "3", "5"]);
+    expect([...simulateChipClick(s, "days", "7")].sort()).toEqual(["2", "3", "5", "7"]);
+  });
+  it("再点当前天花板则清空", () => {
+    const s = mkState({ days: new Set(["2", "3"]) });
+    expect(simulateChipClick(s, "days", "3").size).toBe(0);
+  });
+  it("matchOne 命中条件=该目的地 days 数组最小值≤cap，边界值命中", () => {
+    const s = mkState({ days: new Set(["5"]) });
+    expect(matchOne(mkCity({ id: "eq", days: [5] }), s)).toBe(true); // 恰好等于 cap
+    expect(matchOne(mkCity({ id: "below", days: [2, 3] }), s)).toBe(true); // 全低于 cap
+    expect(matchOne(mkCity({ id: "above", days: [7, 10] }), s)).toBe(false); // 最小值 7 > cap
+  });
+  it("多值 days 数组只要有一档达标即命中（min 语义，不是逐值都要达标）", () => {
+    const s = mkState({ days: new Set(["3"]) });
+    expect(matchOne(mkCity({ id: "mixed", days: [3, 4, 5] }), s)).toBe(true); // 含 3，命中
+    expect(matchOne(mkCity({ id: "miss", days: [4, 5] }), s)).toBe(false); // 最小 4 > cap 3
+  });
+  it("空集=不限，任何 days 都命中", () => {
+    const s = mkState();
+    expect(matchOne(mkCity({ id: "any", days: [14] }), s)).toBe(true);
   });
 });
 

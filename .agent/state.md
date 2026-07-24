@@ -12,6 +12,8 @@
 
 ## ✅ Implemented
 
+- **M78 — 容忍型筛选收粗 [R2 · S2] → sonnet · high（used: sonnet delegated；池说明毛边与语料字修缮 cc 补）**｜2026-07-24 朋友实测反馈立项；spec 见 design M78。天数改判天花板（「2周+」顶档随裁撤条款退场）、三容忍组行首显性「不限」chip、花费/抵达文案以内化+顶档裁撤、概念词补「古建/古建筑」；顺手修复两处：resetFilters 清空后「不限」chip 需重新点亮（旧实现只摘 .on 恰好无此需求）、扭蛋池说明对填充链只报天花板档（否则打出「最多2天/最多3天/最多5天」串）。筛选状态确认纯会话态（saveLS 只序列化 favs/cmp/trip/visited/tripStart），旧 key "45"/"14" 无持久化无需迁移。注意坑：src 内中文注释/文案受字体语料 drift-pin 约束（「措辞」二字即不在标题子集语料，本模块两次踩中，改写回避）。Verified：新增 focused 单测 16 例（天数天花板 6/不限 chip 7/池说明天花板 3）+古建概念词断言；`bun run verify` 全绿（前端 315/315 + workerd 50/50）；`bun run test:visual` 24/24 全量基线更新（12 张变化，四肤首页 chip 行目检通过）。 [cc]
+
 - **M77 — 马善政字体上游更新 [R1 · S2] → codex-small · high（used: gpt-5.6-sol in-session；需核对上游 issue/字形且差异小于委派开销）**｜2026-07-23 上游 `google/fonts#10722` 确认 U+6DC0 为字形 bug，Ma Shan Zheng `2.003` / `75b438a3beb0` 已将「淀」左侧修为清晰三点水；spec 见 design M77。项目已锁定新源字体，「淀」退出临时易混字回退清单并重回 Ink Title 子集，通用回退机制保留。Verified：新源 TTF SHA-256 `6d2546bb189c732a8ca29af9e22457b152387d158aa459e4ac2ce1e51788b7fb`；子集 name/cmap 实查为 Version 2.003 且含 U+6DC0；卡片 23px + 详情 34px 新子集渲染目检三点水清晰；focused 26/26；`bun run verify` 全绿（前端 299/299 + workerd 50/50）；`bun run test:visual` 24/24；`git diff --check` 通过。 [codex]
 
 - **M76 — 水墨标题易混字回退 [R2 · S2] → codex-medium · high（used: gpt-5.6-sol in-session；需紧贴用户字形反馈且差异小于委派开销）**｜2026-07-22 用户定位「白洋淀」在默认水墨皮肤下被误读为「白洋绽」，不改变七期 M72 → M70 排序；spec 见 design M76。字体 cmap 实查仍是 U+6DC0，根因是毛笔字形的三点水连笔近似绞丝旁；「淀」现从标题子集排除、全标题消费位稳定回退到 Ink Body，其余毛笔标题不变。Verified：子集 cmap 标题无「淀」/正文有「淀」；focused 26/26；卡片 23px + 详情 34px 真实字体栈渲染目检清晰；`bun run verify` 全绿（前端 299/299 + workerd 50/50）；`bun run test:visual` 24/24。 [codex]

@@ -1,7 +1,7 @@
 /* 扭蛋主舞台（M63 重做：舞台—揭晓—蛋堆）。
    一套 DOM、双（多）皮肤 token 表达：机器 hero + 咔啦操作员气泡（舞台）→ 轻量开壳卡（揭晓，
    大票券退役）→ 半开蛋壳小卡攒成蛋堆（连扭备选）。spec 见 design M63。 */
-import { CMP_MAX, DAY_BUCKETS } from "../logic/constants";
+import { CEIL_GROUPS, CMP_MAX, DAY_BUCKETS } from "../logic/constants";
 import { filtered } from "../logic/filter";
 import { gachaPick } from "../logic/gacha";
 import { getOrigin } from "../logic/origin";
@@ -100,14 +100,23 @@ function photoHTML(d: Destination, cls: string): string {
 }
 
 // —— 池说明条
+// M78：天花板组（花费/抵达/天数）填充链会同时选中天花板以下所有档，逐项 join 会打出
+// 「最多2天/最多3天/最多5天」式冗长串——池说明只报天花板那一档，且文案读作「以内」。
+function ceilTopLabel(key: "days" | "cost" | "difficulty"): string {
+  const order = CEIL_GROUPS[key]!;
+  const top = [...state[key]].reduce((a, b) => (order.indexOf(a) >= order.indexOf(b) ? a : b));
+  if (key === "days") return DAY_BUCKETS.find(b => b.key === top)!.label;
+  if (key === "cost") return `${top}以内`;
+  return top === "直达" ? "直达" : `${top}内`;
+}
 function renderScope() {
   const parts: string[] = [];
   if (state.region.size) parts.push([...state.region].join("/"));
   if (state.season.size) parts.push([...state.season].join("/") + "季");
-  if (state.days.size) parts.push(DAY_BUCKETS.filter(b => state.days.has(b.key)).map(b => b.label).join("/"));
+  if (state.days.size) parts.push(ceilTopLabel("days"));
   if (state.crowd.size) parts.push([...state.crowd].join("/"));
-  if (state.cost.size) parts.push([...state.cost].join("/"));
-  if (state.difficulty.size) parts.push([...state.difficulty].join("/"));
+  if (state.cost.size) parts.push(ceilTopLabel("cost"));
+  if (state.difficulty.size) parts.push(ceilTopLabel("difficulty"));
   if (state.effort.size) parts.push([...state.effort].join("/"));
   if (state.companions.size) parts.push([...state.companions].join("/"));
   if (state.tags.size) parts.push([...state.tags].join("+"));
