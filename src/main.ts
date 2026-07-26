@@ -10,7 +10,7 @@ import { wireEvents } from "./ui/events";
 import { purgePileForOrigin } from "./ui/gacha";
 import { restoreOrigin, wireOriginSwitch } from "./ui/origin";
 import { render, updateCountPill } from "./ui/render";
-import { checkShareCode, checkShareHash } from "./ui/share";
+import { checkMigrateHash, checkShareCode, checkShareHash } from "./ui/share";
 
 // ================= M37 数据外置 =================
 // 目的地/线路数据不再注入本文件，而是由 tools/build.py 校验后发布到 public/data/
@@ -44,6 +44,7 @@ function boot() {
   updateCountPill(); // M22：总数按当前出发地可见池计（本城卡对偶隐藏）
   buildConsole();
   render();
+  checkMigrateHash(); // M83：搬家链接先于分享——它可能整份认领本机状态，得在其余导入之前落地
   checkShareHash();
   checkShareCode(); // M40：短链是增强形态，异步取回不阻塞其余启动（同后端「从不是可用性前提」哲学）
 }
@@ -53,7 +54,8 @@ wireEvents();
 // 空态/自由装饰件）的图接上——不依赖 loadData()，越早跑越好，不用等城市数据回来。
 wireIllustFallbacks();
 applySkinVisuals(currentSkinId());
-addEventListener("hashchange", checkShareHash); // 页面开着时粘贴迁移链接也能触发导入条
+// 页面开着时粘贴链接也能触发：#s= 弹导入条，#m= 走搬家落地
+addEventListener("hashchange", () => { checkMigrateHash(); checkShareHash(); });
 
 (async () => {
   try {

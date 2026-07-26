@@ -61,36 +61,56 @@ test("passes data chunk and manifest paths through untouched", async () => {
 
 // ── 旧地址：只回 308，绝不提供内容 ──────────────────────────────────────────
 
-test("308s the legacy game path to the new origin", async () => {
+// M83：入口给搬家页（200 + JS），不是裸 308——localStorage 按 origin 隔离，
+// 老存档只有在**旧 origin 上**跑一段 JS 才读得到。裸跳过去人会看见空存档。
+test("serves the migration page at the legacy entry, never a bare redirect", async () => {
   const { env, calls } = assetEnv();
   const response = await handleRequest(new Request(`${LEGACY_HOST}${LEGACY_PREFIX}/`), env);
 
-  expect(response.status).toBe(308);
-  expect(response.headers.get("location")).toBe(`${NEW_ORIGIN}/`);
-  // 关键：旧地址一个字节的内容都不再提供。两个域名上正文相同的话，从个人侧
-  // 抓一句话去搜就能 join 回学术侧，而禁词扫描看不见这种泄漏（见 orbit
-  // 仓库 .agent/design.md「隔离不变量」）。
+  expect(response.status).toBe(200);
+  expect(response.headers.get("cache-control")).toBe("no-store");
+  expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+
+  const html = await response.text();
+  expect(html).toContain("nextstop_v2");       // 真去读老存档
+  expect(html).toContain("#m=");               // 通过 fragment 带走
+  expect(html).toContain(`${NEW_ORIGIN}/`);    // 目的地是新域名
+  // 关键：旧地址不再提供**站点内容**。这张页面只有一句话和一个按钮，构不成
+  // 「和新站重复的一份正文」——两域同文会让人从个人侧一句话搜回学术侧，而禁词
+  // 扫描看不见这种 join（见 orbit 仓库 .agent/design.md「隔离不变量」）。
   expect(calls.length).toBe(0);
+  expect(html.length).toBeLessThan(3000);
 });
 
-test("308 keeps the query string so old share links still resolve", async () => {
+test("migration page carries the query string to the new origin", async () => {
   const { env } = assetEnv();
   const response = await handleRequest(
     new Request(`${LEGACY_HOST}${LEGACY_PREFIX}/?sc=ABC123&from=poster`),
     env,
   );
 
-  expect(response.status).toBe(308);
   // ?sc= 是同步码：状态存在 Durable Object 里，与 origin 无关，所以分享出去的
   // 老链接跳过来照样能取回行程。丢了查询串就等于把这些链接作废。
-  expect(response.headers.get("location")).toBe(`${NEW_ORIGIN}/?sc=ABC123&from=poster`);
+  expect(await response.text()).toContain(`${NEW_ORIGIN}/?sc=ABC123&amp;from=poster`);
 });
 
-test("308 maps the bare legacy prefix to the new root", async () => {
+test("bare legacy prefix also lands on the migration page", async () => {
   const { env } = assetEnv();
   const response = await handleRequest(new Request(`${LEGACY_HOST}${LEGACY_PREFIX}`), env);
-  expect(response.status).toBe(308);
-  expect(response.headers.get("location")).toBe(`${NEW_ORIGIN}/`);
+  expect(response.status).toBe(200);
+  expect(await response.text()).toContain(`${NEW_ORIGIN}/`);
+});
+
+// 资产和 API 是那张已经不存在的页面发出的子请求——给它们 HTML 只会把干脆的 404
+// 变成更难查的 200。这些一律 308。
+test("308s legacy sub-resource paths instead of showing the page", async () => {
+  const { env, calls } = assetEnv();
+  for (const p of ["/assets/main-a1b2c3d4.js", "/data/manifest.json", "/api/sync"]) {
+    const response = await handleRequest(new Request(`${LEGACY_HOST}${LEGACY_PREFIX}${p}`), env);
+    expect(response.status, p).toBe(308);
+    expect(response.headers.get("location"), p).toBe(`${NEW_ORIGIN}${p}`);
+  }
+  expect(calls.length).toBe(0);
 });
 
 test("308 preserves deep paths under the legacy prefix", async () => {

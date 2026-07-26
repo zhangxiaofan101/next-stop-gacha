@@ -36,5 +36,88 @@ export function legacyRedirect(url) {
   target.search = url.search;
   target.hash = url.hash;
 
+  // M83：**入口**给搬家页，其余（资产/API/深层路径）直接 308。
+  //
+  // 为什么不是一律 308：localStorage 按 origin 隔离，老玩家的存档只有在**这个**
+  // origin 上跑一段 JS 才读得到。裸跳过去，人到了新域名看见的是空存档——收藏、
+  // 打卡、行程全没了，而数据其实还在，只是再也没人去拿。
+  //
+  // 为什么只给入口：资产和 API 是页面发出的子请求，那个页面已经不在这儿了，
+  // 给它们一张 HTML 毫无意义，只会把干脆的 404 变成更难查的 200。
+  if (rest === "/") return migrationPage(target.toString());
+
   return Response.redirect(target.toString(), 308);
+}
+
+/**
+ * 极简搬家页。一句话 + 一个按钮，没有别的内容——它必须小到构不成「和新站正文
+ * 重复的一份内容」，否则就成了两个域名同文，正是隔离要避开的东西（见 orbit 仓库
+ * `.agent/design.md`「隔离不变量」）。
+ *
+ * 存档走 URL fragment：fragment 不发给服务器，所以这份数据不经过任何后端，也不需要
+ * CORS 或短链 API。带不带得动都不阻塞——读不到就直接跳。
+ */
+function migrationPage(targetUrl) {
+  const target = JSON.stringify(targetUrl);
+  const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>搬家了</title>
+<style>
+html{background:#f7f4ec}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:1.5rem;
+ font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+ color:#2f2a24;text-align:center;line-height:1.7}
+p{margin:0 0 1.25rem;font-size:1.05rem}
+small{display:block;margin-top:1.5rem;color:#8a8175;font-size:.82rem}
+a{display:inline-block;padding:.6rem 1.4rem;border:1px solid #2f2a24;border-radius:999px;
+ color:#2f2a24;text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<p>「下一站，去哪玩」搬到新地址了。<br>正在把你的收藏和行程一起带过去…</p>
+<a id="go" href="${escapeAttr(targetUrl)}">手动前往 →</a>
+<small>没有自动跳转？点上面那个按钮。</small>
+</main>
+<script>
+(function(){
+  var target = ${target};
+  try {
+    // 只有在这个 origin 上才读得到老存档——这正是这张页面存在的唯一理由。
+    var raw = localStorage.getItem("nextstop_v2");
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      // 空壳不值得带：全空的话跳过去反而会在新站弹一条没意义的提示。
+      var any = ["favs","cmp","trip","visited"].some(function(k){
+        return Array.isArray(parsed[k]) && parsed[k].length;
+      });
+      if (any) target += "#m=" + encodeURIComponent(raw);
+    }
+  } catch (e) { /* 隐私模式/存储被禁：带不走就算了，照跳 */ }
+  document.getElementById("go").href = target;
+  location.replace(target);
+})();
+</script>
+</body>
+</html>`;
+
+  return new Response(html, {
+    // 200 而不是 30x：得先跑 JS 才知道要不要带存档，重定向没有这个机会。
+    // 没有 JS 的浏览器看到的就是那句话和一个手动链接，功能不残。
+    status: 200,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      // 搬家页是过渡物，别让它被缓存住——旧地址最终会整域 308 掉。
+      "cache-control": "no-store",
+      "x-robots-tag": "noindex, nofollow",
+    },
+  });
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

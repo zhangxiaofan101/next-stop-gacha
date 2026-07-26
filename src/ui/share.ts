@@ -2,6 +2,7 @@
    M40 短链（后端增强形态）也走这里：生成短链复用同一份 marks payload，打开短链复用同一条并集合并路径。
    M41 同步码云同步（design「后端·同步码云同步」）同样复用 mergeUnion/parseShare 这套并集合并信任边界——
    区别只是触发方式（用户主动点「同步」，不是被动打开一条别人发来的链接），故直接合并不再弹确认条。 */
+import { MIGRATE_HASH_PREFIX, migrationMode, parseMigration } from "../logic/migrate";
 import { getOrigin, originById } from "../logic/origin";
 import { sanitizeTripItems } from "../logic/persist";
 import { qrEncode } from "../logic/qr";
@@ -44,6 +45,31 @@ export function checkShareHash() { // 带 #s= 打开页面：顶部确认条，�
   history.replaceState(null, "", location.pathname + location.search);
   if (!p || (!p.favs.length && !p.visited.length)) return;
   showImportBar(p);
+}
+
+// M83：搬家链接。旧地址的搬家页在老 origin 上读得到 localStorage，把整份存档塞进
+// `#m=` 带过来（localStorage 按 origin 隔离，新域名自己一个字节都读不到）。
+// 与 `#s=` 的分野见 logic/migrate.ts：分享只并收藏+打卡，搬家带全部家当。
+export function checkMigrateHash() {
+  if (!location.hash.startsWith(MIGRATE_HASH_PREFIX)) return;
+  const p = parseMigration(location.hash.slice(MIGRATE_HASH_PREFIX.length), DATA);
+  // 无论解析成不成功都先清 hash：一份存档不该留在地址栏里被反复粘贴，
+  // 也免得刷新一次又弹一次。
+  history.replaceState(null, "", location.pathname + location.search);
+  if (!p) return;
+
+  if (migrationMode(p, state) === "merge") {
+    // 本机已经玩出内容了——退回分享语义（并集合收藏/打卡，行程对比不动）并弹确认条，
+    // 绝不让一条旧链接把人现在的状态盖掉。
+    showImportBar({ favs: p.favs, visited: p.visited });
+    return;
+  }
+
+  // 本机是空的：整份认领，不弹条——这是你自己的东西搬过来，不是别人发来的记录。
+  Object.assign(state, p);
+  saveLS();
+  render();
+  toast(`存档搬过来了：♥ ${p.favs.length} 收藏 · 👣 ${p.visited.length} 打卡 · 🧳 ${p.trip.length} 站行程`);
 }
 
 // M40：短链是 ①/② 的增强形态——`?sc=` 打开页面时向 /api/share/:code 取回 payload 再走同一套渲染/合并。
