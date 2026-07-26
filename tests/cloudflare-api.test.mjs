@@ -13,8 +13,11 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { handleRequest } from "../cloudflare/worker.mjs";
 
+// M82：Worker 独占 travel.xiaofan.me，/api/* 直接挂在 host 根上。
+// 改这行之前所有 API 测试都撞上了旧地址的 308——那正是重定向该做的事，
+// 说明前缀退场是真的生效了，而不是悄悄放行。
 function req(pathname, opts) {
-  return new Request(`https://lab.medspiral.com/next-stop-gacha${pathname}`, opts);
+  return new Request(`https://travel.xiaofan.me${pathname}`, opts);
 }
 function post(pathname, body, headers) {
   return req(pathname, {
@@ -401,7 +404,7 @@ test("oversized body is rejected via streaming byte-count even without a Content
       controller.close();
     },
   });
-  const request = new Request("https://lab.medspiral.com/next-stop-gacha/api/sync", {
+  const request = new Request("https://travel.xiaofan.me/api/sync", {
     method: "POST",
     body: stream,
     duplex: "half",

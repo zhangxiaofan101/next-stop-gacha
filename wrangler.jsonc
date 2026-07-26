@@ -26,7 +26,19 @@
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["RateLimiter", "SyncCodeStore"] }
   ],
+  // M82：自己的域名 + 旧地址的退场路由。
+  //
+  // 新域名用 Custom Domain（`custom_domain: true`）——Worker 独占整个 hostname，
+  // DNS 记录与证书由 Cloudflare 自动创建，`wrangler deploy` 就会建好。
+  //
+  // 旧的子路径 Route 保留，但 Worker 现在只回 308（见 cloudflare/legacy.mjs）。
+  // 不能删：删了旧链接立刻全断，而 308 才是「旧链接照样点得开」。等它长期没
+  // 流量了再摘（届时旧域名整域 308 也已由该域名的持有方接手）。
   "routes": [
+    {
+      "pattern": "travel.xiaofan.me",
+      "custom_domain": true
+    },
     {
       "pattern": "lab.medspiral.com/next-stop-gacha/*",
       "zone_name": "medspiral.com"
