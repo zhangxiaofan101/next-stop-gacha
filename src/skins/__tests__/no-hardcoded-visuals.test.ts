@@ -14,6 +14,9 @@ const RGBA_RE = /rgba?\(\s*\d/g;
 
 // 例外清单：文件 → 允许残留的模式与理由
 const ALLOWLIST: Record<string, RegExp[]> = {
+  // 浏览器安装壳元数据不能读取 CSS var；值与 manifest.theme_color 的一致性由
+  // tests/build-assets.test.mjs 从真实构建产物交叉钉住——刻意保留
+  "index.html": [/name="theme-color" content="#c1502f"/],
   // 彩带 token 读取失败时的兜底色（等于奶油原值，防止透明碎屑）——刻意保留
   "src/ui/effects.ts": [/#ff9c3f|#58b7f0|#7bc86c|#f79ec4|#ffd95c|#b39deb/],
   // QR 码必须黑白高对比才可扫，属功能性图形非皮肤维度——刻意保留
