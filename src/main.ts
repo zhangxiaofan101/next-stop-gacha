@@ -4,10 +4,12 @@ import "./style.css";
 import type { Destination } from "./logic/types";
 import { applySkinVisuals, currentSkinId, wireIllustFallbacks } from "./skins/illustrations";
 import { loadLS, setData, state } from "./store";
+import { registerSW } from "./pwa";
 import { buildConsole } from "./ui/console";
 import { $ } from "./ui/dom";
 import { wireEvents } from "./ui/events";
 import { purgePileForOrigin } from "./ui/gacha";
+import { wireInstallGuide } from "./ui/install";
 import { restoreOrigin, wireOriginSwitch } from "./ui/origin";
 import { render, updateCountPill } from "./ui/render";
 import { checkMigrateHash, checkShareCode, checkShareHash } from "./ui/share";
@@ -50,6 +52,10 @@ function boot() {
 }
 
 wireEvents();
+// M70：beforeinstallprompt 一次性不重发，监听必须在首个同步 tick 挂上（与 wireEvents 同批）；
+// SW 注册则等 load（见 src/pwa.ts 头注）。
+wireInstallGuide();
+registerSW();
 // M46：head 内联脚本已同步钉死 data-theme（防闪烁），这里只需按它把静态装饰位（吉祥物/扭蛋机/
 // 空态/自由装饰件）的图接上——不依赖 loadData()，越早跑越好，不用等城市数据回来。
 wireIllustFallbacks();

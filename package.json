@@ -14,7 +14,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "bun run verify && vite build",
+    "build": "bun run verify && vite build && bun tools/build_sw.mjs",
     "preview": "vite preview",
     "test": "vitest run --config vitest.workers.config.ts",
     "test:unit": "vitest run",

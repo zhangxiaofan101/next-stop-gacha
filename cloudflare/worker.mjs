@@ -5,10 +5,14 @@ export { LEGACY_PREFIX, NEW_ORIGIN, legacyRedirect } from "./legacy.mjs";
 import { legacyRedirect } from "./legacy.mjs";
 
 // F42：设计要求「HTML/JS 与数据分别长缓存，改数据不失效代码缓存」。Vite 的
-// assets/* 文件名自带内容 hash，数据 chunk 也已改名为内容 hash（见 tools/build.py）——
-// 两者都可安全 immutable 长缓存。manifest.json/index.html 是唯一会变but文件名不变
-// 的入口，必须短缓存+revalidate，否则客户端会长期看着旧 manifest 指向的旧 chunk。
-const HASHED_ASSET = /^\/(assets\/|data\/chunk-\d+-[0-9a-f]+\.json$)/;
+// assets/* 文件名自带内容 hash，数据 chunk 与出发地视角文件也都是内容 hash 命名
+// （见 tools/build.py；视角文件 M70 补进本判定——M22 起就是 hash 命名却一直走短缓存，
+// 属漏配）——三者都可安全 immutable 长缓存。manifest.json/origins.json/index.html/sw.js
+// 是会变但文件名不变的入口，必须短缓存+revalidate，否则客户端会长期看着旧 manifest
+// 指向的旧 chunk（sw.js 同理：它是 SW 更新的唯一触发器）。
+// 本正则与 tools/sw.template.js 的 HASHED 同构（SW 侧对这三类走缓存优先），改动两处同步，
+// tests/build-assets.test.mjs 有同构钉。
+const HASHED_ASSET = /^\/(assets\/|data\/(chunk-\d+|origin-[a-z0-9-]+)-[0-9a-f]+\.json$)/;
 
 export async function handleRequest(request, env) {
   const url = new URL(request.url);

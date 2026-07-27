@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="选择困难症的中国旅行扭蛋机：267 个目的地 + 53 条联程线路，筛选比对、条件随机、串行程出路书">
+<!-- 计数与 data/ 真相源的一致性钉在 tests/build-assets.test.mjs（M70 顺手，此前 267 漂了三批没人发现） -->
+<meta name="description" content="选择困难症的中国旅行扭蛋机：312 个目的地 + 53 条联程线路，筛选比对、条件随机、串行程出路书">
 <meta name="theme-color" content="#c1502f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -276,6 +277,13 @@
         <button class="btn ghost-btn" id="syncForgetBtn" style="display:none">解绑本机</button>
       </div>
       <div class="share-hint" id="syncStatus"></div>
+    </details>
+    <!-- M70 装成 App：环境四分渲染见 ui/install.ts——已装 standalone 整块隐藏、Chrome 系一键、
+         iOS 图文、其余通用指引；display:none 起手由 JS 决定显隐，避免 standalone 里闪一帧 -->
+    <details class="share-import" id="installBlock" style="display:none">
+      <summary>📲 装成 App（离线也能玩）</summary>
+      <p class="share-hint" id="installHint"></p>
+      <div class="share-row"><button class="btn" id="installBtn" style="display:none">⬇️ 一键装到主屏幕</button></div>
     </details>
   </div>
 </div>

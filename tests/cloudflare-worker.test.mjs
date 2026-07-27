@@ -144,6 +144,10 @@ test("sets long immutable cache-control for hashed assets and data chunks", asyn
 
   const chunkResp = await handleRequest(new Request(`${ORIGIN}/data/chunk-0-e2e6c2a88e.json`), env);
   expect(chunkResp.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
+
+  // M70：出发地视角文件同为内容 hash 命名（tools/build.py），M22 起漏在短缓存分支里，补钉
+  const originResp = await handleRequest(new Request(`${ORIGIN}/data/origin-guangzhou-f0b27ca235.json`), env);
+  expect(originResp.headers.get("cache-control")).toBe("public, max-age=31536000, immutable");
 });
 
 test("sets short must-revalidate cache-control for mutable entry points", async () => {
@@ -156,6 +160,14 @@ test("sets short must-revalidate cache-control for mutable entry points", async 
 
   const manifestResp = await handleRequest(new Request(`${ORIGIN}/data/manifest.json`), env);
   expect(manifestResp.headers.get("cache-control")).toBe("public, max-age=0, must-revalidate");
+
+  // M70：sw.js 是 SW 更新的唯一触发器——一旦被长缓存，「绝不允许装成 PWA 后永远旧版」
+  // 红线就破了；两份数据索引同理是「会变但文件名不变」的入口
+  const swResp = await handleRequest(new Request(`${ORIGIN}/sw.js`), env);
+  expect(swResp.headers.get("cache-control")).toBe("public, max-age=0, must-revalidate");
+
+  const originsIdxResp = await handleRequest(new Request(`${ORIGIN}/data/origins.json`), env);
+  expect(originsIdxResp.headers.get("cache-control")).toBe("public, max-age=0, must-revalidate");
 });
 
 test("preserves asset status and body while overriding cache-control", async () => {

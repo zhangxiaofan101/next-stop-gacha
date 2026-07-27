@@ -12,6 +12,7 @@ import { createSyncCode, pullSync, pushSync } from "../services/syncApi";
 import { clearSyncCode, DATA, getSyncCode, saveLS, setSyncCode, state } from "../store";
 import { copyText } from "./clipboard";
 import { $ } from "./dom";
+import { renderInstallBlock } from "./install";
 import { render } from "./render";
 import { switchOrigin } from "./origin";
 import { openSharedRoadbook } from "./roadbook";
@@ -119,6 +120,7 @@ export function openShare() {
   $("shareStats").textContent = `本机现有：♥ ${state.favs.length} 个收藏 · 👣 ${state.visited.length} 个打卡`;
   $("qrWrap").style.display = "none";
   renderSyncStatus();
+  renderInstallBlock(); // M70：开面板时按当下环境（standalone/一键事件在手与否）现渲染
   $("shareOverlay").classList.add("show");
 }
 
