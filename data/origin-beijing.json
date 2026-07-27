@@ -123,6 +123,10 @@
   "transit": "飞成都约3h，再租车或拼车进山；旺季可选康定机场飞行段+落地包车",
   "difficulty": "一次中转"
  },
+ "conghua-liuxihe": {
+  "transit": "北京直飞广州白云机场约3.5h，转地铁14号线约1.5h到从化东风站，再打车约40min进温泉镇；从化无高铁站。",
+  "difficulty": "一次中转"
+ },
  "cuandixia-jingxi": {
   "transit": "自驾约2h进门头沟斋堂山区；或地铁苹果园换892路公交(每日仅数班)。",
   "difficulty": "直达"
@@ -219,6 +223,10 @@
   "transit": "自驾约4.5h上坝到大滩草原(京北最近草原)；无直达轨道，坝上以自驾/旅游巴士为主。",
   "difficulty": "直达"
  },
+ "foshan": {
+  "transit": "直飞佛山沙堤机场约3h（北京方向每日数班），机场到祖庙约30min车程；也可直飞广州白云后转地铁约1h",
+  "difficulty": "直达"
+ },
  "fujian-tulou": {
   "transit": "直飞厦门约3h，转长途车约2h到土楼；另有夕发朝至动车约16h直达龙岩再转车约1h",
   "difficulty": "一次中转"
@@ -234,6 +242,10 @@
  "gannan": {
   "transit": "飞兰州后班车/包车约3.5h至夏河，或经中转直飞夏河机场",
   "difficulty": "一次中转"
+ },
+ "ganzhou": {
+  "transit": "北京直飞赣州黄金机场约2.5h（大兴/首都合计每日约3班），机场到市区打车约40min；或高铁经南昌西/京港高铁约8-9h。",
+  "difficulty": "直达"
  },
  "gaoyou": {
   "transit": "高铁约5.5h（多经南京南/镇江转连镇高铁）至高邮站",
@@ -299,6 +311,14 @@
   "transit": "高铁约2h至大同南，转长途汽车/包车约1.5h到浑源",
   "difficulty": "一次中转"
  },
+ "heyuan-wanlvhu": {
+  "transit": "北京直飞广州或深圳约3.5h，转赣深高铁约1-2h到河源东站；或京广高铁北京西到深圳北约8h再转约50min，无直达高铁。",
+  "difficulty": "一次中转"
+ },
+ "hezhou-guposhan": {
+  "transit": "北京直飞桂林约3h，转贵广高铁约1h到贺州站；或高铁经广州南/长沙换乘约11h，站到姑婆山与温泉区打车约1h。",
+  "difficulty": "一次中转"
+ },
  "hongkong": {
   "transit": "高铁约9h至西九龙 / 直飞约3.5h",
   "difficulty": "直达"
@@ -337,6 +357,10 @@
  },
  "huihang-ancient-trail": {
   "transit": "高铁约7h（多经黄山北/杭州东中转）到绩溪北，转车约1h到古道入口",
+  "difficulty": "一次中转"
+ },
+ "huizhou-xunliao": {
+  "transit": "北京直飞惠州平潭机场约3.5h，转车约1.5h到巽寮湾、双月湾；或直飞深圳后转高铁约1h到惠东站再接驳约1h。",
   "difficulty": "一次中转"
  },
  "hukou-waterfall": {
@@ -424,7 +448,7 @@
   "difficulty": "一次中转"
  },
  "kaiping": {
-  "transit": "直飞广州约3h后高铁约1h至开平南",
+  "transit": "直飞广州约3h后动车约1h至开平南",
   "difficulty": "一次中转"
  },
  "kashgar": {
@@ -479,6 +503,10 @@
   "transit": "直飞连云港约1.5h，或高铁约5h（多经徐州中转）",
   "difficulty": "直达"
  },
+ "lianzhou-liannan": {
+  "transit": "北京直飞广州约3.5h，再走广连高速自驾或乘长途汽车约2.5-3h到连州；无铁路客运直达，落地后各景点之间仍需自驾或包车。",
+  "difficulty": "折腾"
+ },
  "libo-xiaoqikong": {
   "transit": "飞贵阳约3h+高铁约1h直达荔波",
   "difficulty": "一次中转"
@@ -527,6 +555,10 @@
   "transit": "经乌鲁木齐/库尔勒中转，再铁路或公路到轮台县；森林公园距县城较远",
   "difficulty": "折腾"
  },
+ "luofushan-nankunshan": {
+  "transit": "北京直飞广州/深圳约3.5h，转广汕高铁约30-40min到罗浮山站，出站约10km进景区；进南昆山再转车约1.5h。",
+  "difficulty": "一次中转"
+ },
  "luoping": {
   "transit": "飞昆明约3.5h，昆明南站高铁到罗平约1h",
   "difficulty": "一次中转"
@@ -574,6 +606,10 @@
  "mohe": {
   "transit": "飞哈尔滨转飞漠河或普速夜车，全程约1天",
   "difficulty": "折腾"
+ },
+ "nanaodao": {
+  "transit": "北京直飞揭阳潮汕机场约3.5h，转包车经澄海南澳大桥上岛约2h；或高铁到汕头站后转公交/包车上岛约1-1.5h。",
+  "difficulty": "一次中转"
  },
  "nanjing": {
   "transit": "高铁约4h / 直飞约2h",
@@ -658,6 +694,10 @@
  "qingdao": {
   "transit": "高铁约3-4.5h / 直飞约1.5h",
   "difficulty": "直达"
+ },
+ "qingyuan": {
+  "transit": "北京直飞广州约3.5h，转广清城际约35min到清城站；京广高铁北京西南下约9h，经停清远站的车次少。",
+  "difficulty": "一次中转"
  },
  "qinhu-wetland": {
   "transit": "直飞扬泰机场约2h，或高铁经南京南中转至泰州/姜堰站，再转汽车约40min到溱潼",
@@ -935,6 +975,10 @@
   "transit": "直飞揭阳潮汕约3.5h后约40min到汕头",
   "difficulty": "直达"
  },
+ "shanwei-honghaiwan": {
+  "transit": "北京直飞深圳/揭阳约3.5h，转高铁约1-1.5h到汕尾站，再打车约40min到红海湾；无直飞汕尾的航班。",
+  "difficulty": "一次中转"
+ },
  "shanzhou-dikengyuan": {
   "transit": "高铁约4h直达三门峡南，再打车约40min到陕州区",
   "difficulty": "直达"
@@ -1018,6 +1062,10 @@
  "taishan": {
   "transit": "高铁约2h至泰安",
   "difficulty": "直达"
+ },
+ "taishan-chuandao": {
+  "transit": "直飞广州约3h后转江湛线动车约1.5h到台山站，再约1h车程到山咀港乘轮渡上岛",
+  "difficulty": "折腾"
  },
  "taiyuan": {
   "transit": "高铁约3h / 直飞约1.5h",
@@ -1159,6 +1207,10 @@
   "transit": "直飞三亚约4h后自驾/包车约2h到五指山，再进水满乡",
   "difficulty": "一次中转"
  },
+ "wuzhou": {
+  "transit": "北京大兴有直飞梧州西江机场的航班（每周约4班、约3h，班次少、以当期实查为准）；或飞广州/桂林后转南广线动车约1.5-2h到梧州南站。",
+  "difficulty": "一次中转"
+ },
  "xiamen": {
   "transit": "直飞约3h / 高铁约10h（部分需中转）",
   "difficulty": "直达"
@@ -1202,6 +1254,10 @@
  "xining-qinghai-lake": {
   "transit": "直飞约3h",
   "difficulty": "直达"
+ },
+ "xinxing-liuzu": {
+  "transit": "直飞广州约3h，市内转乘至广州白云站后乘广湛高铁约40min到新兴南，再转车约40min进度假区",
+  "difficulty": "折腾"
  },
  "xinyang": {
   "transit": "高铁约4.5h至信阳东，再打车/专线约1h到鸡公山",
@@ -1267,6 +1323,10 @@
   "transit": "直飞约2h，或京银高铁约7.5h直达",
   "difficulty": "直达"
  },
+ "yingde-yingxi": {
+  "transit": "北京直飞广州约3.5h，转京广高铁约40min到英德西站，再打车或包车约1-1.5h进峰林走廊；京广高铁北京西南下约9h，经停英德西的车次很少。",
+  "difficulty": "一次中转"
+ },
  "yingxian-muta": {
   "transit": "高铁约2h至大同南，转集大原高铁约0.5h到应县西（2024底新通高铁）",
   "difficulty": "一次中转"
@@ -1315,6 +1375,10 @@
   "transit": "飞拉萨约4.5h适应后，随正规包车经日喀则、阿里方向进入、公路需数日；或经阿里昆莎机场中转；边防证按行程提前办妥",
   "difficulty": "折腾"
  },
+ "zengcheng-baishuizhai": {
+  "transit": "北京直飞广州白云机场约3.5h，转车约1.5h到增城派潭白水寨；也可高铁到广州后转广汕高铁约20-30min到增城站再打车约1h。",
+  "difficulty": "一次中转"
+ },
  "zhangbei-caoyuantianlu": {
   "transit": "自驾约3h上坝进草原天路，或高铁约1h到张家口再包车上坝约1.5h。",
   "difficulty": "直达"
@@ -1361,6 +1425,10 @@
  },
  "zhenyuan": {
   "transit": "飞贵阳约3h，再高铁至三穗站转专线约30min，或普速列车直达镇远站",
+  "difficulty": "一次中转"
+ },
+ "zhongshan": {
+  "transit": "直飞广州约3h后转广珠城际约50min到中山站",
   "difficulty": "一次中转"
  },
  "zhongwei-shapotou": {

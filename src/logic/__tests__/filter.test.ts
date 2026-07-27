@@ -204,9 +204,9 @@ describe("M73：距离排序 + 视角默认序", () => {
 
 describe("真实数据回归", () => {
   const data = loadRealData();
-  it("全量 348 条（295 城 + 53 线，M22 批：+12 京畿 +1 上海）", () => {
-    expect(data).toHaveLength(348);
-    expect(data.filter(d => !d.stops)).toHaveLength(295);
+  it("全量 365 条（312 城 + 53 线，M22 批：+12 京畿 +1 上海，广州批：+17 珠三角周边）", () => {
+    expect(data).toHaveLength(365);
+    expect(data.filter(d => !d.stops)).toHaveLength(312);
   });
   it("「江浙沪」chip 命中 49（M37 浏览器复验口径；线路按 regions 多选 OR。M22 后江浙沪 50 条，但基座出发地=上海时上海卡对偶隐藏，可见仍 49）", () => {
     const s = mkState({ region: new Set(["江浙沪"]) });

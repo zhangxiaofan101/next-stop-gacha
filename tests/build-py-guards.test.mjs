@@ -38,7 +38,7 @@ function runBuildPy(dataDir, publicDataDir) {
   return { code: r.status ?? 1, stderr: r.stderr ?? "" };
 }
 
-test("隔离目录下真实数据副本零改动仍零违规通过（钉住当前 295 城+53 线=348 零 norail/slowrail 冲突）", () => {
+test("隔离目录下真实数据副本零改动仍零违规通过（钉住当前 312 城+53 线=365 零 norail/slowrail 冲突）", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
     const result = runBuildPy(dataDir, publicDataDir);
     assert.equal(result.code, 0, `真实数据副本必须零退出通过，stderr: ${result.stderr}`);
@@ -158,11 +158,12 @@ test("M22：未知 id / 非法 difficulty / 多余字段 各自拦截", () => {
   });
 });
 
-test("F85：未在注册表登记的出发地视角文件（origin-guangzhou.json）必须报错退出", () => {
+test("F85：未在注册表登记的出发地视角文件（origin-hangzhou.json）必须报错退出", () => {
   withTmpDataCopy((dataDir, publicDataDir) => {
-    // guangzhou 是真实存在的目的地卡，但未在 registry-origins.json 注册为出发地
-    const view = fullView(dataDir, "guangzhou");
-    writeFileSync(join(dataDir, "origin-guangzhou.json"), JSON.stringify(view));
+    // hangzhou 是真实存在的目的地卡，但未在 registry-origins.json 注册为出发地
+    // （原夹具用 guangzhou，M22 广州批后广州已真实注册，换杭州保持反例前提）
+    const view = fullView(dataDir, "hangzhou");
+    writeFileSync(join(dataDir, "origin-hangzhou.json"), JSON.stringify(view));
     const result = runBuildPy(dataDir, publicDataDir);
     assert.notEqual(result.code, 0, "未注册出发地必须拦截");
     assert.match(result.stderr, /未在注册表/);

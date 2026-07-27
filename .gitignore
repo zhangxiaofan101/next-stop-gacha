@@ -20,3 +20,6 @@ fonts/source/*
 test-results/
 playwright-report/
 blob-report/
+
+# 本机 IDE/预览工具配置，不进版本库
+.claude/
