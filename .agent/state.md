@@ -8,6 +8,8 @@
 
 **封板（2026-07-28）**：七期（M78/M79/M70 + M74–M77、M81–M84 维护与基建插件 + M22·广州批）封板（见 🪦；一至六期先前已封，核验记录见 git 历史）。封板核验：review.md 无 Active findings（baseline b077de4 起无新增；跨家族 review 欠账系「建议未执行」明记 🔜 gate，非未 triage 发现）；封板会话实跑 `bun run verify` 全绿（lint:agent + tsc + 前端 346 + workerd 52，退出码 0）、`bun run test:visual` 24/24、工作区除封板改动外干净、main↔origin 同步；M78/M79/M70 机制已收编 design 正文（过滤天花板三件套/顺路排序路线图/架构·离线 PWA）。 [cc]
 
+**七期 review 收口（2026-07-28 封板同日晚）**：codex 跨家族轮实跑（baseline `2be0156`，范围 `b077de4..2be0156`，覆盖 M78/M79/M81 + M70 + M22·广州批 + M74–M77/M82–M84），出 F92/F93 两个 P2 → cc 当日修复并补回归钉；实跑 `bun run verify` 全绿（lint:agent + tsc + 前端 351 + workerd 52）、`bun run test:build-assets` 24/24。F92/F93 按项目惯例留在 review.md 等 codex 确认轮删除——gate 通过前不开 M86。 [cc]
+
 **八期·九期（2026-07-28 用户拍板终版，同日早前「M72 排八期头名」被覆盖）**：八期=M86 行程动作体系（独占头名）；九期=M85 远方锚点 · M72 装饰件体系（组内先后未拍板，开工前定）；七期（M78 → M79 → 广州批 → M70 全 ✅）同日封板见 🪦。新编号自 M88 起。 [cc]
 
 ## ✅ Implemented
@@ -22,7 +24,7 @@
 2. 【前端】M85 — 远方锚点：目标城市周边发现与行程装配 [R2 · S2 · 🌫️]（九期） ｜ 2026-07-28 用户拍板与 M72 同排九期（组内先后开工前定）；spec 见 design M85 [cc]
 3. 【画面+前端】M72 — 装饰件体系：增补与编排 [R2 · S2 · 🌫️]（九期） ｜ 原七期头名，M78/M79、广州批、M70 三度让位后 2026-07-28 随排期终版落位九期（同日早前「排八期头名」拍板被覆盖）：各皮肤装饰件大小参差、还可能加件，要系统化「加什么、怎么排好看」——每肤可不同排法、可上弹层悬窗；开工时逐肤出 mock 拍板；spec 见 design M72 [cc]
 
-- review gate：七期封板时跨家族 review 仍欠账——M78/M79/M81 + M70 代码面 + M22·广州批 content-checklist 抽查，建议 M86 开工前安排一轮；M86/M85/M72 均 🌫️、开工先拍板；gate 排法（合并轮/分轮）届时定。 [cc]
+- review gate：七期跨家族 review 欠账已于封板同日补跑（codex，baseline `2be0156`；M78/M79/M81 + M70 代码面 + M22·广州批 content-checklist 抽查全覆盖），F92/F93 两个 P2 已修复待 codex 确认轮关闭——**确认轮通过后 M86 方开工**；M86/M85/M72 均 🌫️、开工先出 mock 拍板。 [cc]
 
 ## 🗄 远期（未排期；2026-07-22 用户拍板「其他都放更远」）
 
@@ -65,6 +67,7 @@
 
 ## 📥 Review backlog（triage 结果）
 
+- **2026-07-28 七期轮（codex，baseline `2be0156`）→ cc 同日修复**：①**F92**（SW 激活即清旧版本缓存并 claim 旧页面，旧页面内存里的索引仍指旧 hash 视角文件 → 切出发地 404 失败）修法取「按需 hash 资产自修复」而非改 SW 生命周期——视角文件是全站唯一按需取的 hash 资产，取不到即重取 origins.json 换新文件名重试一次（联网/断网都成立，且顺带治好「长开页面跨部署」这条与 SW 无关的老暴露面）；不变式已写进 design 架构·离线（PWA）与 sw.template.js activate 头注，新增同类资产须照办。②**F93**（`#m=` 整份认领后日期输入框留着迁移前的值）修法把「状态→表单」收进 `renderTrip()` 唯一入口，`boot()` 那次一次性写入撤掉。回归钉：origin-switch +2（自修复成功 / 文件名未变不重试）、新套 trip-start-sync 3 例（认领三者一致 / 空行程早退分支也同步 / 已有内容退回合并语义不改日期）；四条新断言经「撤掉修复即红」实证。两项留 review.md 待 codex 确认轮删除。 [cc]
 - 截至六期封板（2026-07-22）：历史 F 项（F14–F91）全部修复并经 codex 复核关闭；六期四道 gate——代码面（F70–F77，baseline 9322468）、皮肤面（F89–F91，fb52544 复核）、M22 S3（F78–F88，PR #4 三轮）、M73 终审（baseline b077de4）——全部通过；review.md 无 active findings。 [cc]
 
 ## 🪦 Sealed phases

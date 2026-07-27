@@ -6,7 +6,6 @@ import { applySkinVisuals, currentSkinId, wireIllustFallbacks } from "./skins/il
 import { loadLS, setData, state } from "./store";
 import { registerSW } from "./pwa";
 import { buildConsole } from "./ui/console";
-import { $ } from "./ui/dom";
 import { wireEvents } from "./ui/events";
 import { purgePileForOrigin } from "./ui/gacha";
 import { wireInstallGuide } from "./ui/install";
@@ -42,7 +41,8 @@ async function loadOriginsIndex(): Promise<Record<string, string>> {
 /* ================= 启动 ================= */
 function boot() {
   loadLS();
-  $<HTMLInputElement>("tripStartInput").value = state.tripStart;
+  // 出发日期输入框的同步不在这里：它由 renderTrip() 统一负责（F93——这里写一次的话，
+  // 紧跟其后的 checkMigrateHash() 整份认领会换掉 state.tripStart，框里却留着旧值）。
   updateCountPill(); // M22：总数按当前出发地可见池计（本城卡对偶隐藏）
   buildConsole();
   render();

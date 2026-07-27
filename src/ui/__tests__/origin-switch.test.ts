@@ -104,6 +104,44 @@ describe("M22：出发地切换（UI）", () => {
     expect(document.getElementById("originPill")!.textContent).toContain("北京出发");
   });
 
+  // F92 回归：页面开着期间发过新版本——手里的索引指着旧 hash 视角文件，线上已不存在（新 SW
+  // 激活时还会把旧版本缓存一并清掉）。重取 origins.json 拿新文件名再试一次，切换照样成功。
+  it("F92：旧 hash 视角文件已下线 → 重取索引自修复，切换仍成功", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: unknown) => {
+      const u = String(url);
+      calls.push(u);
+      if (u.endsWith("data/origins.json")) return new Response(JSON.stringify({ beijing: "origin-beijing-f92-v2.json" }), { status: 200 });
+      if (u.endsWith("data/origin-beijing-f92-v2.json")) return new Response(JSON.stringify(VIEW), { status: 200 });
+      return new Response("", { status: 404 }); // v1：线上已没有这个文件了
+    }));
+    await restoreOrigin({ beijing: "origin-beijing-f92-v1.json" }); // 无记忆、当前即上海，不触发 fetch
+    expect(await switchOrigin("beijing")).toBe(true);
+    expect(getOrigin().id).toBe("beijing");
+    expect(byId("hangzhou")!.transit).toBe("高铁约5h"); // 视角值来自新文件
+    expect(calls).toEqual([ // 旧名 → 索引 → 新名，不多试
+      expect.stringContaining("origin-beijing-f92-v1.json"),
+      expect.stringContaining("origins.json"),
+      expect.stringContaining("origin-beijing-f92-v2.json"),
+    ]);
+  });
+
+  // 同上的另一半：索引重取回来文件名没变（=不是版本漂移，是这个文件真取不到），不该无限重试，
+  // 老老实实走原来的降级路径（维持原出发地 + toast）。
+  it("F92：索引重取后文件名未变 → 不再重试，按原降级路径维持出发地", async () => {
+    const fetchSpy = vi.fn(async (url: unknown) => {
+      const u = String(url);
+      if (u.endsWith("data/origins.json")) return new Response(JSON.stringify({ beijing: "origin-beijing-f92-same.json" }), { status: 200 });
+      return new Response("", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+    await restoreOrigin({ beijing: "origin-beijing-f92-same.json" });
+    expect(await switchOrigin("beijing")).toBe(false);
+    expect(getOrigin().id).toBe("shanghai");
+    expect(byId("hangzhou")!.transit).toBe("高铁约1h"); // 数据没被动过
+    expect(fetchSpy).toHaveBeenCalledTimes(2); // 视角文件 + 索引，到此为止
+  });
+
   // F80 回归：北京悬起 → 立刻点回上海（同城早退，同步成功）→ 北京响应姗姗来迟，
   // 必须被作废——不 setOrigin、不 applyView、不写 LS，界面停在用户最后一次点击（上海）。
   it("竞态 a：北京悬起时点回上海（同城早退）→ 北京稍后 resolve 不覆盖", async () => {

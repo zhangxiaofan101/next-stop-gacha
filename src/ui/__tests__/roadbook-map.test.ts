@@ -24,6 +24,7 @@ function domSkeleton() {
     </div>
     <button id="footPill"></button>
     <div id="toast" style="display:none"><span id="toastMsg"></span></div>
+    <input type="date" id="tripStartInput">
     <div id="stopList"></div>
     <div id="tripStats"></div>
     <div id="tripSugg"></div>

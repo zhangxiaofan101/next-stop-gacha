@@ -20,6 +20,11 @@ export function autoOrder() {
 }
 
 export function renderTrip() {
+  // F93：出发日期输入框是行程单里唯一的表单控件，状态→表单的同步收在这里（唯一入口）。
+  // 早前由 boot() 一次性写入，于是任何「启动后再改 state.tripStart」的路径都会漏同步——
+  // 搬家链接 `#m=` 整份认领就是活例：日期已进 state 与 localStorage，框里却还是迁移前的值。
+  // 放在空行程早退之前：行程为空但日期已迁入的场合同样要显示对。
+  $<HTMLInputElement>("tripStartInput").value = state.tripStart;
   const listEl = $("stopList");
   const stops = tripStops(state.trip, byId);
   if (!stops.length) {

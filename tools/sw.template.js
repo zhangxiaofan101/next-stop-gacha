@@ -83,6 +83,10 @@ self.addEventListener("install", (event) => {
   );
 });
 
+// 激活即清旧版本缓存 + claim 现有页面。被 claim 的旧页面不会随之重载，它内存里的索引仍是旧版——
+// 前提条件（F92）：页面按需才取的 hash 资产只有出发地视角文件一种，且 ui/origin.ts 在取不到时会
+// 重取 origins.json 索引自修复，因此「旧页面 + 新缓存」这个组合仍自洽。若将来新增别的按需 hash 资产，
+// 要么同样做索引自修复，要么这里改成留旧缓存等旧页面消失。
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const keep = new Set([STATIC_CACHE, ILLUST_CACHE]);

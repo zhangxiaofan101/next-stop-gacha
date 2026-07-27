@@ -25,16 +25,45 @@ export function availableOrigins(): Origin[] {
   return ORIGINS.filter(o => o.id === BASE_ORIGIN.id || published[o.id]);
 }
 
+async function fetchViewFile(file: string): Promise<ViewMap> {
+  const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`);
+  if (!res.ok) throw new Error(String(res.status));
+  return await res.json() as ViewMap;
+}
+
+/** 重取视角索引（F92）。origins.json 是非 hash 命名的可变文件：SW 网络优先，断网才退缓存，
+    而缓存里那份必与当前版本的视角文件同版（同一次预缓存取齐）——所以联网离线都拿得到「当下这版」的文件名。
+    取不到（离线且无缓存/404/坏 JSON）返回 null，调用方按「索引没能刷新」处理。 */
+async function refreshIndex(): Promise<Record<string, string> | null> {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}data/origins.json`);
+    if (!res.ok) return null;
+    published = await res.json() as Record<string, string>;
+    return published;
+  } catch (e) { return null; }
+}
+
 async function fetchView(o: Origin): Promise<ViewMap | null> {
   if (o.id === BASE_ORIGIN.id) return null; // 基座视角无需文件（null=恢复基座值）
   const file = published[o.id]; // 缓存按发布文件名（带内容 hash）——换部署=换文件名，天然不吃旧缓存
   const hit = viewCache.get(file);
   if (hit) return hit;
-  const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`);
-  if (!res.ok) throw new Error(String(res.status));
-  const view = await res.json() as ViewMap;
-  viewCache.set(file, view);
-  return view;
+  try {
+    const view = await fetchViewFile(file);
+    viewCache.set(file, view);
+    return view;
+  } catch (e) {
+    // F92 版本漂移自修复：页面开着的这段时间里发过新版本——内存里的索引还指着旧 hash 文件名，
+    // 而那个文件线上已不存在（SW 激活时也把旧版本缓存一并清了，见 tools/sw.template.js activate）。
+    // 视角文件是全站唯一「按需才取」的 hash 资产，故这一处自修复就补齐了整个暴露面：重取索引拿
+    // 新文件名再试一次。名字没变或索引也取不到=不是版本漂移这回事，照旧抛出走 toast 降级。
+    const idx = await refreshIndex();
+    const next = idx?.[o.id];
+    if (!next || next === file) throw e;
+    const view = await fetchViewFile(next);
+    viewCache.set(next, view);
+    return view;
+  }
 }
 
 /** 切到指定出发地；成功（或已在途中被作废）返回值见下方注释。失败 toast 并维持现状（silent 供测试/边角关提示）。
