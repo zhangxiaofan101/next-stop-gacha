@@ -261,6 +261,12 @@ cartoon outlines.
 - 用户看 `qa-m44-b17.png` 与 `qa-m44-b17-huabei-cluster.png` 后确认全部通过；13 张 v1 已转 q90 WebP 入 `picked/dest/`，M42 管线同步生成 public 卡位产物。
 - 全量结果：295/295 城同时具备 picked 母版和 public 产物；13 张新卡位均为 640×427、22.5–38.4KiB，未开 40KiB 预算例外；`build_illustrations.py` 零违规，资产门测试 23/23 通过。
 
+### Batch 18 — M22 广州批新增 17 城（2026-07-27，已终审转正）
+
+- 数据差集只含 17 个新 cityid：`ganzhou` / `huizhou-xunliao` / `luofushan-nankunshan` / `shanwei-honghaiwan` / `conghua-liuxihe` / `zengcheng-baishuizhai` / `foshan` / `zhongshan` / `taishan-chuandao` / `xinxing-liuzu` / `qingyuan` / `yingde-yingxi` / `lianzhou-liannan` / `heyuan-wanlvhu` / `wuzhou` / `hezhou-guposhan` / `nanaodao`；既有 295 个 picked 永久跳过、未重画未覆盖。
+- 用户看 `qa-m44-b18.png` 与 `qa-m44-b18-huanan-cluster.png` 后确认全部通过；17 张 v1 已转 q90 WebP 入 `picked/dest/`，M42 管线同步生成 public 卡位产物。
+- 全量结果：312/312 城同时具备 picked 母版和 public 产物；17 张新卡位均为 640×427、33.7–39.9KiB，未开 40KiB 预算例外；`build_illustrations.py` 零违规，资产门测试 23/23 通过。
+
 ## A6 山水皮肤固定资产批（M46 消费；2026-07-19 皮肤化拍板后首个皮肤资产批）
 
 > 方向参照=用户已认可的水墨整页 mock（codex 自产）。**开批第一步：把该 mock 原图存为 `raw/ink/style-ref-mock.png`**，后续每张生成都以它为 image reference（挑版时 cc 转 webp 入 `picked/ink/` 永久锚定）；下述风格锁批内一字不改。产出进 **`assets/illustrations/raw/ink/`**（QA 总览进 `raw/ink/qa/`；结构见 assets/illustrations/README.md），等用户挑版，挑版后 cc 转 `picked/ink/` 接入。

@@ -4,7 +4,7 @@
 
 ## 🎯 Status snapshot
 
-**线上**：`travel.xiaofan.me`（2026-07-26 起，见 M82；旧地址 `lab.medspiral.com/next-stop-gacha/` 只余搬家页与 308）——Vite+TS 工程化版，312 城 + 53 线（365 条）全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；出发地三视角（上海基座/北京/广州，全站数据视角 + 距离排序）；后端短链分享（KV）+ 同步码云同步（Durable Object）；主题皮肤机制 + 原味（cream，原名奶油）/山水/青花/涂鸦四肤（默认 `ink`）；目的地插画共享集 295/312（广州批 17 新卡待补，见 🟡）。 [cc][codex]
+**线上**：`travel.xiaofan.me`（2026-07-26 起，见 M82；旧地址 `lab.medspiral.com/next-stop-gacha/` 只余搬家页与 308）——Vite+TS 工程化版，312 城 + 53 线（365 条）全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；出发地三视角（上海基座/北京/广州，全站数据视角 + 距离排序）；后端短链分享（KV）+ 同步码云同步（Durable Object）；主题皮肤机制 + 原味（cream，原名奶油）/山水/青花/涂鸦四肤（默认 `ink`）；目的地插画共享集 312/312。 [cc][codex]
 
 **封板（2026-07-22）**：六期（M61–M69、M71、M73 + M22 北京首发）封板（见 🪦；一至五期先前已封，核验记录见 git 历史）。封板核验：四道 review gate 全过——代码面（F70–F77）、皮肤面（F89–F91）、M22 S3（F78–F88）、M73 终审——review.md 无 Active findings（最新 baseline b077de4）；封板会话实跑 `bun run verify` 全绿（lint:agent + tsc + 294 前端 + 50 workerd，退出码 0）、`bun run test:visual` 24/24、`git status` 干净、main↔origin 同步。 [cc]
 
@@ -36,6 +36,8 @@
 
 - **M22 增补 — 新增 13 城目的地插画转正 [R1 · S2] → codex-small · high（used: gpt-5.6-sol in-session；纯机械转档，委派开销更高）**｜2026-07-22 用户终审通过 Batch 17 全部候选；13 张 1536×1024 RGB raw 以 `cwebp -q 90` 转入 `picked/dest/`，再由 M42 管线生成 640×427 卡位产物。picked 从 282 增至 295，正式城市数据 295/295 均有母版与 public 产物；既有 282 张永久跳过、零覆盖。Verified：`python3 tools/build_illustrations.py` 零违规；13 张卡位均 ≤40KiB（22.5–38.4KiB，最高 `shidu` 38.4KiB）；`bun run test:build-assets` 23/23 全绿。 [codex]
 
+- **M22 增补 — 广州批 17 城目的地插画转正 [R1 · S2] → codex-small · high（used: gpt-5.6-sol in-session；终审后机械转档与资产门验证，差异小于委派开销）**｜2026-07-27 用户终审通过 Batch 18 全部候选；17 张 1536×1024 RGB raw 以 `cwebp -q 90` 转入 `picked/dest/`，M42 管线同步生成 640×427 卡位产物。picked 从 295 增至 312，正式城市数据 312/312 均有母版与 public 产物；既有 295 张永久跳过、零覆盖。Verified：碰撞预检 17/17、`python3 tools/build_illustrations.py` 零违规；17 张卡位均 ≤40KiB（33.7–39.9KiB，最高 `shanwei-honghaiwan` 39.9KiB），未开预算例外；`bun run test:build-assets` 23/23 全绿；为避开同工作区并发 PWA 未完成文件，在只含本批暂存差异的干净快照上跑 `bun run verify` 全绿（前端 339/339 + workerd 52/52）。 [codex]
+
 （一期–六期已封板 → 见 🪦 墓碑；六期全部条目与 Verified 证据明细在 git 历史——封板前版本至 817b9ca。新编号自 M77 起。） [codex]
 
 ## 🔜 Next batch（七期，2026-07-22 排定；2026-07-24 用户反馈插队重排）
@@ -62,7 +64,6 @@
 - **手帐水彩 19 张用户终审**：M39（远期）gating，不急；九区 9 张已随 M60 退出待审转素材库 [cc]
 - **奶油皮肤缺 mascot/gacha 插画**（2026-07-21 用户外观反馈批发现 mascot 缺口；M64 立项后 gacha 缺口同框）：`illustrations/cream/` 从未画过 mascot 与 gacha 母版，咔啦头像在奶油下真正隐藏（M64 顺手修了个此前一直存在的潜伏 bug——旧版只是「看起来空白」的空心圆圈，`.mascot-decor`/`.toast-kara` 缺 `[hidden]` CSS 覆盖导致 frame.hidden 不生效，见 M64 Verified）；用户拍板先放着——M63/M64 落地后奶油的舞台操作员/FAB 机器/趴机/toast 气泡均走回退形态；若要补齐需奶油卡通风 mascot+gacha 两件母版一并立批（不能直接复用水墨版，风格家族不同） [cc]
 - **京津承类线路北京视角首段显示**（M22 遗留）：整线装入后首段呈现「北京→北京 0km」——显示层怎么收（隐藏首段/合并文案）待定夺，后续修缮批处理；广州视角下大湾区线路同构（首站即出发地），一并处理 [cc]
-- **广州批 17 新卡插画欠账**（2026-07-27）：走插画轨道按目的地共享集风格锁开补批（同京畿批 Batch 17 先例），用户终审 gate；补齐前卡位/详情回退 emoji，功能不受影响 [cc]
 - **反向「可接」回指候选**（2026-07-27 广州批 B 组建议，新卡侧单向指引已写，既有卡回指待修缮批一并处理）：《顺德》→佛山、《开平·赤坎》→台山、《珠海》→中山、《韶关·丹霞山》→英德、《黄姚古镇》→贺州、《潮州》→南澳岛 [cc]
 - **基座数据 wart 两件**（2026-07-27 广州批 A 组顺带查出，属上海视角基座、不在广州批改动范围，走 F/triage）：①huhehaote 基座 transit 写「直飞约3h」但 difficulty=一次中转自相矛盾，且文案已写尚未转场的盛乐机场（2026-03 仍校飞、白塔在发时刻表）；②luoping 基座写「昆明南高铁到罗平约1h(沪昆高铁)」但沪昆高铁云南段不经罗平（罗平站=南昆线四等站需换乘），并议补 slowrail [cc]
 - 插画轨道执行细节：codex 若无图像 API 可用，降级为「整理批量 prompt 清单交用户手动生成」（工单已写明两种模式）；用哪个图像模型由 codex/用户按可用性定，cc 不锁定 [cc]
