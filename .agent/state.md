@@ -14,6 +14,8 @@
 
 **M89 立项排九期（2026-08-01）**：躺平扭蛋（自驾半径躺游方案）立项当日排入九期——九期扩为 M85 · M72 · M89 三件（组内先后仍开工前定）；八期 M86 独占头名不变，其 gate（F92/F93 codex 确认轮）尚未通过、仍未开工。新编号自 M90 起。 [cc]
 
+**七期 review 确认轮（2026-08-01）**：Codex/GPT reviewer 以 `cfe4a35`（`origin/main`）为 confirmation baseline，独立确认 `5b5dc84` 的 F92/F93 修复与回归钉；两项已从 review.md 删除，当前无 Active findings，七期 review gate 通过，M86 可开工。定向回归 11/11、完整 `bun run verify`（前端 351/351 + workerd 52/52）、`bun run test:build-assets` 24/24 均通过。 [codex]
+
 ## ✅ Implemented
 
 （一期–七期已封板 → 见 🪦 墓碑；七期全部条目与 Verified 证据明细在 git 历史——封板前版本至 e92507f。新编号自 M87 起。） [cc]
