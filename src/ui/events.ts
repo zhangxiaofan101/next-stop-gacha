@@ -30,8 +30,8 @@ export function wireEvents() {
       toggleTrip(trip.dataset.trip!);
       // M86：detail/对比表都可能是本次点击的落点，就地刷新让 toggle 按钮的文案/ghost 态跟着结果变
       // （同既有 data-cmp/data-rmcmp 的「原地刷新」惯例，不是新发明的模式）。判定用 #detailOverlay
-      // 而非 #detailBody——动作行已挪到 #detailActBar，与 #detailBody 是兄弟节点，只有共同祖先
-      // #detailOverlay 能同时罩住两边（见 detail.ts 顶部「滚动区+恒定底栏」分层注释）。
+      // 而非 #detailBody——动作行已挪到 #detailActBar，与 #detailBody 是同级节点，只有共同祖先
+      // #detailOverlay 能同时盖住两边（见 detail.ts 顶部「滚动区+恒定底栏」分层注释）。
       if (trip.closest("#detailOverlay")) openDetail(trip.dataset.trip!);
       else if (trip.closest("#cmpTableWrap")) openCompare();
       return;
@@ -63,7 +63,9 @@ export function wireEvents() {
     const down = t.closest<HTMLElement>("[data-down]");
     if (down) { const i = +down.dataset.down!; if (i < state.trip.length - 1) { [state.trip[i + 1], state.trip[i]] = [state.trip[i], state.trip[i + 1]]; saveLS(); renderTrip(); } return; }
     const del = t.closest<HTMLElement>("[data-del]");
-    if (del) { state.trip.splice(+del.dataset.del!, 1); saveLS(); renderTrip(); render(); return; }
+    // F94：行程单单站 ✕ 不再按下标直改 state——转 id 走 toggleTrip()，与其他移除入口同语义
+    // （撤销 toast + 原位恢复；行程单列表刷新由 actions 的 refreshTripIfOpen 统一负责）。
+    if (del) { const item = state.trip[+del.dataset.del!]; if (item) toggleTrip(item.id); return; }
     if (t.id === "copyRbBtn") { copyText(currentRoadbookText()); return; }
     if (t.id === "printRbBtn") { window.print(); return; }
     if (t.id === "shareRbBtn") { shareCurrentRoadbook(); return; }
@@ -141,7 +143,7 @@ export function wireEvents() {
     state.tripStart = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "";
     saveLS();
   });
-  $("clearTripBtn").addEventListener("click", () => { state.trip = []; saveLS(); renderTrip(); render(); });
+  $("clearTripBtn").addEventListener("click", clearTrip); // F94：行程单清空与 dock 清空同语义（可撤销）
   $("makeRoadbookBtn").addEventListener("click", openRoadbook);
   document.querySelectorAll(".overlay").forEach(ov => {
     ov.addEventListener("click", e => {

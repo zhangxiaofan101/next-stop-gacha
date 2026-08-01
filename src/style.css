@@ -294,7 +294,7 @@
      改用 M50 同款 icon-btn（35px + ::after 外扩热区 ≥44px），只占一个圆钮的宽度 */
   .icon-btn.cmp-gacha { background: var(--orange-deep); color: var(--on-color); }
   /* M86：视觉尺寸 22px→26px；::after 外扩热区算法同 F77 的 .cmp-del（inset 基准是自身 padding
-     box，须把边框宽度加回外扩量才是真实外扩像素——见该处注释），26+2×9=44 刚好摸到 ≥44px 门槛。 */
+     box，须把边框宽度加回外扩量才是真实外扩像素——见该处注释），26+2×9=44 刚好达到 ≥44px 门槛。 */
   .dock-x {
     flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; position: relative;
     border: var(--bw-thin) solid var(--ink); background: var(--paper); color: var(--ink-soft);
@@ -325,10 +325,10 @@
   }
   /* M86：详情弹层「滚动区 + 恒定底栏」两段式布局（见 detail.ts actionsHTML 顶部大注释）——纯 CSS
      position: sticky 在「整页单一滚动、动作行是内容流最后一个元素」的结构下实测不成立：sticky
-     元素只要有滚动空间就会被拉抬到锚定线，开屏就悬浮压住标签/简介等更早的内容，而不是滚到底部
+     元素只要有滚动空间就会被提前顶到锚定线，开屏就悬浮压住标签/简介等更早的内容，而不是滚到底部
      附近才现身（真实浏览器 getBoundingClientRect 测过，不是猜测）。改为真正的布局分层：
      .dt-sheet 定高 + flex 纵列，#detailBody 独立滚动（flex:1），#detailActBar 挪到滚动区外面
-     当兄弟节点，天然恒定可见——只影响详情弹层（选择器精确限定 #detailOverlay），其余共用
+     当同级节点，天然恒定可见——只影响详情弹层（选择器精确限定 #detailOverlay），其余共用
      .sheet/.paper 的弹层（行程单/路书/地图/皮肤/出发地）没有恒定底栏，维持原来的整页滚动。 */
   #detailOverlay .dt-sheet { display: flex; flex-direction: column; max-height: calc(100vh - 8vh - 60px); }
   #detailOverlay #detailBody {

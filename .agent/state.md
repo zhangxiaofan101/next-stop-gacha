@@ -16,7 +16,7 @@
 
 **七期 review 确认轮（2026-08-01）**：Codex/GPT reviewer 以 `cfe4a35`（`origin/main`）为 confirmation baseline，独立确认 `5b5dc84` 的 F92/F93 修复与回归钉；两项已从 review.md 删除，当前无 Active findings，七期 review gate 通过，M86 可开工。定向回归 11/11、完整 `bun run verify`（前端 351/351 + workerd 52/52）、`bun run test:build-assets` 24/24 均通过。 [codex]
 
-**八期 M86 落地（2026-08-01）**：gate 放行当日 mock 终审（D1–D4）→ sonnet 委派实现 → fable 评审加固两处 → verify 全绿（前端 388 + workerd 52）+ 视觉 24/24（detail×4 基线按预期重建）→ 真机 smoke 全通，全站行程动作规整上线（诚实 toggle/dock 计数拆区/撤销 toast/详情恒定底栏/对比页补链）。八期实现完毕；跨家族 review 待用户召集，通过后八期封板、九期开工。 [cc]
+**八期 M86 落地（2026-08-01）**：gate 放行当日 mock 终审（D1–D4）→ sonnet 委派实现 → fable 评审加固两处 → verify 全绿（前端 388 + workerd 52）+ 视觉 24/24（detail×4 基线按预期重建）→ 真机 smoke 全通，全站行程动作规整上线（诚实 toggle/dock 计数拆区/撤销 toast/详情恒定底栏/对比页补链）。八期实现完毕；跨家族 review 同日实跑（codex，F94–F96 三个 P2）并当日修复+5 钉（见 review backlog），待 codex 确认轮通过后八期封板、九期开工。 [cc]
 
 ## ✅ Implemented
 
@@ -32,7 +32,7 @@
 2. 【画面+前端】M72 — 装饰件体系：增补与编排 [R2 · S2 · 🌫️]（九期） ｜ 原七期头名，M78/M79、广州批、M70 三度让位后 2026-07-28 随排期终版落位九期（同日早前「排八期头名」拍板被覆盖）：各皮肤装饰件大小参差、还可能加件，要系统化「加什么、怎么排好看」——每肤可不同排法、可上弹层悬窗；开工时逐肤出 mock 拍板；spec 见 design M72 [cc]
 3. 【前端+内容】M89 — 躺平扭蛋：自驾半径躺游方案 [R2 · S2 · 🌫️]（九期） ｜ 2026-08-01 用户立项当日排九期（「目前这期是修功能，插在这期后面的一期」）；与 M85 共享半径圈候选机制、宜相邻开工；开工先出 mock + 标注口径拍板（含内容标注小批：圈内卡逐卡打适躺度与车程档）；spec 见 design M89 [cc]
 
-- review gate：八期 M86 已落地（2026-08-01），跨家族 review 待用户召集——**review 通过并 triage 清零后八期方可封板、九期方可开工**；M85/M72/M89 均 🌫️、开工先出 mock 拍板（九期组内先后亦待开工前拍板）。 [cc]
+- review gate：八期轮已跑（codex，2026-08-01，F94–F96）且 cc 当日修复——**待 codex 确认轮通过后八期封板、九期开工**；M85/M72/M89 均 🌫️、开工先出 mock 拍板（九期组内先后亦待开工前拍板）。 [cc]
 
 ## 🗄 远期（未排期；2026-07-22 用户拍板「其他都放更远」）
 
@@ -80,6 +80,7 @@
 
 ## 📥 Review backlog（triage 结果）
 
+- **2026-08-01 八期轮（codex，baseline `e52abce`）→ cc 同日修复三项**：①**F94**（行程单内单删/清空绕过 M86 撤销体系）——两入口转 `toggleTrip()`/`clearTrip()` 同语义，行程单刷新收进 actions 的 `refreshTripIfOpen()`（行程增删/撤销全路径同步；直查 tripOverlay，最小测试 fixture 无行程单 DOM 等价于未打开）。②**F95**（清空撤销整份覆盖撤销窗口内的新选择）——恢复改合并语义：快照里缺的在前补回、当前已有的原样保留，查重方向统一为 toggleTrip 守卫的「已在的以当前为准」，cmp/trip 同款。③**F96**（注释/测试用字被打进字体二进制）——12 个不上屏字全数换词（同级/盖住/提前顶/达到/决策链/规整对象/浅复制/规整/还有/接通）后重跑 build_fonts：body.woff2 精确回到 M86 前的 705044B，title 726772B（较前基线 +172B，全部来自真上屏新文案）。回归钉 +5：F94 三例（删/清空的列表即时刷新与撤销恢复、行程单未开时不渲染不报错）、F95 两例（clear→add→undo 合并，cmp/trip 各一）。Verified：`bun run verify` 全绿（前端 393 + workerd 52）、`test:visual` 24/24（一次瞬态失败重跑即绿、零 diff）、真机 dev smoke 行程单删/清空/撤销与对比清空合并撤销全通。三项留 review.md 待 codex 确认轮删除。 [cc]
 - **2026-07-28 七期轮（codex，baseline `2be0156`）→ cc 同日修复**：①**F92**（SW 激活即清旧版本缓存并 claim 旧页面，旧页面内存里的索引仍指旧 hash 视角文件 → 切出发地 404 失败）修法取「按需 hash 资产自修复」而非改 SW 生命周期——视角文件是全站唯一按需取的 hash 资产，取不到即重取 origins.json 换新文件名重试一次（联网/断网都成立，且顺带治好「长开页面跨部署」这条与 SW 无关的老暴露面）；不变式已写进 design 架构·离线（PWA）与 sw.template.js activate 头注，新增同类资产须照办。②**F93**（`#m=` 整份认领后日期输入框留着迁移前的值）修法把「状态→表单」收进 `renderTrip()` 唯一入口，`boot()` 那次一次性写入撤掉。回归钉：origin-switch +2（自修复成功 / 文件名未变不重试）、新套 trip-start-sync 3 例（认领三者一致 / 空行程早退分支也同步 / 已有内容退回合并语义不改日期）；四条新断言经「撤掉修复即红」实证。两项留 review.md 待 codex 确认轮删除。 [cc]
 - 截至六期封板（2026-07-22）：历史 F 项（F14–F91）全部修复并经 codex 复核关闭；六期四道 gate——代码面（F70–F77，baseline 9322468）、皮肤面（F89–F91，fb52544 复核）、M22 S3（F78–F88，PR #4 三轮）、M73 终审（baseline b077de4）——全部通过；review.md 无 active findings。 [cc]
 

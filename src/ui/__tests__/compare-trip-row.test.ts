@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-// M86：对比页补链——对比表末行新增「装进行程」toggle 动作行，堵上「扭蛋→蛋堆→对比→选定」漏斗
-// 最后一步的断链（design M86 病灶④）。城市卡走 data-trip，线路卡走 data-addroute，两者判定与
+// M86：对比页补链——对比表末行新增「装进行程」toggle 动作行，接通「扭蛋→蛋堆→对比→选定」决策链
+// 最后一步的断链（design M86 规整对象④）。城市卡走 data-trip，线路卡走 data-addroute，两者判定与
 // 文案同全站其余入口统一。
 import { beforeEach, describe, expect, it } from "vitest";
 import { mkCity } from "../../logic/__tests__/helpers";

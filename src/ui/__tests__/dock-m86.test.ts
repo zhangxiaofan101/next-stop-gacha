@@ -127,6 +127,23 @@ describe("M86 dock 清空撤销（clearCmp/clearTrip，事后可撤销、无确�
     expect(state.cmp).toEqual(["b", "a"]);
   });
 
+  it("F95 清空→撤销窗口内新加→撤销：合并恢复，不盖掉新选择（对比）", () => {
+    state.cmp = ["a"];
+    clearCmp();
+    state.cmp.push("b"); // toggleCmp 加入不弹 toast，旧「撤销」仍可点——正是 F95 的复现窗口
+    (document.getElementById("toastAction") as HTMLButtonElement).click();
+    expect(state.cmp).toEqual(["a", "b"]); // 快照补回缺的在前，窗口内新加的原样保留在后
+  });
+
+  it("F95 行程清空撤销同款合并语义（按 id 查重，保留窗口内新加的站）", () => {
+    state.trip = [{ id: "a", days: 2 }, { id: "b", days: 3, r: "somewhere" }];
+    clearTrip();
+    state.trip.push({ id: "a", days: 5 }); // 窗口内 a 被重新加入（天数不同）
+    (document.getElementById("toastAction") as HTMLButtonElement).click();
+    expect(state.trip).toEqual([{ id: "b", days: 3, r: "somewhere" }, { id: "a", days: 5 }]);
+    // 查重方向同 toggleTrip 撤销守卫：已在的以当前为准（保留窗口内重加的 5 天），快照只补回缺的 b
+  });
+
   it("空篮子点清空：静默无 toast（没什么可清的）", () => {
     clearTrip();
     expect(document.getElementById("toast")!.style.display).toBe("none");

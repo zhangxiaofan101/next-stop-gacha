@@ -75,11 +75,11 @@ function detailHTML(d: Destination): string {
 
 // M86：动作行独立成一个容器（#detailActBar，见 index.html），不再是 #detailBody 内容流的最后一个
 // 元素——纯 CSS `position: sticky` 实测在这种「单一整体滚动、动作行是末尾子元素」的结构下并不会
-// 表现成"滚动中恒可见的底栏"：sticky 元素一旦有滚动空间就会被拉抬到锚定线，从加载起就悬浮压在
+// 表现成"滚动中恒可见的底栏"：sticky 元素一旦有滚动空间就会被提前顶到锚定线，从加载起就悬浮压在
 // 标签页/简介等早前内容上方（在真实浏览器里用 getBoundingClientRect 实测验证过，不是猜测）。
 // 真正可靠的「滚动区+恒定底栏」只能靠布局分层拿到：#detailBody 单独滚动（flex:1+overflow-y），
-// 动作行挪到滚动区外面当兄弟节点，天然恒定可见，不需要也不能半透明/backdrop 去蒙别的内容
-// （视觉上仍按 spec 保留半透明纸底+墨色上边框+backdrop-filter，只是不再需要靠它遮任何东西）。
+// 动作行挪到滚动区外面当同级节点，天然恒定可见，不需要也不能半透明/backdrop 去蒙别的内容
+// （视觉上仍按 spec 保留半透明纸底+墨色上边框+backdrop-filter，只是不再需要靠它盖住别的内容）。
 function actionsHTML(d: Destination): string {
   const isRoute = !!d.stops;
   const inTrip = state.trip.some(t => t.id === d.id);

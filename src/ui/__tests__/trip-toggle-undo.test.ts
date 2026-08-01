@@ -1,11 +1,12 @@
 // @vitest-environment happy-dom
-// M86：行程动作体系梳理——诚实 toggle + 单级撤销的核心状态钉子。toggleTrip 的移除分支必须把
+// M86：行程动作体系规整——诚实 toggle + 单级撤销的核心状态钉子。toggleTrip 的移除分支必须把
 // 被删条目连同原下标一起记住，撤销要把它原样 splice 回同一位置（而不是随便 push 到末尾）；
 // removeRouteFromTrip 只认 r 标记，用户另外单独加的同名城市站不能被这次「整条移除」连坐。
 import { beforeEach, describe, expect, it } from "vitest";
 import { mkCity } from "../../logic/__tests__/helpers";
 import { setData, state } from "../../store";
-import { addRouteToTrip, removeRouteFromTrip, toggleTrip } from "../actions";
+import { addRouteToTrip, clearTrip, removeRouteFromTrip, toggleTrip } from "../actions";
+import { renderTrip } from "../trip";
 
 const DOM = `
   <div class="grid" id="grid"></div>
@@ -124,7 +125,7 @@ describe("M86 removeRouteFromTrip：只删 r 标记条目，撤销恢复整条",
     expect(state.trip).toEqual([{ id: "hz", days: 5 }]);
   });
 
-  it("撤销恢复全部被删条目及其原下标（含中间夹杂非 r 条目的乱序场景）", () => {
+  it("撤销恢复全部被删条目及其原下标（含中间还有非 r 条目的乱序场景）", () => {
     state.trip = [
       { id: "hz", days: 2, r: "route1" },
       { id: "extra", days: 1 },
@@ -158,5 +159,41 @@ describe("M86 removeRouteFromTrip：只删 r 标记条目，撤销恢复整条",
     addRouteToTrip("route1"); // 第二次点击＝已装入判定为真，触发整条移除
     expect(state.trip).toHaveLength(0);
     expect(toastMsg()).toBe("已整条移出：《江南环线》（3 站）");
+  });
+});
+
+describe("F94 行程单开着时：行程变更与撤销都同步刷新行程单列表", () => {
+  beforeEach(() => {
+    document.body.innerHTML = DOM;
+    setData([mkCity({ id: "a", name: "杭州" }), mkCity({ id: "b", name: "苏州" }), mkCity({ id: "c", name: "南京" })]);
+    resetState();
+    state.trip = [{ id: "a", days: 2 }, { id: "b", days: 3 }, { id: "c", days: 1 }];
+    document.getElementById("tripOverlay")!.classList.add("show");
+    renderTrip();
+  });
+
+  it("移除一站：行程单列表即时少掉该站；点撤销：列表恢复", () => {
+    expect(document.getElementById("stopList")!.textContent).toContain("苏州");
+    toggleTrip("b");
+    expect(document.getElementById("stopList")!.textContent).not.toContain("苏州");
+    clickToastAction();
+    expect(document.getElementById("stopList")!.textContent).toContain("苏州");
+    expect(state.trip.map(t => t.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("清空：行程单转空态文案；点撤销：列表回来", () => {
+    clearTrip();
+    expect(document.getElementById("stopList")!.textContent).toContain("行程还是空的");
+    clickToastAction();
+    expect(document.getElementById("stopList")!.textContent).toContain("杭州");
+    expect(state.trip).toHaveLength(3);
+  });
+
+  it("行程单没开（无 .show）：不渲染行程单，也不因缺行程单 DOM 报错", () => {
+    document.getElementById("tripOverlay")!.classList.remove("show");
+    const before = document.getElementById("stopList")!.innerHTML;
+    toggleTrip("b");
+    expect(document.getElementById("stopList")!.innerHTML).toBe(before); // 列表原样（未刷新）
+    expect(state.trip.map(t => t.id)).toEqual(["a", "c"]); // 状态照常变
   });
 });

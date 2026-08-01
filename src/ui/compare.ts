@@ -5,8 +5,8 @@ import { $ } from "./dom";
 import { ICONS } from "./icons";
 import { toast } from "./toast";
 
-// M86：对比页补链——「比完选定」是决策场却一直没有入行程动作，「扭蛋→蛋堆→对比→选定」漏斗
-// 最后一步断路（design M86 病灶④）。文案与已装入判定同全站其余三处入口统一：线路卡走
+// M86：对比页补链——「比完选定」是决策场却一直没有入行程动作，「扭蛋→蛋堆→对比→选定」决策链
+// 最后一步断路（design M86 规整对象④）。文案与已装入判定同全站其余三处入口统一：线路卡走
 // data-addroute（判定＝存在该线路 r 标记的行程条目），城市卡走既有 data-trip 委托。
 function tripActionHTML(d: Destination): string {
   if (d.stops) {

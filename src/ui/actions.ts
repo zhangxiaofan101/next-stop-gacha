@@ -6,13 +6,20 @@ import { $ } from "./dom";
 import { renderMap } from "./mapview";
 import { render } from "./render";
 import { toast } from "./toast";
-import { openTrip } from "./trip";
+import { openTrip, renderTrip } from "./trip";
 
 // M86「查看」toast action 的公共实现：关掉当前打开的弹层（详情/扭蛋/对比随便哪个）再开行程单，
 // 与 dock「排行程」按钮走的是同一个 openTrip()——不额外发明第二套「打开行程单」逻辑。
 function viewTrip() {
   document.querySelectorAll(".overlay.show").forEach(ov => ov.classList.remove("show"));
   openTrip();
+}
+
+// F94：行程单 overlay 开着时（行程单内的 ✕/清空、以及撤销点击都发生在这里），行程变更要同步
+// 刷新行程单列表——render() 只负责主界面与 dock，不包含行程单。这里直查而不用 $()：与行程单
+// 无关的行程动作（卡片/dock/对比页）在最小测试 fixture 里不带行程单 DOM，缺元素等价于未打开。
+function refreshTripIfOpen() {
+  if (document.getElementById("tripOverlay")?.classList.contains("show")) renderTrip();
 }
 
 export function toggleFav(id: string) {
@@ -37,20 +44,26 @@ export function toggleCmp(id: string) {
   }
   saveLS(); render();
 }
-// M86：dock 清空——点即清空、零确认弹窗（用户拍板「全站零确认弹窗先例」），代价由事后可撤销
-// toast 兜底；快照式单级撤销：清空前把整份数组浅拷贝下来，撤销就是原样放回去。空篮子不弹 toast
-// （没什么可清的，静默返回）。
+// M86：dock/行程单清空——点即清空、零确认弹窗（用户拍板「全站零确认弹窗先例」），代价由事后
+// 可撤销 toast 兜底；快照式单级撤销：清空前把整份数组浅复制下来。空篮子不弹 toast（没什么可清
+// 的，静默返回）。F95：撤销窗口内可能已有新选择（toggleCmp 加入不弹 toast、旧「撤销」仍可点），
+// 恢复不可整份盖掉当前状态——快照里尚未被加回的在前恢复、当前已有的（窗口内新加/重加）原样
+// 保留在后：查重方向同 toggleTrip 撤销守卫，「已在的以当前为准」；上限规则照旧。
 export function clearCmp() {
   if (!state.cmp.length) return;
   const snapshot = state.cmp.slice(), n = snapshot.length;
   state.cmp = []; saveLS(); render();
-  toast(`对比已清空（${n} 个）`, { action: { label: "撤销", fn: () => { state.cmp = snapshot; saveLS(); render(); } } });
+  toast(`对比已清空（${n} 个）`, {
+    action: { label: "撤销", fn: () => { state.cmp = [...snapshot.filter(id => !state.cmp.includes(id)), ...state.cmp].slice(0, CMP_MAX); saveLS(); render(); } },
+  });
 }
 export function clearTrip() {
   if (!state.trip.length) return;
   const snapshot = state.trip.slice(), n = snapshot.length;
-  state.trip = []; saveLS(); render();
-  toast(`行程已清空（${n} 站）`, { action: { label: "撤销", fn: () => { state.trip = snapshot; saveLS(); render(); } } });
+  state.trip = []; saveLS(); render(); refreshTripIfOpen();
+  toast(`行程已清空（${n} 站）`, {
+    action: { label: "撤销", fn: () => { state.trip = [...snapshot.filter(s => !state.trip.some(t => t.id === s.id)), ...state.trip].slice(0, TRIP_MAX); saveLS(); render(); refreshTripIfOpen(); } },
+  });
 }
 // M86：诚实 toggle + 单级撤销。移除分支撤销要恢复被删条目的原 index/days/r——先取出条目和它的
 // 下标，撤销时原样 splice 回同一位置，而不是 push 到末尾（顺序也是「原样」的一部分）。
@@ -60,18 +73,18 @@ export function toggleTrip(id: string) {
     const removed = state.trip[i];
     const name = byId(id)?.name ?? id;
     state.trip.splice(i, 1);
-    saveLS(); render();
+    saveLS(); render(); refreshTripIfOpen();
     // 撤销先查重：撤销窗口内该站可能已被别的路径加回（trip 全链路依赖「每站唯一」，重复条目会
     // 直接污染路书/顺路排序），已在则撤销视为无事可做。toast 单例会被后续动作顶掉只是现状巧合，
     // 不能当保护依赖。
     toast(`已移出行程：${name}（剩 ${state.trip.length} 站）`, {
-      action: { label: "撤销", fn: () => { if (!state.trip.some(t => t.id === removed.id)) state.trip.splice(i, 0, removed); saveLS(); render(); } },
+      action: { label: "撤销", fn: () => { if (!state.trip.some(t => t.id === removed.id)) state.trip.splice(i, 0, removed); saveLS(); render(); refreshTripIfOpen(); } },
     });
   } else {
     if (state.trip.length >= TRIP_MAX) { toast(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`); return; }
     const d = byId(id)!;
     state.trip.push({ id, days: Math.min(...d.days) });
-    saveLS(); render();
+    saveLS(); render(); refreshTripIfOpen();
     toast(`已加入行程（第 ${state.trip.length} 站）：${d.name}`, { action: { label: "查看", fn: viewTrip } });
   }
 }
@@ -101,14 +114,14 @@ export function removeRouteFromTrip(routeId: string) {
   if (!removed.length) return;
   const name = byId(routeId)?.name ?? routeId;
   state.trip = state.trip.filter(t => t.r !== routeId);
-  saveLS(); render();
+  saveLS(); render(); refreshTripIfOpen();
   toast(`已整条移出：《${name}》（${removed.length} 站）`, {
     action: {
       label: "撤销",
       fn: () => {
         // 同 toggleTrip 撤销的查重守卫：逐条恢复时跳过已被加回的站，防重复条目
         removed.forEach(({ item, index }) => { if (!state.trip.some(t => t.id === item.id)) state.trip.splice(index, 0, item); });
-        saveLS(); render();
+        saveLS(); render(); refreshTripIfOpen();
       },
     },
   });
