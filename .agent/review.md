@@ -18,6 +18,18 @@
 
 ## Active findings
 
-> Confirmation baseline: `cfe4a35`（`origin/main`），Codex/GPT reviewer，2026-08-01。确认范围为 `2be0156..cfe4a35`，修复落在 `5b5dc84`；其后提交只改 `.agent/design.md` / `.agent/state.md`，未再触碰 F92/F93 相关代码。**当前无 Active findings；F92/F93 确认轮通过，七期 review gate 已通过，M86 可开工。**
+> Review baseline: `e52abce`（`origin/main`），Codex/GPT reviewer，2026-08-01。审阅范围 `84a8abe..e52abce`（M86 八期全部内容）。**当前有 3 个 Active findings；八期 review gate 未通过，九期暂不可开工。**
 >
-> 独立证据：F92 的失败路径现为旧 hash 请求失败 → 重取可变 `origins.json` → 仅当文件名变化时按新 hash 重试一次；重试失败或文件名不变均保持原出发地与原数据。F93 的状态→日期输入框同步现收口在 `renderTrip()` 且位于空行程早退之前，adopt 路径保存的 state / localStorage 在打开行程时与表单一致，merge 路径不改本机日期。定向回归 `origin-switch` +2、`trip-start-sync` 3 例均通过（两文件合计 11/11）；`bun run verify` 全绿（前端 351/351 + workerd 52/52）；`bun run test:build-assets` 24/24；`git diff --check 2be0156..5b5dc84` 通过，main↔origin 为 0/0。
+> 已确认部分：卡片/详情/揭晓卡/线路/对比页的诚实 toggle、线路仅按 `r` 标记整条移除、撤销查重、详情同卡重渲染保滚动位、dock 计数/chip 拆区/清空热区、详情恒定底栏均与 M86 spec 对齐；视觉变更仅 detail×4，dock 快照盲区确为既存测试缺口而非本批引入。独立实跑：M86 定向回归 37/37；`bun run verify` 全绿（前端 388/388 + workerd 52/52）；`bun run test:visual` 24/24；`git diff --check 84a8abe..e52abce` 通过；main↔origin 为 0/0。
+
+### F94 — [P2] 行程单内的删除/清空仍绕过 M86 撤销体系
+
+`src/ui/events.ts:65-66,144` 的 `data-del` 与 `clearTripBtn` 仍直接改写 `state.trip`，只保存并重渲染；因此用户在行程单里点单站 `✕` 或「清空行程」时，没有 M86 spec 要求的撤销 toast。相同数据若从 dock/卡片移除或从 dock 清空则可撤销，形成同一动作在不同入口语义不一致；尤其清空会不可逆丢失多站的 `days` / `r` 信息。应让这两个入口复用 `toggleTrip()` / `clearTrip()`（并在行程 overlay 仍打开时补 `renderTrip()`），加入事件级回归钉住单删和清空都可撤销原顺序及元数据。
+
+### F95 — [P2] 清空对比后的撤销会覆盖窗口内的新选择
+
+`src/ui/actions.ts:43-47` 的撤销回调无条件执行 `state.cmp = snapshot`。复现：对比池有 A/B → 清空 → 在 4 秒 toast 存活期内从卡片加入 C（`toggleCmp()` 不发新 toast，旧「撤销」仍可点）→ 点撤销；结果变为 A/B，刚加入的 C 被静默丢弃。单级撤销不应回滚撤销动作之后的新意图。应在任何后续对比变更时使旧撤销失效，或恢复时与当前状态按唯一性及 `CMP_MAX` 规则合并，并补“clear → add → undo”回归。
+
+### F96 — [P2] 注释/测试用字被打进字体二进制，违反已定语料纪律
+
+M86 新增注释和测试描述中的「兄/弟/罩/遮/抬/摸/堵/斗/杂/梳/灶/拷」等不上屏字符进入 `body.corpus.txt` / `title.corpus.txt`，随后两份 woff2 都被重建（body `705044→705432`，title `726600→732056`）。这正是 `design.md` 字体不变式禁止的形状：扫描整份源文件时，注释撞字应换词，不能为永不上屏的字扩字体产物。应改写这些注释/测试描述后重新生成语料与子集；真正会上屏的新文案字符（如整条移出 toast 的书名号）可按需保留，并确认最终二进制只为可见文案变化。
