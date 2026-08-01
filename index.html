@@ -140,14 +140,14 @@
 
 <div class="dock no-print" id="dock">
   <div class="dock-box" id="cmpBox" style="display:none">
-    <span class="dock-label"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5v15"/><path d="M8.5 20h7"/><path d="M5 7.5h14"/><path d="M6.5 7.5 4 13a2.9 2.9 0 0 0 5.4 0L6.9 7.5"/><path d="M17.5 7.5 15 13a2.9 2.9 0 0 0 5.4 0l-2.5-5.5"/></svg> 对比</span>
+    <span class="dock-label"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5v15"/><path d="M8.5 20h7"/><path d="M5 7.5h14"/><path d="M6.5 7.5 4 13a2.9 2.9 0 0 0 5.4 0L6.9 7.5"/><path d="M17.5 7.5 15 13a2.9 2.9 0 0 0 5.4 0l-2.5-5.5"/></svg> 对比<b class="dock-count" id="cmpCount"></b></span>
     <div class="dock-items" id="cmpItems"></div>
     <button class="dock-go cmp" id="cmpGo">比一比</button>
     <button class="btn icon-btn cmp-gacha" id="cmpGachaGo" title="就从这几个里抽" aria-label="就从这几个里抽">🎰</button>
     <button class="dock-x" id="cmpClear" title="清空对比" aria-label="清空对比">✕</button>
   </div>
   <div class="dock-box" id="tripBox" style="display:none">
-    <span class="dock-label"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="8" width="15" height="11.5" rx="2.2"/><path d="M9.3 8V6.3A1.8 1.8 0 0 1 11.1 4.5h1.8a1.8 1.8 0 0 1 1.8 1.8V8"/><path d="M9.3 11.5v4.5M14.7 11.5v4.5"/></svg> 行程</span>
+    <span class="dock-label"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="8" width="15" height="11.5" rx="2.2"/><path d="M9.3 8V6.3A1.8 1.8 0 0 1 11.1 4.5h1.8a1.8 1.8 0 0 1 1.8 1.8V8"/><path d="M9.3 11.5v4.5M14.7 11.5v4.5"/></svg> 行程<b class="dock-count" id="tripCount"></b></span>
     <div class="dock-items" id="tripItems"></div>
     <button class="dock-go trip" id="tripGo">排行程</button>
     <button class="dock-x" id="tripClear" title="清空行程" aria-label="清空行程">✕</button>
@@ -155,9 +155,12 @@
 </div>
 
 <div class="overlay" id="detailOverlay">
-  <div class="sheet">
+  <!-- M86：动作行（#detailActBar）挪出 #detailBody 的滚动内容流，两者一起构成 dt-sheet 的
+       「上滚动区+下恒定底栏」两段式布局——sticky 单靠 CSS 在整页单一滚动结构下不可靠，见 detail.ts 顶部注释 -->
+  <div class="sheet dt-sheet">
     <button class="sheet-close no-print" data-close>✕</button>
     <div class="paper" id="detailBody"></div>
+    <div class="dt-actbar" id="detailActBar"></div>
   </div>
 </div>
 
@@ -316,6 +319,7 @@
 <div class="toast" id="toast">
   <span class="toast-kara" data-illust-frame><img class="illust" data-illust="mascot" alt="" loading="eager" data-fallback="hide"></span>
   <span class="toast-msg" id="toastMsg"></span>
+  <button class="toast-action" id="toastAction" hidden></button>
 </div>
 <script type="module" src="/src/main.ts"></script>
 </body>

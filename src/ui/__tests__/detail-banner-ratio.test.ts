@@ -13,6 +13,7 @@ describe("M58 详情头图 .dt-banner 帧比双态", () => {
     document.body.innerHTML = `
       <div class="overlay" id="detailOverlay">
         <div id="detailBody"></div>
+        <div id="detailActBar"></div>
       </div>
       <div id="wxSec"></div>`;
     // openDetail 顺带触发后台天气拉取（fetchWeather，异步不 await）；stub 掉 fetch 避免测试

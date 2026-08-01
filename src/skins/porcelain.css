@@ -116,6 +116,7 @@
   --ink-rgb: 38, 65, 127;
   --glow-sun-rgb: 216, 180, 104;
   --shine-rgb: 247, 245, 239;
+  --paper-rgb: 247, 245, 239; /* M86：--paper 的 rgb 三元组，详情动作行半透明纸底用 */
   --blue-rgb: 64, 103, 181;
   --blue-deep-rgb: 31, 61, 120;
   --orange-rgb: 168, 118, 60;

@@ -15,9 +15,14 @@ export function cardHTML(d: Destination, i: number): string {
   const rs = REGION_COLOR[d.region] || "var(--region-fallback)";
   const isRoute = !!d.stops;
   const routeLine = isRoute ? d.stops!.map(s => byId(s.id)?.name || s.id).join(" → ") : "";
+  // M86：诚实 toggle——城市卡沿用既有 .on 点亮类（「🧳 行程」↔「已排 ✓」）；线路卡改走 ghost
+  // 语言（同详情/揭晓卡统一文案），已装入判定＝存在该线路 r 标记的行程条目。
   const tripBtn = isRoute
-    ? `<button class="act trip" data-addroute="${d.id}">🎫 整条装入</button>`
-    : `<button class="act trip ${state.trip.some(t => t.id === d.id) ? "on" : ""}" data-trip="${d.id}">${ICONS.suitcase} 行程</button>`;
+    ? (() => {
+        const done = state.trip.some(t => t.r === d.id);
+        return `<button class="act trip ${done ? "ghost" : ""}" data-addroute="${d.id}">${done ? "已装入 ✓（点击整条移除）" : `🎫 整条装入行程（${d.stops!.length} 站）`}</button>`;
+      })()
+    : `<button class="act trip ${state.trip.some(t => t.id === d.id) ? "on" : ""}" data-trip="${d.id}">${state.trip.some(t => t.id === d.id) ? "已排 ✓" : `${ICONS.suitcase} 行程`}</button>`;
   // M46：目的地共享照片集（M44 分批铺量，皮肤无关）。M59 ⑨⑩⑫：卡位展示与否是皮肤维度
   // （cardPhotosEnabled，奶油关/山水开，票券走同一 cardHTML 路径随开关）；开图皮肤下——
   // 线路卡用所属大区题头图（regionHeaderSrc，2:1 原生，题头位契约不浅裁）；城市卡优先个图，

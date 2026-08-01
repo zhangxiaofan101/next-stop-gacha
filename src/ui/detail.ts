@@ -37,13 +37,6 @@ function detailHTML(d: Destination): string {
   // M59 ④ 收尾：dt-meta 交通行图标与卡片同源解析（此前硬编码 🚄，高铁城/飞机城同病）。
   // 线路卡不同于 cards.ts 的「不显示」——详情页真的展示线路 transit（首末大交通文案，方式词齐全），一并解析。
   const transitIcon = parseTransitIcon(d.transit);
-  const inTrip = state.trip.some(t => t.id === d.id);
-  const tripBtn = isRoute
-    ? `<button class="big-btn" data-addroute="${d.id}">🎫 整条装入行程单</button>`
-    : `<button class="big-btn ${inTrip ? "ghost" : ""}" data-trip="${d.id}">${inTrip ? "已在行程 ✓（点击移除）" : `${ICONS.suitcase} 加入行程`}</button>`;
-  const isVisited = state.visited.includes(d.id);
-  // 打卡去过：只有城市记录才有意义，线路卡按站点/城市算，不给这个按钮
-  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : "green"}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : `${ICONS.footprints} 打卡去过`}</button>`;
   return `
     ${headerBannerHTML(d, isRoute)}
     <div class="dt-head">
@@ -77,17 +70,41 @@ function detailHTML(d: Destination): string {
       <div class="plan">
         <span class="plan-days">${p.days}天</span>
         <div><div class="plan-title">${p.title}</div><div class="plan-route">${p.route}</div></div>
-      </div>`).join(""))}
-    <div class="dt-actrow">
-      ${tripBtn}
-      <button class="big-btn blue" data-cmp="${d.id}">${ICONS.scale} 加入对比</button>
-      ${visitBtn}
-    </div>`;
+      </div>`).join(""))}`;
+}
+
+// M86：动作行独立成一个容器（#detailActBar，见 index.html），不再是 #detailBody 内容流的最后一个
+// 元素——纯 CSS `position: sticky` 实测在这种「单一整体滚动、动作行是末尾子元素」的结构下并不会
+// 表现成"滚动中恒可见的底栏"：sticky 元素一旦有滚动空间就会被拉抬到锚定线，从加载起就悬浮压在
+// 标签页/简介等早前内容上方（在真实浏览器里用 getBoundingClientRect 实测验证过，不是猜测）。
+// 真正可靠的「滚动区+恒定底栏」只能靠布局分层拿到：#detailBody 单独滚动（flex:1+overflow-y），
+// 动作行挪到滚动区外面当兄弟节点，天然恒定可见，不需要也不能半透明/backdrop 去蒙别的内容
+// （视觉上仍按 spec 保留半透明纸底+墨色上边框+backdrop-filter，只是不再需要靠它遮任何东西）。
+function actionsHTML(d: Destination): string {
+  const isRoute = !!d.stops;
+  const inTrip = state.trip.some(t => t.id === d.id);
+  // 线路卡改为诚实 toggle（同卡片面/揭晓卡统一文案），已装入判定＝存在该线路 r 标记的行程条目；
+  // 城市卡文案维持现状不动（已是范本）。
+  const routeInTrip = isRoute && state.trip.some(t => t.r === d.id);
+  const tripBtn = isRoute
+    ? `<button class="big-btn ${routeInTrip ? "ghost" : ""}" data-addroute="${d.id}">${routeInTrip ? "已装入 ✓（点击整条移除）" : `🎫 整条装入行程（${d.stops!.length} 站）`}</button>`
+    : `<button class="big-btn ${inTrip ? "ghost" : ""}" data-trip="${d.id}">${inTrip ? "已在行程 ✓（点击移除）" : `${ICONS.suitcase} 加入行程`}</button>`;
+  const isVisited = state.visited.includes(d.id);
+  // 打卡去过：只有城市记录才有意义，线路卡按站点/城市算，不给这个按钮
+  const visitBtn = isRoute ? "" : `<button class="big-btn ${isVisited ? "ghost" : "green"}" data-visited="${d.id}">${isVisited ? "✓ 去过了（点击取消）" : `${ICONS.footprints} 打卡去过`}</button>`;
+  return `${tripBtn}<button class="big-btn blue" data-cmp="${d.id}">${ICONS.scale} 加入对比</button>${visitBtn}`;
 }
 
 export function openDetail(id: string) {
   const d = byId(id); if (!d) return;
-  $("detailBody").innerHTML = detailHTML(d);
+  const body = $("detailBody");
+  // 详情内 toggle（行程/对比/打卡）靠重进 openDetail 刷新按钮文案——同卡重渲染必须保住滚动位，
+  // 否则滚到下面点一下按钮内容就跳回顶部；换卡才回到顶，不残留上一张卡片的滚动位置。
+  const keep = $("detailOverlay").classList.contains("show") && body.dataset.card === id ? body.scrollTop : 0;
+  body.innerHTML = detailHTML(d);
+  body.dataset.card = id;
+  $("detailActBar").innerHTML = actionsHTML(d);
+  body.scrollTop = keep;
   $("detailOverlay").classList.add("show");
   fillDetailWeather(d);
 }

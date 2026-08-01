@@ -1,13 +1,13 @@
 /* 事件（文档级委托 + 静态元素接线；行为与旧版逐条一致） */
 import type { Destination } from "../logic/types";
 import { byId, saveLS, state } from "../store";
-import { addRouteToTrip, toggleCmp, toggleFav, toggleTrip, toggleVisited } from "./actions";
+import { addRouteToTrip, clearCmp, clearTrip, toggleCmp, toggleFav, toggleTrip, toggleVisited } from "./actions";
 import { copyText } from "./clipboard";
 import { openCompare } from "./compare";
 import { resetFilters } from "./console";
 import { openDetail } from "./detail";
 import { $ } from "./dom";
-import { clearPile, getLastPick, openGacha, pileToCompare, roll, tossEgg } from "./gacha";
+import { clearPile, gachaToggleTrip, getLastPick, openGacha, pileToCompare, roll, tossEgg } from "./gacha";
 import { openMap } from "./mapview";
 import { openOrigin, selectOrigin } from "./origin";
 import { applyIntent, applyRelax, clearDistModeFilter, render } from "./render";
@@ -17,27 +17,35 @@ import { openSkin, selectSkin } from "./skin";
 import { toast } from "./toast";
 import { autoOrder, insertOnWay, openTrip, renderTrip } from "./trip";
 
-// M63 揭晓卡「加入行程」：线路卡整条展开装入，城市卡去重加入（承接退役的 gTripBtn 逻辑）
-function gachaAddTrip() {
-  const p = getLastPick();
-  if (!p) return;
-  if (p.stops) { addRouteToTrip(p.id); return; }
-  if (!state.trip.some(t => t.id === p.id)) toggleTrip(p.id); else toast("已经在行程里啦");
-}
-
 export function wireEvents() {
   document.addEventListener("click", e => {
     const t = e.target as HTMLElement;
     const fav = t.closest<HTMLElement>("[data-fav]");
     if (fav) { e.stopPropagation(); toggleFav(fav.dataset.fav!); return; }
     const cmp = t.closest<HTMLElement>("[data-cmp]");
-    if (cmp) { e.stopPropagation(); toggleCmp(cmp.dataset.cmp!); if (cmp.closest("#detailBody")) openDetail(cmp.dataset.cmp!); return; }
+    if (cmp) { e.stopPropagation(); toggleCmp(cmp.dataset.cmp!); if (cmp.closest("#detailOverlay")) openDetail(cmp.dataset.cmp!); return; }
     const trip = t.closest<HTMLElement>("[data-trip]");
-    if (trip) { e.stopPropagation(); toggleTrip(trip.dataset.trip!); if (trip.closest("#detailBody")) openDetail(trip.dataset.trip!); return; }
+    if (trip) {
+      e.stopPropagation();
+      toggleTrip(trip.dataset.trip!);
+      // M86：detail/对比表都可能是本次点击的落点，就地刷新让 toggle 按钮的文案/ghost 态跟着结果变
+      // （同既有 data-cmp/data-rmcmp 的「原地刷新」惯例，不是新发明的模式）。判定用 #detailOverlay
+      // 而非 #detailBody——动作行已挪到 #detailActBar，与 #detailBody 是兄弟节点，只有共同祖先
+      // #detailOverlay 能同时罩住两边（见 detail.ts 顶部「滚动区+恒定底栏」分层注释）。
+      if (trip.closest("#detailOverlay")) openDetail(trip.dataset.trip!);
+      else if (trip.closest("#cmpTableWrap")) openCompare();
+      return;
+    }
     const onway = t.closest<HTMLElement>("[data-onway]");
     if (onway) { insertOnWay(onway.dataset.onway!); return; }
     const addRoute = t.closest<HTMLElement>("[data-addroute]");
-    if (addRoute) { e.stopPropagation(); addRouteToTrip(addRoute.dataset.addroute!); return; }
+    if (addRoute) {
+      e.stopPropagation();
+      addRouteToTrip(addRoute.dataset.addroute!);
+      if (addRoute.closest("#detailOverlay")) openDetail(addRoute.dataset.addroute!);
+      else if (addRoute.closest("#cmpTableWrap")) openCompare();
+      return;
+    }
     const rmCmp = t.closest<HTMLElement>("[data-rmcmp]");
     if (rmCmp) {
       toggleCmp(rmCmp.dataset.rmcmp!);
@@ -61,7 +69,7 @@ export function wireEvents() {
     if (t.id === "shareRbBtn") { shareCurrentRoadbook(); return; }
     if (t.id === "rbApplyOptimalBtn") { applyOptimalToRoadbook(); return; }
     const vis = t.closest<HTMLElement>("[data-visited]");
-    if (vis) { e.stopPropagation(); toggleVisited(vis.dataset.visited!); if (vis.closest("#detailBody")) openDetail(vis.dataset.visited!); return; }
+    if (vis) { e.stopPropagation(); toggleVisited(vis.dataset.visited!); if (vis.closest("#detailOverlay")) openDetail(vis.dataset.visited!); return; }
     const mapDot = t.closest<HTMLElement>("[data-mapdot]");
     if (mapDot) { e.stopPropagation(); openDetail(mapDot.dataset.mapdot!); return; }
     const skin = t.closest<HTMLElement>("[data-skin]");
@@ -75,7 +83,7 @@ export function wireEvents() {
       const a = gact.dataset.gact;
       if (a === "roll") roll();
       else if (a === "detail") { const p = getLastPick(); if (p) openDetail(p.id); }
-      else if (a === "trip") gachaAddTrip();
+      else if (a === "trip") gachaToggleTrip();
       return;
     }
     // M63 蛋堆小卡：× 扔回池（先判，避免被壳体的开详情吞掉）；壳体点按 = 开详情
@@ -98,8 +106,8 @@ export function wireEvents() {
     $("cmpOverlay").classList.remove("show"); // 两层 overlay 同 z-index，DOM 序更晚的 cmpOverlay 不关就会盖住新开的 gachaOverlay
     openGacha(state.cmp.map(byId).filter((d): d is Destination => !!d));
   });
-  $("cmpClear").addEventListener("click", () => { state.cmp = []; saveLS(); render(); toast("对比已清空"); });
-  $("tripClear").addEventListener("click", () => { state.trip = []; saveLS(); render(); toast("行程已清空"); });
+  $("cmpClear").addEventListener("click", clearCmp);
+  $("tripClear").addEventListener("click", clearTrip);
   $("footPill").addEventListener("click", openMap); // 足迹统计胶囊本身即地图入口（M50 修订）
   $("originPill").addEventListener("click", openOrigin); // M22 出发地内联入口即选择器入口
   $("shareBtn").addEventListener("click", openShare);

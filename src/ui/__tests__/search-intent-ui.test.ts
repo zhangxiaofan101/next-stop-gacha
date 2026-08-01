@@ -14,8 +14,8 @@ describe("M68：概念词一键筛选 chip", () => {
       <div id="hitCount"></div>
       <input id="searchBox">
       <div class="dock" id="dock">
-        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div></div>
-        <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
+        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div><b id="cmpCount"></b></div>
+        <div class="dock-box" id="tripBox"><div id="tripItems"></div><b id="tripCount"></b></div>
       </div>
       <button id="footPill"></button>`;
     setData([

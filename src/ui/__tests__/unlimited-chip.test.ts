@@ -24,8 +24,8 @@ describe("M78：「不限」chip 三态行为", () => {
       <div id="intentBox"></div>
       <div id="hitCount"></div>
       <div class="dock" id="dock">
-        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div></div>
-        <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
+        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div><b id="cmpCount"></b></div>
+        <div class="dock-box" id="tripBox"><div id="tripItems"></div><b id="tripCount"></b></div>
       </div>
       <button id="footPill"></button>`;
     buildConsole();

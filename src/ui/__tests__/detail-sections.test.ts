@@ -9,7 +9,7 @@ import { openDetail } from "../detail";
 describe("详情区段视觉系统（M59 ⑥）", () => {
   beforeEach(() => {
     document.body.innerHTML = `
-      <div class="overlay" id="detailOverlay"><div id="detailBody"></div></div>
+      <div class="overlay" id="detailOverlay"><div id="detailBody"></div><div id="detailActBar"></div></div>
       <div id="wxSec"></div>`;
     vi.stubGlobal("fetch", () => Promise.reject(new Error("no network in test")));
   });

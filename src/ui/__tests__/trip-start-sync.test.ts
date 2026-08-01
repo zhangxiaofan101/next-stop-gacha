@@ -54,11 +54,11 @@ describe("F93：搬家认领后出发日期的状态→表单同步", () => {
       <div id="empty" style="display:none"><div id="relaxBox"></div></div>
       <div id="hitCount"></div>
       <div class="dock" id="dock">
-        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div></div>
-        <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
+        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div><b id="cmpCount"></b></div>
+        <div class="dock-box" id="tripBox"><div id="tripItems"></div><b id="tripCount"></b></div>
       </div>
       <button id="footPill"></button>
-      <div id="toast" style="display:none"><span id="toastMsg"></span></div>
+      <div id="toast" style="display:none"><span id="toastMsg"></span><button id="toastAction" hidden></button></div>
       <div id="importBar" style="display:none"><span id="importBarText"></span>
         <button id="importYes"></button><button id="importNo"></button></div>
       <div class="overlay" id="tripOverlay">

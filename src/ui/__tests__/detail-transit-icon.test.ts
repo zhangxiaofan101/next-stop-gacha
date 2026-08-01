@@ -18,7 +18,7 @@ const transitRow = (transit: string): string => {
 describe("详情页交通行图标按 transit 文案解析（M59 ④ 收尾）", () => {
   beforeEach(() => {
     document.body.innerHTML = `
-      <div class="overlay" id="detailOverlay"><div id="detailBody"></div></div>
+      <div class="overlay" id="detailOverlay"><div id="detailBody"></div><div id="detailActBar"></div></div>
       <div id="wxSec"></div>`;
     vi.stubGlobal("fetch", () => Promise.reject(new Error("no network in test")));
   });

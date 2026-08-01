@@ -41,11 +41,11 @@ const GACHA_DOM = `
   <div id="empty" style="display:none"><div id="relaxBox"></div></div>
   <div id="hitCount"></div>
   <div class="dock" id="dock">
-    <div class="dock-box" id="cmpBox"><div id="cmpItems"></div></div>
-    <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
+    <div class="dock-box" id="cmpBox"><div id="cmpItems"></div><b id="cmpCount"></b></div>
+    <div class="dock-box" id="tripBox"><div id="tripItems"></div><b id="tripCount"></b></div>
   </div>
   <button id="footPill"></button>
-  <div id="toast" style="display:none"><span id="toastMsg"></span></div>`;
+  <div id="toast" style="display:none"><span id="toastMsg"></span><button id="toastAction" hidden></button></div>`;
 
 const eggIds = () => [...document.querySelectorAll<HTMLElement>("#gPileStrip [data-gegg]")].map(e => e.dataset.gegg!);
 

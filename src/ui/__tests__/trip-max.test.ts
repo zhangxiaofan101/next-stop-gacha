@@ -27,11 +27,11 @@ describe("M54 行程站数上限 TRIP_MAX", () => {
       <div id="empty" style="display:none"><div id="relaxBox"></div></div>
       <div id="hitCount"></div>
       <div class="dock" id="dock">
-        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div></div>
-        <div class="dock-box" id="tripBox"><div id="tripItems"></div></div>
+        <div class="dock-box" id="cmpBox"><div id="cmpItems"></div><b id="cmpCount"></b></div>
+        <div class="dock-box" id="tripBox"><div id="tripItems"></div><b id="tripCount"></b></div>
       </div>
       <button id="footPill"></button>
-      <div id="toast" style="display:none"><span id="toastMsg"></span></div>
+      <div id="toast" style="display:none"><span id="toastMsg"></span><button id="toastAction" hidden></button></div>
       <input type="date" id="tripStartInput">
       <div id="stopList"></div>
       <div id="tripStats"></div>
@@ -45,8 +45,8 @@ describe("M54 行程站数上限 TRIP_MAX", () => {
     expect(state.trip).toHaveLength(TRIP_MAX);
     toggleTrip(`c${TRIP_MAX}`);
     expect(state.trip).toHaveLength(TRIP_MAX); // 未被加入
-    expect(document.getElementById("toast")!.textContent).toBe(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`);
-    expect(document.getElementById("toast")!.textContent).not.toContain("6 站");
+    expect(document.getElementById("toastMsg")!.textContent).toBe(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`);
+    expect(document.getElementById("toastMsg")!.textContent).not.toContain("6 站");
   });
 
   it("addRouteToTrip 装满 TRIP_MAX 后停止，toast 文案含新上限", () => {
@@ -58,8 +58,9 @@ describe("M54 行程站数上限 TRIP_MAX", () => {
     ]);
     addRouteToTrip("route1"); // 3 站线路，只剩 1 个空位——装 1 站后触发 skippedFull
     expect(state.trip).toHaveLength(TRIP_MAX);
-    expect(document.getElementById("toast")!.textContent).toBe(`行程已满 ${TRIP_MAX} 站，只装入了前 1 站`);
-    expect(document.getElementById("toast")!.textContent).not.toContain("6 站");
+    expect(document.getElementById("toastMsg")!.textContent).toBe(`行程已满 ${TRIP_MAX} 站，只装入了前 1 站`);
+    expect(document.getElementById("toastMsg")!.textContent).not.toContain("6 站");
+    expect(document.getElementById("toastAction")!.textContent).toBe("查看"); // M86：装入成功（哪怕只装了一部分）都追加「查看」action
   });
 
   it("insertOnWay 行程已满 TRIP_MAX 时直接拒绝（早退在 cap 检查，不进入顺路计算），toast 文案含新上限", () => {
@@ -67,6 +68,6 @@ describe("M54 行程站数上限 TRIP_MAX", () => {
     expect(state.trip).toHaveLength(TRIP_MAX);
     insertOnWay(`c${TRIP_MAX}`); // 第 11 个候选，行程已满
     expect(state.trip).toHaveLength(TRIP_MAX); // 未被插入
-    expect(document.getElementById("toast")!.textContent).toBe(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`);
+    expect(document.getElementById("toastMsg")!.textContent).toBe(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`);
   });
 });

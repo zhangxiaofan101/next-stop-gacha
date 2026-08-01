@@ -2,7 +2,20 @@
 import type { Destination } from "../logic/types";
 import { byId, state } from "../store";
 import { $ } from "./dom";
+import { ICONS } from "./icons";
 import { toast } from "./toast";
+
+// M86：对比页补链——「比完选定」是决策场却一直没有入行程动作，「扭蛋→蛋堆→对比→选定」漏斗
+// 最后一步断路（design M86 病灶④）。文案与已装入判定同全站其余三处入口统一：线路卡走
+// data-addroute（判定＝存在该线路 r 标记的行程条目），城市卡走既有 data-trip 委托。
+function tripActionHTML(d: Destination): string {
+  if (d.stops) {
+    const done = state.trip.some(t => t.r === d.id);
+    return `<button class="btn ${done ? "ghost" : ""}" data-addroute="${d.id}">${done ? "已装入 ✓（点击整条移除）" : `🎫 整条装入行程（${d.stops.length} 站）`}</button>`;
+  }
+  const done = state.trip.some(t => t.id === d.id);
+  return `<button class="btn ${done ? "ghost" : ""}" data-trip="${d.id}">${done ? "✓ 已在行程" : `${ICONS.suitcase} 加入行程`}</button>`;
+}
 
 export function openCompare() {
   const ds = state.cmp.map(byId) as Destination[];
@@ -24,6 +37,7 @@ export function openCompare() {
     ${row("住宿", d => d.hotel || "—")}
     ${row("特色体验", d => d.highlights.map(h => "· " + h).join("<br>"))}
     ${row("方案", d => d.plans.map(p => `<b>${p.days}天 ${p.title}</b>：${p.route}`).join("<br>"))}
+    ${row("装进行程", tripActionHTML)}
   </table>`;
   $("cmpOverlay").classList.add("show");
 }

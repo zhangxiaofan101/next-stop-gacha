@@ -44,7 +44,7 @@ describe("M22：出发地切换（UI）", () => {
   beforeEach(() => {
     stubLocalStorage();
     document.body.innerHTML = `<button id="originPill" style="display:none"></button><div id="originBody"></div>
-      <div id="toast" style="display:none"><span id="toastMsg"></span></div>`;
+      <div id="toast" style="display:none"><span id="toastMsg"></span><button id="toastAction" hidden></button></div>`;
     setData([
       mkCity({ id: "beijing", name: "北京", coords: [39.9, 116.4], region: "华北", transit: "高铁约4.5h", difficulty: "直达" }),
       mkCity({ id: "shanghai", name: "上海", coords: [31.23, 121.47], region: "江浙沪", transit: "本地出发·市内交通", difficulty: "直达" }),

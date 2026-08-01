@@ -61,7 +61,7 @@ describe("F78：分享路书按分享者出发地展示（接收端 checkShareCo
   beforeEach(() => {
     stubLocalStorage();
     document.body.innerHTML = `<button id="originPill" style="display:none"></button>
-      <div id="toast" style="display:none"><span id="toastMsg"></span></div>`;
+      <div id="toast" style="display:none"><span id="toastMsg"></span><button id="toastAction" hidden></button></div>`;
     setData([
       mkCity({ id: "beijing", name: "北京", coords: [39.9, 116.4], region: "华北" }),
       mkCity({ id: "shanghai", name: "上海", coords: [31.23, 121.47], region: "江浙沪" }),

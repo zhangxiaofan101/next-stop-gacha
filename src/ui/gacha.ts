@@ -8,6 +8,7 @@ import { getOrigin } from "../logic/origin";
 import type { Destination } from "../logic/types";
 import { cardPhotosEnabled, destPhotoSrc, regionHeaderSrc } from "../skins/illustrations";
 import { CUR_SEASON, DATA, saveLS, state } from "../store";
+import { addRouteToTrip, toggleTrip } from "./actions";
 import { openCompare } from "./compare";
 import { $ } from "./dom";
 import { confetti } from "./effects";
@@ -47,6 +48,17 @@ let pile: Destination[] = [];
 const pileIds = () => new Set(pile.map(d => d.id));
 const currentPick = (): Destination | null => (pile.length ? pile[pile.length - 1] : null);
 export const getLastPick = () => currentPick();
+
+// M86：揭晓卡「加入行程」按钮的诚实 toggle（承接退役的 gTripBtn 逻辑，原在 events.ts 的
+// gachaAddTrip 只会加不会减）。toggleTrip/addRouteToTrip 本身已是 toggle，这里只需按卡种分流，
+// 再补一次 renderReveal()——toggleTrip/addRouteToTrip 触发的全局 render() 不知道有揭晓卡这回事，
+// 不主动刷新的话按钮文案/ghost 态不会跟着点击结果变。
+export function gachaToggleTrip() {
+  const p = currentPick();
+  if (!p) return;
+  if (p.stops) addRouteToTrip(p.id); else toggleTrip(p.id);
+  renderReveal();
+}
 
 // 测试辅助：重置会话态（happy-dom 里模块状态跨用例存活，beforeEach 用；下划线前缀＝非生产入口）
 export function _resetGachaSession() { pile = []; cmpPoolOverride = null; rolling = false; }
@@ -169,14 +181,22 @@ function renderStage() {
 }
 
 // —— 揭晓：轻量开壳卡（大票券退役，完整信息进详情）
+// M86：诚实 toggle——城市卡「＋加入行程」↔「已在行程 ✓」，线路卡与详情/卡片面同款文案与
+// 已装入态（ghost 样式＝已完成，退居次要，同 .big-btn.ghost 语言）。
 function renderReveal() {
   const el = $("gReveal");
   const d = currentPick();
   if (!d) { el.className = "g-reveal"; el.innerHTML = ""; return; }
   const canRoll = pile.length < CMP_MAX && drawablePool().length > 0;
   const tripBtn = d.stops
-    ? `<button class="btn" data-gact="trip">整条装入</button>`
-    : `<button class="btn" data-gact="trip">＋加入行程</button>`;
+    ? (() => {
+        const done = state.trip.some(t => t.r === d.id);
+        return `<button class="btn ${done ? "ghost" : ""}" data-gact="trip">${done ? "已装入 ✓（点击整条移除）" : `🎫 整条装入行程（${d.stops!.length} 站）`}</button>`;
+      })()
+    : (() => {
+        const done = state.trip.some(t => t.id === d.id);
+        return `<button class="btn ${done ? "ghost" : ""}" data-gact="trip">${done ? "已在行程 ✓" : "＋加入行程"}</button>`;
+      })();
   el.className = "g-reveal show";
   el.innerHTML =
     `<div class="gr-shell">${shellBadgeSVG()}${photoHTML(d, "gr-photo")}</div>` +

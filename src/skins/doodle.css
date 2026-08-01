@@ -123,6 +123,7 @@
   --ink-rgb: 43, 37, 32;
   --glow-sun-rgb: 217, 165, 69;
   --shine-rgb: 253, 248, 236;
+  --paper-rgb: 246, 238, 219; /* M86：--paper 的 rgb 三元组，详情动作行半透明纸底用（doodle 的 shine 另有独立取值，与 paper 不同，不能复用） */
   --blue-rgb: 91, 143, 192;
   --blue-deep-rgb: 61, 109, 156;
   --orange-rgb: 196, 127, 61;
