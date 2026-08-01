@@ -18,10 +18,6 @@
 
 ## Active findings
 
-> Confirmation baseline: `f9539ef`（`origin/main`），Codex/GPT reviewer，2026-08-01。确认范围 `c039120..f9539ef`。**F94/F96 已确认并按协议删除；F95 仍有容量上限边界未修复。当前有 1 个 Active finding，八期 review gate 未通过，九期暂不可开工。**
+> Confirmation round TWO baseline: `9db953d`，Codex/GPT reviewer，2026-08-01；确认修复提交 `c65e486`。**F95 已确认并按协议删除。当前无 Active findings，八期 review gate 通过、可封板。**
 >
-> 独立证据：F94 的行程单单删/清空现分别复用 `toggleTrip()` / `clearTrip()`，actions 在行程 overlay 打开时统一刷新，删除、清空及各自撤销均同步列表；F96 的 body corpus 与 `84a8abe` 逐字节相同、`body.woff2=705044B`，title corpus 相对该基线只新增真实上屏的 `《` / `》` 两个字符、`title.woff2=726772B`（+172B）。定向回归 28/28；`bun run verify` 全绿（前端 393/393 + workerd 52/52）；`bun run test:visual` 24/24；`git diff --check c039120..f9539ef` 通过；main↔origin 为 0/0。
-
-### F95 — [P2] 满容量清空后撤销仍会覆盖窗口内的新选择
-
-`src/ui/actions.ts:57,65` 虽已改为“快照缺项在前 + 当前项在后”的合并，但随后 `.slice(0, CMP_MAX/TRIP_MAX)` 从前截断，容量冲突时仍保旧丢新。独立复现：对比池清空前满 6 项，清空后加入全新的第 7 个 id，再撤销，结果只剩旧 6 项；行程满 10 站时同构，窗口内新站也被丢弃。现有两条 F95 回归只覆盖未满容量和“同 id 重加”，没有覆盖这个分支。既然合并方向已拍定为“已在的以当前为准”，容量不足时也应优先保留当前项，只从待恢复的快照项中裁掉超额部分；补 cmp/trip 两个满容量回归后再确认。
+> 独立证据：`clearCmp()` / `clearTrip()` 均先按剩余容量裁快照侧、再完整拼接当前侧，满 6/10 时当前新选择不丢；`toggleTrip()` / `removeRouteFromTrip()` 撤销均以 `< TRIP_MAX` 守门，容量满即跳过恢复。新增两文件定向回归 28/28；另以不落盘 happy-dom 场景验证整条移除后窗口内填满 10 站再撤销仍为 10 站、当前项全保留。`bun run verify` 实跑：lint:agent、tsc、前端 396/396 通过；workerd 在本受限环境因 `127.0.0.1 listen EPERM` 未能启动（非测试断言失败），且 `9db953d..c65e486` 未改后端、workerd 测试、配置或依赖，基线轮已独立确认 workerd 52/52。`src/` 除基线既存且本轮未改的生成 corpus 外不含「灌」；四份 font/corpus Git blob 两端完全相同，零重建；`git diff --check 9db953d..c65e486` 通过；main↔origin 为 0/0。

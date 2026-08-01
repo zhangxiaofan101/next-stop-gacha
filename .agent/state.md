@@ -18,6 +18,8 @@
 
 **八期 M86 落地（2026-08-01）**：gate 放行当日 mock 终审（D1–D4）→ sonnet 委派实现 → fable 评审加固两处 → verify 全绿（前端 388 + workerd 52）+ 视觉 24/24（detail×4 基线按预期重建）→ 真机 smoke 全通，全站行程动作规整上线（诚实 toggle/dock 计数拆区/撤销 toast/详情恒定底栏/对比页补链）。八期实现完毕；跨家族 review 同日实跑（codex，F94–F96 三个 P2）并当日修复+5 钉（见 review backlog），待 codex 确认轮通过后八期封板、九期开工。 [cc]
 
+**八期 review 确认轮二（2026-08-01）**：Codex/GPT reviewer 以 `9db953d` 为 confirmation baseline，独立确认 `c65e486` 的 F95 容量边界补修：清空撤销只裁快照侧、当前项全保留，单删/整条移除撤销在满 10 站时跳过恢复；F95 已从 review.md 删除，当前无 Active findings，八期 review gate 通过、可封板。定向回归两文件 28/28；另以不落盘 happy-dom 场景验证整条移除后窗口内填满 10 站再撤销仍不超限。`bun run verify` 实跑至 lint:agent、tsc、前端 396/396 全过，workerd 因本受限环境禁止 `127.0.0.1` 监听（`EPERM`）未启动、非断言失败；本轮未改后端/workerd 测试/配置/依赖，基线轮已由本 reviewer 独立确认 52/52。`src/` 除基线既存且未改的生成 corpus 外不含「灌」，四份 font/corpus blob 两端完全相同、零重建；`git diff --check 9db953d..c65e486` 通过，main↔origin 0/0。 [codex]
+
 ## ✅ Implemented
 
 （一期–七期已封板 → 见 🪦 墓碑；七期全部条目与 Verified 证据明细在 git 历史——封板前版本至 e92507f。新编号自 M87 起。） [cc]
