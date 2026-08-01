@@ -18,18 +18,10 @@
 
 ## Active findings
 
-> Review baseline: `e52abce`（`origin/main`），Codex/GPT reviewer，2026-08-01。审阅范围 `84a8abe..e52abce`（M86 八期全部内容）。**当前有 3 个 Active findings；八期 review gate 未通过，九期暂不可开工。**
+> Confirmation baseline: `f9539ef`（`origin/main`），Codex/GPT reviewer，2026-08-01。确认范围 `c039120..f9539ef`。**F94/F96 已确认并按协议删除；F95 仍有容量上限边界未修复。当前有 1 个 Active finding，八期 review gate 未通过，九期暂不可开工。**
 >
-> 已确认部分：卡片/详情/揭晓卡/线路/对比页的诚实 toggle、线路仅按 `r` 标记整条移除、撤销查重、详情同卡重渲染保滚动位、dock 计数/chip 拆区/清空热区、详情恒定底栏均与 M86 spec 对齐；视觉变更仅 detail×4，dock 快照盲区确为既存测试缺口而非本批引入。独立实跑：M86 定向回归 37/37；`bun run verify` 全绿（前端 388/388 + workerd 52/52）；`bun run test:visual` 24/24；`git diff --check 84a8abe..e52abce` 通过；main↔origin 为 0/0。
+> 独立证据：F94 的行程单单删/清空现分别复用 `toggleTrip()` / `clearTrip()`，actions 在行程 overlay 打开时统一刷新，删除、清空及各自撤销均同步列表；F96 的 body corpus 与 `84a8abe` 逐字节相同、`body.woff2=705044B`，title corpus 相对该基线只新增真实上屏的 `《` / `》` 两个字符、`title.woff2=726772B`（+172B）。定向回归 28/28；`bun run verify` 全绿（前端 393/393 + workerd 52/52）；`bun run test:visual` 24/24；`git diff --check c039120..f9539ef` 通过；main↔origin 为 0/0。
 
-### F94 — [P2] 行程单内的删除/清空仍绕过 M86 撤销体系
+### F95 — [P2] 满容量清空后撤销仍会覆盖窗口内的新选择
 
-`src/ui/events.ts:65-66,144` 的 `data-del` 与 `clearTripBtn` 仍直接改写 `state.trip`，只保存并重渲染；因此用户在行程单里点单站 `✕` 或「清空行程」时，没有 M86 spec 要求的撤销 toast。相同数据若从 dock/卡片移除或从 dock 清空则可撤销，形成同一动作在不同入口语义不一致；尤其清空会不可逆丢失多站的 `days` / `r` 信息。应让这两个入口复用 `toggleTrip()` / `clearTrip()`（并在行程 overlay 仍打开时补 `renderTrip()`），加入事件级回归钉住单删和清空都可撤销原顺序及元数据。
-
-### F95 — [P2] 清空对比后的撤销会覆盖窗口内的新选择
-
-`src/ui/actions.ts:43-47` 的撤销回调无条件执行 `state.cmp = snapshot`。复现：对比池有 A/B → 清空 → 在 4 秒 toast 存活期内从卡片加入 C（`toggleCmp()` 不发新 toast，旧「撤销」仍可点）→ 点撤销；结果变为 A/B，刚加入的 C 被静默丢弃。单级撤销不应回滚撤销动作之后的新意图。应在任何后续对比变更时使旧撤销失效，或恢复时与当前状态按唯一性及 `CMP_MAX` 规则合并，并补“clear → add → undo”回归。
-
-### F96 — [P2] 注释/测试用字被打进字体二进制，违反已定语料纪律
-
-M86 新增注释和测试描述中的「兄/弟/罩/遮/抬/摸/堵/斗/杂/梳/灶/拷」等不上屏字符进入 `body.corpus.txt` / `title.corpus.txt`，随后两份 woff2 都被重建（body `705044→705432`，title `726600→732056`）。这正是 `design.md` 字体不变式禁止的形状：扫描整份源文件时，注释撞字应换词，不能为永不上屏的字扩字体产物。应改写这些注释/测试描述后重新生成语料与子集；真正会上屏的新文案字符（如整条移出 toast 的书名号）可按需保留，并确认最终二进制只为可见文案变化。
+`src/ui/actions.ts:57,65` 虽已改为“快照缺项在前 + 当前项在后”的合并，但随后 `.slice(0, CMP_MAX/TRIP_MAX)` 从前截断，容量冲突时仍保旧丢新。独立复现：对比池清空前满 6 项，清空后加入全新的第 7 个 id，再撤销，结果只剩旧 6 项；行程满 10 站时同构，窗口内新站也被丢弃。现有两条 F95 回归只覆盖未满容量和“同 id 重加”，没有覆盖这个分支。既然合并方向已拍定为“已在的以当前为准”，容量不足时也应优先保留当前项，只从待恢复的快照项中裁掉超额部分；补 cmp/trip 两个满容量回归后再确认。
