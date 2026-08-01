@@ -144,6 +144,28 @@ describe("M86 dock 清空撤销（clearCmp/clearTrip，事后可撤销、无确�
     // 查重方向同 toggleTrip 撤销守卫：已在的以当前为准（保留窗口内重加的 5 天），快照只补回缺的 b
   });
 
+  it("F95 满容量边界（对比）：撤销裁的是快照超额部分，窗口内新选择必须保留", () => {
+    // CMP_MAX=6：清空前满 6，窗口内加入全新第 7 个 id，撤销后仍是 6——新选择在、快照最后一项被裁
+    setData(["a", "b", "c", "d", "e", "f", "n"].map(id => mkCity({ id, name: id })));
+    state.cmp = ["a", "b", "c", "d", "e", "f"];
+    clearCmp();
+    state.cmp.push("n");
+    (document.getElementById("toastAction") as HTMLButtonElement).click();
+    expect(state.cmp).toEqual(["a", "b", "c", "d", "e", "n"]);
+  });
+
+  it("F95 满容量边界（行程）：同构，快照侧裁超额、窗口内新站保留", () => {
+    // TRIP_MAX=10：清空前满 10，窗口内加入全新一站，撤销后 10 站——新站在、快照最后一站被裁
+    const ids = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "n"];
+    setData(ids.map(id => mkCity({ id, name: id })));
+    state.trip = ids.slice(0, 10).map(id => ({ id, days: 2 }));
+    clearTrip();
+    state.trip.push({ id: "n", days: 3 });
+    (document.getElementById("toastAction") as HTMLButtonElement).click();
+    expect(state.trip.map(t => t.id)).toEqual(["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "n"]);
+    expect(state.trip.find(t => t.id === "n")!.days).toBe(3);
+  });
+
   it("空篮子点清空：静默无 toast（没什么可清的）", () => {
     clearTrip();
     expect(document.getElementById("toast")!.style.display).toBe("none");

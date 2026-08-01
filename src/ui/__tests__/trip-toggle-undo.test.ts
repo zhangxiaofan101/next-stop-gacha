@@ -76,6 +76,18 @@ describe("M86 toggleTrip 移除 + 撤销", () => {
     expect(state.trip.find(t => t.id === "b")!.days).toBe(4); // 保留后加的那条，撤销视为无事可做
   });
 
+  it("单删撤销的容量守卫：撤销窗口内行程被别的路径填满，撤销不产生超上限行程", () => {
+    // TRIP_MAX=10：删一站（余 2），窗口内被加满到 10，撤销时容量已满——放弃恢复，不出现第 11 站
+    toggleTrip("b");
+    const ids = ["x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8"];
+    setData([mkCity({ id: "a", name: "杭州" }), mkCity({ id: "b", name: "苏州" }), mkCity({ id: "c", name: "南京" }), ...ids.map(id => mkCity({ id, name: id }))]);
+    ids.forEach(id => state.trip.push({ id, days: 1 }));
+    expect(state.trip).toHaveLength(10);
+    clickToastAction();
+    expect(state.trip).toHaveLength(10); // 仍是上限，b 未被硬塞回来
+    expect(state.trip.some(t => t.id === "b")).toBe(false);
+  });
+
   it("加入城市站：toast 报第几站，带「查看」action，点击后关掉当前弹层并打开行程单", () => {
     state.trip = [];
     document.getElementById("tripOverlay")!.classList.remove("show");

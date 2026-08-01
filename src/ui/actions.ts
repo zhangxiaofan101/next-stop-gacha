@@ -48,13 +48,14 @@ export function toggleCmp(id: string) {
 // 可撤销 toast 兜底；快照式单级撤销：清空前把整份数组浅复制下来。空篮子不弹 toast（没什么可清
 // 的，静默返回）。F95：撤销窗口内可能已有新选择（toggleCmp 加入不弹 toast、旧「撤销」仍可点），
 // 恢复不可整份盖掉当前状态——快照里尚未被加回的在前恢复、当前已有的（窗口内新加/重加）原样
-// 保留在后：查重方向同 toggleTrip 撤销守卫，「已在的以当前为准」；上限规则照旧。
+// 保留在后：查重方向同 toggleTrip 撤销守卫，「已在的以当前为准」。容量上限同一方向——合并超出
+// 上限时裁的是快照侧的超额部分，当前项一个不丢（从前 slice 会把排在后面的新选择裁掉，恰好反了）。
 export function clearCmp() {
   if (!state.cmp.length) return;
   const snapshot = state.cmp.slice(), n = snapshot.length;
   state.cmp = []; saveLS(); render();
   toast(`对比已清空（${n} 个）`, {
-    action: { label: "撤销", fn: () => { state.cmp = [...snapshot.filter(id => !state.cmp.includes(id)), ...state.cmp].slice(0, CMP_MAX); saveLS(); render(); } },
+    action: { label: "撤销", fn: () => { state.cmp = [...snapshot.filter(id => !state.cmp.includes(id)).slice(0, Math.max(0, CMP_MAX - state.cmp.length)), ...state.cmp]; saveLS(); render(); } },
   });
 }
 export function clearTrip() {
@@ -62,7 +63,7 @@ export function clearTrip() {
   const snapshot = state.trip.slice(), n = snapshot.length;
   state.trip = []; saveLS(); render(); refreshTripIfOpen();
   toast(`行程已清空（${n} 站）`, {
-    action: { label: "撤销", fn: () => { state.trip = [...snapshot.filter(s => !state.trip.some(t => t.id === s.id)), ...state.trip].slice(0, TRIP_MAX); saveLS(); render(); refreshTripIfOpen(); } },
+    action: { label: "撤销", fn: () => { state.trip = [...snapshot.filter(s => !state.trip.some(t => t.id === s.id)).slice(0, Math.max(0, TRIP_MAX - state.trip.length)), ...state.trip]; saveLS(); render(); refreshTripIfOpen(); } },
   });
 }
 // M86：诚实 toggle + 单级撤销。移除分支撤销要恢复被删条目的原 index/days/r——先取出条目和它的
@@ -75,10 +76,10 @@ export function toggleTrip(id: string) {
     state.trip.splice(i, 1);
     saveLS(); render(); refreshTripIfOpen();
     // 撤销先查重：撤销窗口内该站可能已被别的路径加回（trip 全链路依赖「每站唯一」，重复条目会
-    // 直接污染路书/顺路排序），已在则撤销视为无事可做。toast 单例会被后续动作顶掉只是现状巧合，
-    // 不能当保护依赖。
+    // 直接污染路书/顺路排序），已在则撤销视为无事可做；容量守卫同理，撤销不产生超上限行程。
+    // toast 单例会被后续动作顶掉只是现状巧合，不能当保护依赖。
     toast(`已移出行程：${name}（剩 ${state.trip.length} 站）`, {
-      action: { label: "撤销", fn: () => { if (!state.trip.some(t => t.id === removed.id)) state.trip.splice(i, 0, removed); saveLS(); render(); refreshTripIfOpen(); } },
+      action: { label: "撤销", fn: () => { if (!state.trip.some(t => t.id === removed.id) && state.trip.length < TRIP_MAX) state.trip.splice(i, 0, removed); saveLS(); render(); refreshTripIfOpen(); } },
     });
   } else {
     if (state.trip.length >= TRIP_MAX) { toast(`一次行程最多 ${TRIP_MAX} 站，贪多嚼不烂～`); return; }
@@ -119,8 +120,9 @@ export function removeRouteFromTrip(routeId: string) {
     action: {
       label: "撤销",
       fn: () => {
-        // 同 toggleTrip 撤销的查重守卫：逐条恢复时跳过已被加回的站，防重复条目
-        removed.forEach(({ item, index }) => { if (!state.trip.some(t => t.id === item.id)) state.trip.splice(index, 0, item); });
+        // 同 toggleTrip 撤销的查重守卫：逐条恢复时跳过已被加回的站，防重复条目；容量满即停，
+        // 撤销不产生超上限行程
+        removed.forEach(({ item, index }) => { if (!state.trip.some(t => t.id === item.id) && state.trip.length < TRIP_MAX) state.trip.splice(index, 0, item); });
         saveLS(); render(); refreshTripIfOpen();
       },
     },
