@@ -7,7 +7,7 @@
 // 拿到自己的域名之后 dist/ 就是 host 根，没有可削的；这批断言换成「原样交给 ASSETS」，
 // 另加一组旧地址 308 的断言。
 import { expect, test } from "vitest";
-import { handleRequest, legacyRedirect, LEGACY_PREFIX, NEW_ORIGIN } from "../cloudflare/worker.mjs";
+import worker, { handleRequest, harden, legacyRedirect, LEGACY_PREFIX, NEW_ORIGIN } from "../cloudflare/worker.mjs";
 
 const ORIGIN = "https://travel.xiaofan.me";
 
@@ -187,4 +187,40 @@ test("preserves asset status and body while overriding cache-control", async () 
   expect(response.headers.get("cache-control")).toBe("public, max-age=0, must-revalidate");
   expect(response.headers.get("x-content-owner")).toBe("next-stop-gacha-repo");
   expect(await response.text()).toBe("missing");
+});
+
+// ── 安全响应头（2026-08-03 安全审查）──────────────────────────────────────
+//
+// 走 default export（真正的入口），不走 handleRequest：头包在最外层，只测内层
+// 等于没测。
+
+test("安全头：静态资产三个头齐全", async () => {
+  const { env } = assetEnv();
+  const res = await worker.fetch(new Request(`${ORIGIN}/`), env);
+  expect(res.headers.get("x-content-type-options")).toBe("nosniff");
+  expect(res.headers.get("referrer-policy")).toBe("strict-origin-when-cross-origin");
+  expect(res.headers.get("x-frame-options")).toBe("SAMEORIGIN");
+});
+
+test("安全头：旧地址 308 那条出口也带上", async () => {
+  const { env } = assetEnv();
+  const res = await worker.fetch(
+    new Request(`${LEGACY_HOST}${LEGACY_PREFIX}/assets/main-a1b2c3d4.js`),
+    env,
+  );
+  expect(res.status).toBe(308);
+  expect(res.headers.get("x-content-type-options")).toBe("nosniff");
+});
+
+// 反例：已有的更严格的头不能被降级。
+test("安全头：只补不覆盖", () => {
+  const res = harden(new Response("x", { headers: { "referrer-policy": "no-referrer" } }));
+  expect(res.headers.get("referrer-policy")).toBe("no-referrer");
+  expect(res.headers.get("x-content-type-options")).toBe("nosniff");
+});
+
+test("安全头：空身响应（304）能安全通过", () => {
+  const res = harden(new Response(null, { status: 304 }));
+  expect(res.status).toBe(304);
+  expect(res.headers.get("x-content-type-options")).toBe("nosniff");
 });

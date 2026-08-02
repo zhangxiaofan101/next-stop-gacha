@@ -63,5 +63,33 @@ export async function handleRequest(request, env) {
 }
 
 export default {
-  fetch: handleRequest,
+  async fetch(request, env, ctx) {
+    return harden(await handleRequest(request, env, ctx));
+  },
 };
+
+// ── 安全响应头 ────────────────────────────────────────────────────────────
+//
+// 包在最外层而不是逐个 return 点：这个 Worker 的出口有旧地址 308、搬家页、六条
+// /api/*、以及静态资产，逐点加必然漏，而漏掉哪条不会有任何人发现。
+//
+// **只补不覆盖**（`if (!has)`）：搬家页自己设过更严的 `no-store` 一类，那些得活下来。
+//
+// 这里没有 CSP：写一条真正管用的要按站点逐条盘资源（内联脚本、SW、地图 SVG、
+// open-meteo 的 connect-src），是独立一件事，不该顺手塞进这次改动。HSTS 同理，
+// 那是 Cloudflare zone 设置里的开关，写在 Worker 里只覆盖这一个 Worker。
+const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "x-frame-options": "SAMEORIGIN",
+};
+
+export function harden(response) {
+  // `new Response(body, response)` 是 Cloudflare 文档的克隆写法：status / statusText /
+  // headers 照抄。204/304 的 body 本就是 null，不会撞上"空身状态码不许带 body"的检查。
+  const cloned = new Response(response.body, response);
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    if (!cloned.headers.has(name)) cloned.headers.set(name, value);
+  }
+  return cloned;
+}

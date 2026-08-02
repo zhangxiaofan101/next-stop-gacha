@@ -14,6 +14,8 @@
 
 **维护（2026-08-03）· 叙述性文件去旧域名标识 [R1 · S1]**：本仓库是 public 的，而 README / 测试 / goal / state 里散着 6 处旧域名字面量——搜到本仓库的人可以零成本地把个人侧与另一侧接起来，而禁词扫描（orbit 的 `check:leaks`）只扫 orbit 自己的产物，看不见这种 join。README 两处改叙述、`tests/cloudflare-worker.test.mjs` 的 `LEGACY_HOST` 换成 `legacy.example.com`（`legacyRedirect` 只看 pathname，换占位主机名反而加强了「对 host 无关」这条断言）、goal/state 各一处改代称 `<旧域名>` 并在 goal 末尾注明原因。**`wrangler.jsonc` 的 Route 保持真值不动**——那是承接旧链接 308 的唯一依据，删了老链接立刻全断。Verified：`bun run verify` 全绿（含 workerd 52 例，旧地址 308 那组照常通过）。 [cc]
 
+**维护（2026-08-03）· 安全响应头 [R1 · S1]**：同批安全审查，全线四个 Worker 的响应都只带 Cloudflare 自己的头，连 `nosniff` 都没有。在 default export 外面加一层 `harden()`，补 `x-content-type-options` / `referrer-policy` / `x-frame-options` 三个头。包在最外层而不是逐个 return 点——本 Worker 的出口有旧地址 308、搬家页、六条 `/api/*`、静态资产，逐点加必然漏一条。只补不覆盖（搬家页自己的 `no-store` 等更严的值要活下来，有反例测试）。刻意没做 CSP（要按站点盘清内联脚本 / SW / open-meteo 的 connect-src，独立一件事）与 HSTS（属 Cloudflare zone 设置）。Verified：`bun run verify` 全绿，workerd 56 例（新增 4）。 [cc]
+
 （一期–八期已封板 → 见 🪦 墓碑；八期 M86 明细与 Verified 证据在 git 历史——封板前版本至 e7bd901。新编号自 M90 起。） [cc]
 
 ## 🔜 Next batch（九期，2026-08-01 顺序拍板：M85 → M89 → M72）
