@@ -4,13 +4,15 @@
 
 ## 🎯 Status snapshot
 
-**线上**：`travel.xiaofan.me`（2026-07-26 起，见 M82；旧地址 `lab.medspiral.com/next-stop-gacha/` 只余搬家页与 308）——Vite+TS 工程化版，312 城 + 53 线（365 条）全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；出发地三视角（上海基座/北京/广州，全站数据视角 + 距离排序）；后端短链分享（KV）+ 同步码云同步（Durable Object）；主题皮肤机制 + 原味（cream，原名奶油）/山水/青花/涂鸦四肤（默认 `ink`）；目的地插画共享集 312/312；PWA 可安装+SW 离线（应用壳与全量数据预缓存、插画看过即缓存、联网永远最新版）。 [cc][codex]
+**线上**：`travel.xiaofan.me`（2026-07-26 起，见 M82；旧地址 `<旧域名>/next-stop-gacha/` 只余搬家页与 308，代称原因见 goal.md 末节）——Vite+TS 工程化版，312 城 + 53 线（365 条）全链路（筛选/扭蛋/对比/行程/路书/足迹地图/天气）；出发地三视角（上海基座/北京/广州，全站数据视角 + 距离排序）；后端短链分享（KV）+ 同步码云同步（Durable Object）；主题皮肤机制 + 原味（cream，原名奶油）/山水/青花/涂鸦四肤（默认 `ink`）；目的地插画共享集 312/312；PWA 可安装+SW 离线（应用壳与全量数据预缓存、插画看过即缓存、联网永远最新版）。 [cc][codex]
 
 **封板（2026-08-01）**：八期（M86）封板（见 🪦；一至七期先前已封，核验与拍板记录见 git 历史）。封板核验：review.md 无 Active findings（八期轮 F94–F96 经两轮修复+确认轮全部关闭，确认轮二 [codex] 记录见 git 历史至 e7bd901）；封板会话实跑 `bun run verify` 全绿（lint:agent + tsc + 前端 396 + workerd 52）、`bun run test:visual` 24/24、工作区除封板改动外干净、main↔origin 同步；M86 机制已收编 design 正文（决策机制 · 行程动作与撤销）。 [cc]
 
 **九期（2026-08-01 顺序拍板）**：M85 远方锚点 → M89 躺平扭蛋 → M72 装饰件体系——共享半径圈候选机制的两件连着做、装饰面收尾（同「先交互后装饰」先例）；三件均 🌫️、开工先出 mock 拍板。新编号自 M90 起。 [cc]
 
 ## ✅ Implemented
+
+**维护（2026-08-03）· 叙述性文件去旧域名标识 [R1 · S1]**：本仓库是 public 的，而 README / 测试 / goal / state 里散着 6 处旧域名字面量——搜到本仓库的人可以零成本地把个人侧与另一侧接起来，而禁词扫描（orbit 的 `check:leaks`）只扫 orbit 自己的产物，看不见这种 join。README 两处改叙述、`tests/cloudflare-worker.test.mjs` 的 `LEGACY_HOST` 换成 `legacy.example.com`（`legacyRedirect` 只看 pathname，换占位主机名反而加强了「对 host 无关」这条断言）、goal/state 各一处改代称 `<旧域名>` 并在 goal 末尾注明原因。**`wrangler.jsonc` 的 Route 保持真值不动**——那是承接旧链接 308 的唯一依据，删了老链接立刻全断。Verified：`bun run verify` 全绿（含 workerd 52 例，旧地址 308 那组照常通过）。 [cc]
 
 （一期–八期已封板 → 见 🪦 墓碑；八期 M86 明细与 Verified 证据在 git 历史——封板前版本至 e7bd901。新编号自 M90 起。） [cc]
 

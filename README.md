@@ -4,7 +4,7 @@
 
 > 给选择困难症准备的中国旅行目的地选择器：312 个目的地、53 条多城联游线路。筛选、比较、扭蛋决定下一站，再把多站串成可带走的路书。
 
-线上入口：[travel.xiaofan.me](https://travel.xiaofan.me/)（旧地址 `lab.medspiral.com/next-stop-gacha/` 已 308 重定向至此）
+线上入口：[travel.xiaofan.me](https://travel.xiaofan.me/)（此前寄居在另一个域名的 `/next-stop-gacha/` 子路径下，旧地址已 308 重定向至此）
 
 ## 可以做什么
 
@@ -67,7 +67,7 @@ bun run test:visual         # 皮肤 × 视图视觉回归测试
 
 部署在 Cloudflare 免费额度内：[`wrangler.jsonc`](wrangler.jsonc) 会先执行数据构建与 `bun run build`，再由 [`cloudflare/worker.mjs`](cloudflare/worker.mjs) 服务 `/next-stop-gacha/` 路径。`/api/*` 提供 KV 短链分享，以及 Durable Object 支持的同步码与限流；后端不可用时，筛选、扭蛋、行程、路书、地图等核心本地能力仍可使用。
 
-该 Worker 只应绑定 `lab.medspiral.com/next-stop-gacha/*`，不要绑定整个 `lab.medspiral.com` 域名，以免接管 Lab 首页。
+承接旧地址的那条 Route 只应绑定旧域名的 `/next-stop-gacha/*` 子路径，不要绑定整个旧域名，以免接管那边的首页。实际绑定值见 [`wrangler.jsonc`](wrangler.jsonc)。
 
 ## 参与协作
 

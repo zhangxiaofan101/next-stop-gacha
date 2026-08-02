@@ -10,7 +10,13 @@ import { expect, test } from "vitest";
 import { handleRequest, legacyRedirect, LEGACY_PREFIX, NEW_ORIGIN } from "../cloudflare/worker.mjs";
 
 const ORIGIN = "https://travel.xiaofan.me";
-const LEGACY_HOST = "https://lab.medspiral.com";
+
+// 旧域名的真实值只存在于 wrangler.jsonc 的 Route 里，不进测试文件（隔离不变量，
+// 见 orbit 仓库 .agent/design.md）。这里用占位主机名是**加强**而不是削弱断言：
+// legacyRedirect 只看 pathname，对 host 一无所知，所以任意 host 都该得到同样的
+// 308 与同样的目标——换成占位值仍然全绿，正好证明了这条无关性。
+// 不读环境变量：这些用例跑在 workerd 沙箱里，`process` 不保证存在（见文件头）。
+const LEGACY_HOST = "https://legacy.example.com";
 
 function assetEnv(handler) {
   const calls = [];
